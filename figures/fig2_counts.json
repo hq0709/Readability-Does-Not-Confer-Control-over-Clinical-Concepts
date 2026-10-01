@@ -1,0 +1,44 @@
+{
+ "nih": {
+  "readable": [
+   74,
+   150
+  ],
+  "answerable": [
+   110,
+   150
+  ],
+  "owned": [
+   13,
+   150
+  ]
+ },
+ "chexpert": {
+  "readable": [
+   104,
+   150
+  ],
+  "answerable": [
+   89,
+   150
+  ],
+  "owned": [
+   25,
+   150
+  ]
+ },
+ "coco": {
+  "readable": [
+   90,
+   150
+  ],
+  "answerable": [
+   116,
+   150
+  ],
+  "owned": [
+   113,
+   150
+  ]
+ }
+}

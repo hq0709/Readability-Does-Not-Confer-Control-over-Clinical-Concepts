@@ -1,0 +1,29 @@
+\begin{table}[htbp]
+\centering
+\setlength{\tabcolsep}{5pt}
+\caption{\textbf{Ownership under the answer direction.} Per block, on the primary template: concepts owned by the label direction $\hat w_q$ and by the answer direction $a_q$, split into kept (both), rescued ($a_q$ only), and lost ($\hat w_q$ only); cells where the write of $a_q$ beats the strongest logistic competitor; and medians over the six questions of the own write of $a_q$, $W^a_{q,q}$, and of the ridge fit's $R^2$.}
+\label{tab:cf-ansdir}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llrrrrrrrr}
+\toprule
+\multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{5}{c}{owned concepts} & \multirow{2}{*}{$a_q>$ comp.} & \multicolumn{2}{c}{median}\\
+\cmidrule(lr){3-7}\cmidrule(lr){9-10}
+&  & \multicolumn{1}{c}{$\hat w_q$} & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{kept} & \multicolumn{1}{c}{rescued} & \multicolumn{1}{c}{lost} &  & \multicolumn{1}{c}{$W^a_{q,q}$} & \multicolumn{1}{c}{$R^2$}\\
+\midrule
+Qwen2.5-VL-7B & NIH ChestX-ray14 & 0/6 & 3/6 & 0 & 3 & 0 & 6/6 & 0.61 & 0.54 \\
+Qwen2.5-VL-7B & CheXpert Plus & 0/6 & 6/6 & 0 & 6 & 0 & 6/6 & 0.55 & 0.48 \\
+Qwen2.5-VL-7B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.78 & 0.58 \\
+Gemma 3 12B & NIH ChestX-ray14 & 1/6 & 2/6 & 1 & 1 & 0 & 5/6 & 0.47 & 0.17 \\
+Gemma 3 12B & CheXpert Plus & 1/6 & 0/6 & 0 & 0 & 1 & 1/6 & 0.37 & 0.19 \\
+Gemma 3 12B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.61 & 0.37 \\
+Lingshu 32B & NIH ChestX-ray14 & 2/6 & 3/6 & 2 & 1 & 0 & 6/6 & 0.24 & 0.77 \\
+Lingshu 32B & CheXpert Plus & 5/6 & 5/6 & 5 & 0 & 0 & 6/6 & 0.22 & 0.80 \\
+Lingshu 32B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.36 & 0.55 \\
+\midrule
+NIH ChestX-ray14 & 3 blocks & 3/18 & 8/18 & 3 & 5 & 0 & 17/18 & 0.47 & 0.54 \\
+CheXpert Plus & 3 blocks & 6/18 & 11/18 & 5 & 6 & 1 & 13/18 & 0.35 & 0.48 \\
+\textit{chest} & 6 blocks & 9/36 & 19/36 & 8 & 11 & 1 & 30/36 & 0.41 & 0.50 \\
+COCO & 3 blocks & 18/18 & 18/18 & 18 & 0 & 0 & 18/18 & 0.61 & 0.54 \\
+\bottomrule
+\end{tabular}}
+\end{table}

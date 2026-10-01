@@ -1,0 +1,20 @@
+\begin{table}[H]
+\centering
+\caption{Notation used in the manuscript.}
+\label{tab:notation}
+\begin{tabular}{l>{\raggedright\arraybackslash}p{0.8\linewidth}}
+\toprule
+Symbol & Definition \\
+\midrule
+$q,d,c$ & Clinical question, steering direction, and probe concept, respectively. \\
+$\hvec_{it}$ & Consumed visual representation for image $i$ and visual token $t$. \\
+$R,\boldsymbol{s}$ & Fixed Gaussian projection and train-fitted featurewise scale. \\
+$\hat\wvec_c$ & Unit probe-normal direction for concept $c$ after lifting to the consumed representation. \\
+$\alpha$ & Signed intervention dose; $|\alpha|$ is the perturbation norm relative to each token norm. \\
+$W_{q,d}$ & Paired mean change in question $q$'s $P(\mathrm{yes})$ under direction $d$. \\
+$O_q$ & Ownership margin $W_{q,q}-\max_{d\neq q}W_{q,d}$; positive values favor the named direction. \\
+$S$ & Real-label AUROC minus the mean AUROC of the 20 nuisance-type control tasks. \\
+$\gamma_i$ & Positive-minus-negative paired representation displacement along the Consolidation normal. \\
+\bottomrule
+\end{tabular}
+\end{table}

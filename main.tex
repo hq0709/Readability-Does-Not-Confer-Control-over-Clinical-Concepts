@@ -1,0 +1,75 @@
+\PassOptionsToPackage{table}{xcolor}
+\documentclass{article}
+\usepackage{preprint}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}   % header labels that span both rows of a two-row header, so they centre vertically
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\let\Bbbk\relax
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\input{math_commands}
+\input{tables/cf_colors}
+\input{tables/cf_numbers}
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{5pt}
+\setlength{\belowcaptionskip}{0pt}
+
+\title{Readability Does Not Confer Control over Clinical Concepts}
+
+\authorline{%
+Hanqi Jiang\aff{1,2,*} \quad
+Weihang You\aff{1,*} \quad
+Qingchan Zhu\aff{1} \quad
+Junhao Chen\aff{1} \quad
+Yi Pan\aff{1}\\
+Zhengliang Liu\aff{1} \quad
+Geng Yuan\aff{1} \quad
+Wei Liu\aff{3} \quad
+Lei Xing\aff{2,\dag}}
+
+\affiliations{%
+\aff{1}School of Computing, University of Georgia\\
+\aff{2}School of Medicine, Stanford University\\
+\aff{3}Department of Radiation Oncology, Mayo Clinic, Phoenix, AZ, USA}
+
+\titlenotes{%
+\aff{*}Equal contribution.\\
+\aff{\dag}Corresponding author: \texttt{lei@stanford.edu}.}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/0_abstract}
+\end{abstract}
+
+\input{sections/1_introduction}
+\input{sections/2_related_work}
+\input{sections/3_framework}
+\input{sections/4_setup}
+\input{sections/5_results}
+\input{sections/6_implications}
+\input{sections/7_conclusion}
+\input{sections/8_statements}
+\bibliography{refs}
+\bibliographystyle{plainnat}
+
+\clearpage
+\appendix
+\input{sections/app_campaign}
+\input{sections/app_seed_protocol}
+\input{sections/app_seed_results}
+\input{sections/app_prompts}
+\input{sections/app_bounds}
+\input{sections/app_repro}
+\end{document}

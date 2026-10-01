@@ -1,0 +1,26 @@
+\begin{table}[htbp]
+\centering
+\setlength{\tabcolsep}{8pt}
+\caption{\textbf{The answer direction against the label direction.} Per block, medians over the six questions of the AUROCs of $a_q$ and $\hat w_q$ against the label and against the clean answer, the Pearson correlation, and the raw and whitened cosines between $a_q$ and $\hat w_q$.}
+\label{tab:cf-validation}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llrrrrrrr}
+\toprule
+\multirow{3}{*}{Checkpoint} & \multirow{3}{*}{Dataset} & \multicolumn{4}{c}{AUROC} & \multirow{3}{*}{Pearson} & \multicolumn{2}{c}{\multirow{2}{*}{cosine}}\\
+\cmidrule(lr){3-6}
+&  & \multicolumn{2}{c}{label} & \multicolumn{2}{c}{clean answer} &  & & \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){8-9}
+&  & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{$\hat w_q$} & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{$\hat w_q$} &  & \multicolumn{1}{c}{raw} & \multicolumn{1}{c}{$\Sigma$}\\
+\midrule
+Qwen2.5-VL-7B & NIH ChestX-ray14 & 0.60 & 0.73 & 0.93 & 0.66 & 0.36 & 0.07 & 0.35 \\
+Qwen2.5-VL-7B & CheXpert Plus & 0.67 & 0.86 & 0.85 & 0.66 & 0.34 & 0.06 & 0.36 \\
+Qwen2.5-VL-7B & COCO & 0.97 & 0.97 & 0.98 & 0.98 & 0.84 & 0.64 & 0.84 \\
+Lingshu 32B & NIH ChestX-ray14 & 0.75 & 0.76 & 0.95 & 0.79 & 0.62 & 0.30 & 0.60 \\
+Lingshu 32B & CheXpert Plus & 0.85 & 0.86 & 0.95 & 0.89 & 0.88 & 0.33 & 0.87 \\
+Lingshu 32B & COCO & 0.94 & 0.97 & 0.93 & 0.92 & 0.75 & 0.54 & 0.73 \\
+Gemma 3 12B & NIH ChestX-ray14 & 0.59 & 0.65 & 0.72 & 0.61 & 0.31 & 0.18 & 0.33 \\
+Gemma 3 12B & CheXpert Plus & 0.61 & 0.78 & 0.73 & 0.56 & 0.13 & 0.17 & 0.10 \\
+Gemma 3 12B & COCO & 0.93 & 0.96 & 0.80 & 0.76 & 0.81 & 0.59 & 0.79 \\
+\bottomrule
+\end{tabular}}
+\end{table}

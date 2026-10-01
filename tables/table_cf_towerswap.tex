@@ -1,0 +1,66 @@
+\begin{table}[htbp]
+\centering
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{Crossing the tower and the reader.} Each column of the top two panels is tower/reader, with G for Gemma~3 4B and M for MedGemma 4B. The bottom panel changes one factor at a time and gives the mean absolute paired change over the six questions.}
+\label{tab:cf-towerswap}
+\fitwidth{%
+\begin{tabular}{llcccccc}
+\toprule
+\multirow{2}{*}{Host checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{2}{c}{native} & \multicolumn{2}{c}{swapped} & \multirow{2}{*}{concepts} & \multirow{2}{*}{crossover}\\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+&  & \multicolumn{1}{c}{G/G} & \multicolumn{1}{c}{M/M} & \multicolumn{1}{c}{M/G} & \multicolumn{1}{c}{G/M} &  & \\
+\midrule
+Gemma 3 4B & NIH ChestX-ray14 & 0 & 0 & 0 & 0 & 6 & complete \\
+Gemma 3 4B & CheXpert Plus & 0 & 0 & 0 & 0 & 6 & complete \\
+Gemma 3 4B & COCO & 5 & 5 & 0 & 4 & 6 & complete \\
+MedGemma 4B & NIH ChestX-ray14 & 0 & 0 & 0 & 0 & 6 & complete \\
+MedGemma 4B & CheXpert Plus & 0 & 0 & -- & 0 & 6 & -- \\
+MedGemma 4B & COCO & 5 & 5 & -- & 4 & 6 & -- \\
+\midrule
+\multicolumn{8}{l}{\textit{The four combinations of each dataset, shared arms counted once}} \\
+Combinations & Dataset & G/G & M/M & M/G & G/M & concepts & owned of cells \\
+\midrule
+all four & NIH ChestX-ray14 & 0 & 0 & 0 & 0 & 6 & 0/24 \\
+all four & CheXpert Plus & 0 & 0 & 0 & 0 & 6 & 0/24 \\
+all four & COCO & 5 & 5 & 0 & 4 & 6 & 14/24 \\
+\bottomrule
+\end{tabular}}\par
+\vspace{4pt}
+\setlength{\tabcolsep}{2.5pt}
+\fitwidth{%
+\begin{tabular}{llccc}
+\toprule
+\multicolumn{5}{l}{\textit{Crossover: the effect of replacing one factor with the other held fixed}} \\
+\midrule
+Block & Changed, held & own write $W_{q,q}$ & ownership $O_q$ & family margin $M_q$ \\
+\midrule
+Gemma 3 4B, NIH & reader, own tower & 0.133 [0.106, 0.169] (1) & 0.158 [0.136, 0.187] (4) & 0.425 [0.393, 0.458] (5) \\
+ & reader, partner tower & 0.240 [0.221, 0.259] (5) & 0.210 [0.192, 0.233] (4) & 0.286 [0.268, 0.309] (6) \\
+ & tower, own reader & 0.164 [0.140, 0.189] (4) & 0.061 [0.046, 0.080] (1) & 0.137 [0.120, 0.164] (4) \\
+ & tower, partner reader & 0.160 [0.125, 0.193] (6) & 0.265 [0.239, 0.299] (5) & 0.496 [0.462, 0.525] (6) \\
+ & \quad mean reader effect & 0.186 [0.170, 0.207] & 0.184 [0.169, 0.203] & 0.356 [0.339, 0.376] \\
+ & \quad mean tower effect & 0.162 [0.140, 0.182] & 0.163 [0.149, 0.185] & 0.316 [0.299, 0.338] \\
+\addlinespace
+Gemma 3 4B, CheXpert & reader, own tower & 0.382 [0.353, 0.412] (5) & 0.303 [0.273, 0.332] (6) & 0.490 [0.465, 0.515] (5) \\
+ & reader, partner tower & 0.125 [0.102, 0.151] (4) & 0.214 [0.194, 0.240] (5) & 0.240 [0.214, 0.263] (6) \\
+ & tower, own reader & 0.269 [0.245, 0.293] (5) & 0.223 [0.205, 0.241] (6) & 0.372 [0.352, 0.390] (5) \\
+ & tower, partner reader & 0.183 [0.153, 0.217] (4) & 0.297 [0.267, 0.332] (5) & 0.517 [0.485, 0.553] (6) \\
+ & \quad mean reader effect & 0.254 [0.235, 0.274] & 0.259 [0.240, 0.280] & 0.365 [0.347, 0.383] \\
+ & \quad mean tower effect & 0.226 [0.208, 0.246] & 0.260 [0.243, 0.279] & 0.444 [0.425, 0.466] \\
+\addlinespace
+Gemma 3 4B, COCO & reader, own tower & 0.072 [0.049, 0.104] (2) & 0.229 [0.187, 0.271] (5) & 0.143 [0.114, 0.185] (3) \\
+ & reader, partner tower & 0.202 [0.170, 0.239] (3) & 0.425 [0.390, 0.459] (6) & 0.432 [0.398, 0.464] (6) \\
+ & tower, own reader & 0.295 [0.261, 0.337] (5) & 0.497 [0.453, 0.540] (6) & 0.408 [0.368, 0.450] (6) \\
+ & tower, partner reader & 0.200 [0.175, 0.227] (4) & 0.335 [0.307, 0.364] (5) & 0.298 [0.273, 0.326] (5) \\
+ & \quad mean reader effect & 0.137 [0.119, 0.161] & 0.327 [0.298, 0.354] & 0.288 [0.265, 0.315] \\
+ & \quad mean tower effect & 0.248 [0.228, 0.271] & 0.416 [0.392, 0.441] & 0.353 [0.331, 0.379] \\
+\addlinespace
+MedGemma 4B, NIH & reader, own tower & 0.240 [0.221, 0.259] (5) & 0.210 [0.192, 0.233] (4) & 0.286 [0.268, 0.309] (6) \\
+ & reader, partner tower & 0.133 [0.106, 0.169] (1) & 0.158 [0.136, 0.187] (4) & 0.425 [0.393, 0.458] (5) \\
+ & tower, own reader & 0.160 [0.125, 0.193] (6) & 0.265 [0.239, 0.299] (5) & 0.496 [0.462, 0.525] (6) \\
+ & tower, partner reader & 0.164 [0.140, 0.189] (4) & 0.061 [0.046, 0.080] (1) & 0.137 [0.120, 0.164] (4) \\
+ & \quad mean reader effect & 0.186 [0.170, 0.207] & 0.184 [0.169, 0.203] & 0.356 [0.339, 0.376] \\
+ & \quad mean tower effect & 0.162 [0.140, 0.182] & 0.163 [0.149, 0.185] & 0.316 [0.299, 0.338] \\
+\bottomrule
+\end{tabular}}
+\end{table}

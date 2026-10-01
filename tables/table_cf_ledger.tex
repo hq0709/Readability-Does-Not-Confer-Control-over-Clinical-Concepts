@@ -1,0 +1,33 @@
+\begin{table}[htbp]
+\centering
+\setlength{\tabcolsep}{3pt}
+\caption{\textbf{What each analysis scores its writes against.} Per graded analysis: scored rows, steering reference, decision rule, the direction its sham permutes, and graded (question, arm) cells.}
+\label{tab:cf-ledger}
+\fitwidth{%
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.221\textwidth}>{\raggedright\arraybackslash}p{0.126\textwidth}>{\raggedright\arraybackslash}p{0.307\textwidth}>{\raggedright\arraybackslash}p{0.250\textwidth}>{\raggedright\arraybackslash}p{0.179\textwidth}r}
+\toprule
+Analysis & Rows & Reference & Rule & Sham & \multicolumn{1}{c}{Cells}\\
+\midrule
+Write matrix, primary template & 600 test & 119 random $p_{95}$, sham & simultaneous max-$T$, 30 contrasts & the direction written & 450 \\
+Probe refits, seeds 1 and 2 & 600 test & 119 random $p_{95}$, sham, the write matrix's & simultaneous max-$T$, 30 contrasts & the seed-0 normal & 900 \\
+Logit-scale grade & 600 test & 119 random $p_{95}$, sham, on the margin scale & percentile interval on $O^m_q$ & the direction written & 450 \\
+Unsaturated-row grade & unsaturated test & 119 random $p_{95}$, sham, on those rows & simultaneous max-$T$, 30 contrasts & the direction written & 450 \\
+Alternative direction constructions & 600 test & 119 random $p_{95}$, sham, the write matrix's & simultaneous max-$T$, 30 contrasts & the seed-0 normal & 1{,}440 \\
+Displacement lifts & 600 test & 119 random $p_{95}$, sham, the write matrix's & simultaneous max-$T$, 30 contrasts & the seed-0 normal & 684 \\
+Extended competitor family & 600 test & 119 random $p_{95}$, sham & simultaneous max-$T$, 8 or 11 contrasts & the direction written & 54 \\
+Token-weighted writes & 600 test & 119 random $p_{95}$, sham, the sham unweighted & simultaneous max-$T$, 30 contrasts & the direction written & 96 \\
+fp32 and batch-size-one rescoring & 200 test & 119 random $p_{95}$, sham & simultaneous max-$T$, 30 contrasts & the direction written & 108 \\
+Answer direction, primary template & 600 test & 119 random $p_{95}$, sham & simultaneous max-$T$, 30 contrasts & the direction written & 54 \\
+Answer direction, held-out templates & 600 test & 119 random $p_{95}$, sham in 80 pairs; sham alone in 190 & simultaneous max-$T$, 30 contrasts & the direction written & 270 \\
+Non-clinical attributes & 600 test & 119 random $p_{95}$, sham & simultaneous max-$T$, 72 contrasts & the direction written & 114 \\
+Findings in the attribute family & 600 test & 119 random $p_{95}$, sham & simultaneous max-$T$, 72 contrasts & the direction written & 228 \\
+Radiologist-label regrade & 200 valid & 119 random $p_{95}$, sham & simultaneous max-$T$, 30 contrasts & the direction written & 114 \\
+Expert-label refits & 600 test & 119 random $p_{95}$, sham, the write matrix's & simultaneous max-$T$, 30 contrasts & the seed-0 normal & 36 \\
+Projection seeds 1 and 2 & 600 test & 119 random $p_{95}$, sham, that projection's & simultaneous max-$T$, 30 contrasts & the direction written & 36 \\
+Crossed tower and reader & 200 test & 119 random $p_{95}$, sham, of the tower in use & simultaneous max-$T$, 30 contrasts & the direction written & 132 \\
+Identical-tensor replay & 200 test & 119 random $p_{95}$, sham, the source block's & simultaneous max-$T$, 30 contrasts & the direction written & 48 \\
+Semantic endpoints & 600 test & 18 random, maximum; sham, the endpoint's own & simultaneous max-$T$, 30 contrasts & the direction written & 144 \\
+Fine-grained object family & 600 test & 119 random $p_{95}$, sham, the family's own & simultaneous max-$T$, 30 contrasts & the direction written & 36 \\
+\bottomrule
+\end{tabular}}
+\end{table}

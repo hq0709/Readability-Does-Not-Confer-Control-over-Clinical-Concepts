@@ -1,0 +1,21 @@
+\begin{table}[h]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\caption{\textbf{Cohort roles.} Rows per role with independent units in parentheses and the role's use; units are patients on the chest sets and images on COCO. The last two rows give the largest rows per unit and the largest overlap between two roles.}
+\label{tab:cf-roles}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.115\textwidth}lll>{\raggedright\arraybackslash}p{0.335\textwidth}}
+\toprule
+Role & NIH ChestX-ray14 & CheXpert Plus & COCO & Use \\
+\midrule
+train & \cfCohortNihTrainRows{} (\cfCohortNihTrainUnits{}) & \cfCohortChexTrainRows{} (\cfCohortChexTrainUnits{}) & \cfCohortCocoTrainRows{} (\cfCohortCocoTrainUnits{}) & Scaler, six concept probes, twenty control probes, the two nuisance probes of the chest sets, and the answer-direction ridge. No row of this role is scored. \\
+preflight & \cfCohortNihPreflightRows{} (\cfCohortNihPreflightUnits{}) & \cfCohortChexPreflightRows{} (\cfCohortChexPreflightUnits{}) & \cfCohortCocoPreflightRows{} (\cfCohortCocoPreflightUnits{}) & The seven acceptance gates, at both loci. \\
+calibration & \cfCohortNihCalibrationRows{} (\cfCohortNihCalibrationUnits{}) & \cfCohortChexCalibrationRows{} (\cfCohortChexCalibrationUnits{}) & \cfCohortCocoCalibrationRows{} (\cfCohortCocoCalibrationUnits{}) & Clean pass at $\alpha=0$: probe readability and answer capability. \\
+test & \cfCohortNihTestRows{} (\cfCohortNihTestUnits{}) & \cfCohortChexTestRows{} (\cfCohortChexTestUnits{}) & \cfCohortCocoTestRows{} (\cfCohortCocoTestUnits{}) & Every write matrix, dose, refit, template, locus, and addendum module. \\
+valid & -- & \cfCohortChexValidRows{} (\cfCohortChexValidUnits{}) & -- & The regrade on radiologist consensus labels (Table~\ref{tab:cf-valid}). \\
+\midrule
+rows per unit & \cfCohortNihTrainMax{} (\cfCohortNihTrainMulti{} units) & \cfCohortChexTrainMax{} (\cfCohortChexTrainMulti{}) & \cfCohortCocoTrainMax{} (\cfCohortCocoTrainMulti{}) & Largest number of rows one unit contributes, with the units contributing more than one; the NIH training role is the campaign's only role above one. \\
+shared units & \cfCohortNihMaxOverlap{} & \cfCohortChexMaxOverlap{} & \cfCohortCocoMaxOverlap{} & Largest number of units two roles of the dataset share, over all \cfCohortPairsAll{} role pairs of the three datasets. \\
+\bottomrule
+\end{tabular}
+\end{table}

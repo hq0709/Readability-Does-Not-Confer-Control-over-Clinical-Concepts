@@ -1,0 +1,28 @@
+\section{Pilot study: registered protocol}
+\label{app:seed}
+
+The two-model study that motivated the evaluation registered the procedures below; Appendix~\ref{app:seed-results} reports its results. It uses the construction of Section~\ref{sec:framework}, with the differences stated here.
+
+\paragraph{Data, models, and reading.}
+We use NIH ChestX-ray14 \citep{wang2017chestxray}, whose findings are mined from radiology reports. A deterministic hash of patient identity assigns rows to disjoint train, validation, and test partitions: 18,212 training images and 5,343 test images from 1,659 test patients. The three cells pair LLaVA-1.5-7B \citep{liu2024improved} with Effusion and Edema, and Qwen2.5-VL-7B \citep{bai2025qwen25vl} with Effusion, at the final visual block consumed by the connector or merger; hook tests confirm that this block lies on the downstream path, that $\alpha=0$ is a bitwise no-op, and that nonzero doses change downstream logits. Projection, scaling, and probe follow Section~\ref{sec:directions} with seed 0. Selectivity is Equation~\ref{eq:selectivity} on test rows, with 20 control seeds mapping the 39 recurring input types (AP view, sex, and age decade) to random labels and 2,000 patient-cluster bootstrap draws. Selectivity compares the concept with nuisance-type label maps of the same capacity; the write tests whether the model uses it. All uncertainty clusters by patient; prompts appear in Appendix~\ref{app:protocol}.
+
+\paragraph{Write and doses.}
+The write is Equation~\ref{eq:intervention} along the lifted normal of Equation~\ref{eq:lift}, with every entry of $\boldsymbol s$ floored at $10^{-8}$, and the endpoint is the paired mean change in $P(\mathrm{yes})$ from the common unsteered baseline (Section~\ref{sec:ownership}). Original cells use the doses $\{-1,-0.5,-0.25,-0.1,0,0.1,0.25,0.5,1\}$ on 200 held-out test images. At the six controlled doses $\mathcal A=\{\pm1,\pm0.5,\pm0.25\}$, 20 isotropic random unit directions, one coordinate-permutation sham, and the fixed alternative clinical normals receive the same signed dose on the same rows. Dose monotonicity over $[-0.5,0.5]$ is descriptive.
+
+\paragraph{Original-cell decision rule.}
+With $\Delta_c(\alpha)$ the target direction's paired mean change at dose $\alpha$, the primary effect and the dose that attains it are
+\begin{equation}
+\Delta^\star_c=\max_{\alpha\in\mathcal A}\operatorname{sign}(\alpha)\,\Delta_c(\alpha),\qquad
+\alpha^\star=\operatorname*{arg\,max}_{\alpha\in\mathcal A}\operatorname{sign}(\alpha)\,\Delta_c(\alpha).
+\label{eq:seed-rule}
+\end{equation}
+A cell clears the generic gate when $\Delta^\star_c$ exceeds both the 95th percentile of the 20 random directions' changes at $\alpha^\star$, each multiplied by $\operatorname{sign}(\alpha^\star)$, and the largest absolute sham effect over $\mathcal A$. The random directions are evaluated at $\alpha^\star$ alone, so the gate is a registered reference without cross-dose correction.
+
+\paragraph{Direction-specificity supplement.}
+The Nodule response motivated a separately registered supplement at the locked Qwen dose $\alpha=+0.25$, on one row per patient, chosen by label-blind hash, for 400 ChestX-ray14 test patients absent from the original cohort. It estimates the Effusion row of the write matrix (Section~\ref{sec:ownership}) against the five other pre-existing Qwen normals (Atelectasis, Pneumothorax, Cardiomegaly, Mass, and Nodule), fitted like Effusion, together with 20 random directions and the sham: 28 configurations and 11,200 per-image outcomes. Direction specificity requires an Effusion effect above the random 95th percentile and the absolute sham, and a one-sided 95\% lower bound of $O_{\mathrm{Effusion}}$ (Equation~\ref{eq:margin}) above zero, with the maximum recomputed in each of 5,000 patient-bootstrap draws. Adding competitors can only lower $O_q$, so a positive advantage holds for the family tested, while a negative one needs no exhaustive family.
+
+\paragraph{Causal-ownership matrix.}
+A prospective grid crosses six Qwen directions (Effusion, Atelectasis, Pneumothorax, Cardiomegaly, Mass, and Nodule) with their six questions on 400 new patients at $\alpha=+0.25$, with 119 random directions and a sham. Question $q$ is owned when $W_{q,q}$ exceeds every other clinical direction, every random direction, and the absolute sham, with the 30 clinical contrasts bounded simultaneously by Equation~\ref{eq:max-t}. A separate family of 12 statistics tests shared aliasing: for each direction, its signed mean effect on its five off-diagonal questions and its mean excess over the matching diagonals there.
+
+\paragraph{Answer-encoding crossover and Mass confirmation.} A registered crossover on 200 patients of the causal-ownership cohort, with the other 200 as a patient-disjoint calibration set, crosses the original yes/no prompt with A-present and B-present prompts that exchange the finding-to-letter mapping, at $\alpha=\pm0.25$ with six clinical directions, 20 random directions, and a sham; a question enters only if both coded mappings have clean-answer AUROC lower bounds above 0.5 with at least ten patients per class. An independent confirmation then tests Mass on 200 patients absent from every earlier Qwen cohort, crossing two wordings (\textit{show}, \textit{is}) with explicit yes/no, A-present, and B-present instructions at $\alpha=+0.25$, with 119 random directions, a sham, and 20 clinical comparisons under simultaneous 95\% lower bounds. Confirmation requires positive bounds and Mass effects above every random effect and the absolute sham, across all four coded cells or both original-wording cells.
+

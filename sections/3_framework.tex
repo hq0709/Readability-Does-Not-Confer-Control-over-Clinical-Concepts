@@ -1,0 +1,54 @@
+\section{Reading, Answering, and Writing at the Consumed Block}
+\label{sec:framework}
+
+We ask three questions about a concept $c$ in a checkpoint $M$ on a dataset with binary labels: whether $c$ is readable from the visual representation the language model consumes, whether $M$ answers the question about $c$, and whether writing $c$'s own direction moves $c$'s answer more than any alternative. A registered protocol fixes an estimator and a decision rule for each question (Appendix~\ref{app:cf-labels}).
+
+\subsection{Consumed block and matched read--write positions}
+\label{sec:locus}
+
+Every VLM in the grid passes an image through a vision tower and hands a specific tensor to a connector or merger that produces the language model's inputs. The \emph{consumed block} is the last visual block whose output that consumer reads, restricted to the token positions the consumer actually uses (CLS or padding rows are excluded where the consumer drops them); the \emph{connector locus} is the consumer's output. Appendix~\ref{app:repro-loci} identifies the block for every family. For image $i$ and consumed token $t$, let $\hvec_{it}\in\R^D$ be the output of the consumed block, where $D$ is the tower's hidden width; mean pooling over the consumed tokens gives the read vector $\hvec_i$. A write adds the unit direction $\hat\wvec_c$ of concept $c$ (Section~\ref{sec:directions}) to the same tokens,
+\begin{equation}
+\hvec'_{it}=\hvec_{it}+\alpha\,\lVert\hvec_{it}\rVert_2\,\hat\wvec_c,
+\label{eq:intervention}
+\end{equation}
+so that the dose $\alpha$ is a fraction of each token's own norm, comparable across families whose activation scales differ by orders of magnitude, and its sign selects the concept's positive or negative pole. Reading and writing therefore use the same representation and the same positions. The connector and the language model, everything downstream of the consumed block, form the \emph{reader} of that representation.
+
+\subsection{Directions, controls, and the reference family}
+\label{sec:directions}
+
+Each concept is read by a linear probe on a shared 512-dimensional view of the representation. A fixed Gaussian matrix $R\in\R^{D\times512}$ maps the read vector to features $\boldsymbol x_i=R^{\top}\hvec_i$, which are standardised with training-row means and scales $\boldsymbol s$; an $\ell_2$-regularised logistic regression with coefficient vector $\boldsymbol\beta_c$ then scores concept $c$ (inverse regularisation strength 1, 2{,}000 iterations, three fit seeds). The probe's logit is thus an affine function of $\hvec_i$ whose gradient is $R\,\mathrm{diag}(\boldsymbol s)^{-1}\boldsymbol\beta_c$, and the write direction is that gradient at unit length,
+\begin{equation}
+\hat\wvec_c=\frac{\boldsymbol g_c}{\lVert\boldsymbol g_c\rVert_2},\qquad \boldsymbol g_c=R\,\mathrm{diag}(\boldsymbol s)^{-1}\boldsymbol\beta_c .
+\label{eq:lift}
+\end{equation}
+It is the direction in the consumed representation along which the probe's evidence for $c$ grows fastest (Appendix~\ref{app:repro-probe} gives the numerical details). We call it the concept's \emph{label direction}, since it is fitted to the concept's labels.
+
+Two families of controls bracket the label direction. For reading, 20 control probes are fitted to random labels drawn within recurring image types (view, sex, and age decade on chest sets; aspect and area buckets on COCO), so that they have the capacity and the nuisance structure of the concept probe. With $y$ the concept labels and $r$ the probe's scores on the calibration rows, and $y^{\mathrm{ctrl}}_k$ and $r^{\mathrm{ctrl}}_k$ the random labels and scores of control probe $k$, the probe's selectivity is
+\begin{equation}
+S=\operatorname{AUROC}(y,r)-\tfrac{1}{20}\textstyle\sum_{k=1}^{20}\operatorname{AUROC}(y^{\mathrm{ctrl}}_k,r^{\mathrm{ctrl}}_k),
+\label{eq:selectivity}
+\end{equation}
+which is positive when the probe reads its concept better than a probe of equal capacity reads an arbitrary label with the same nuisance structure. For writing, the \emph{reference family} contains 119 random unit directions, a coordinate-permutation sham of $\hat\wvec_c$ (same coordinates, scrambled arrangement), and the five label directions of the other clinical concepts, all written at the same dose to the same images.
+
+\subsection{Ownership}
+\label{sec:ownership}
+
+Each dataset has six concepts, and we index both the yes/no question about a concept and the direction fitted for it by that concept. For question $q$ and direction $d$, $W_{q,d}$ is the mean over test images of the change in $P(\mathrm{yes})$ for question $q$ when $\hat\wvec_d$ is written, each image scored with and without the write. Here $P(\mathrm{yes})=\sigma(\ell_{\mathrm{yes}}-\ell_{\mathrm{no}})$, where $\sigma$ is the logistic function and $\ell_{\mathrm{yes}}$ and $\ell_{\mathrm{no}}$ are the log-probabilities of the two answers at the first answer position, each the maximum over case and leading-space variants that tokenise to one token. Row $q$ of the $6\times6$ write matrix $W$ records how far each direction moves question $q$, and its diagonal entry $W_{q,q}$ is the concept's own write (Figure~\ref{fig:write-matrices}). Ownership is the diagonal margin
+\begin{equation}
+O_q=W_{q,q}-\max_{d\neq q}W_{q,d},
+\label{eq:margin}
+\end{equation}
+the advantage of the concept's own direction over its strongest clinical competitor on the concept's own question. $W_{q,q}$ measures how far the concept's own direction moves its answer; $O_q$ measures whether it moves that answer further than every competitor built the same way. A large $W_{q,q}$ shows that $d=q$ can write the answer; only $O_q>0$ shows that the label names the effective direction. A concept can therefore fail ownership in two ways: its own write stays within the random and sham references, or the write clears them without holding its advantage over every competitor. Section~\ref{sec:headline} measures both. The Effusion case of the introduction illustrates the latter: the Effusion direction raises the Effusion answer by $\cfSeedWEff$, above the random 95th percentile and the sham, and the Nodule direction raises the same answer by $\cfSeedWNodule$, so $O_{\mathrm{Effusion}}=\cfSeedEffO$. Uncertainty over patients comes from 2{,}000 bootstrap draws of test rows, with the maximum in Equation~\ref{eq:margin} recomputed inside every draw. The 30 contrasts $W_{q,q}-W_{q,d}$ (six questions, five competitors each) receive simultaneous 95\% bounds from a centred studentised max-$T$ bootstrap, which hold jointly across all 30 (Appendix~\ref{app:simultaneous-bounds}).
+
+\subsection{Graded outcomes}
+\label{sec:grades}
+
+The readable and answerable grades are computed on the 400 calibration rows, which carry no write. The write matrix and every ownership quantity are computed on the 600 test rows, which share no patient with the calibration rows.
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
+\item \textbf{Readable:} the one-sided 95\% lower bound of $S$ on the calibration rows is above zero, with at least ten known positives and ten known negatives among those 400 rows.
+\item \textbf{Answerable:} the \emph{clean answer}, $P(\mathrm{yes})$ with no write, separates the concept's labels: the one-sided 95\% lower bound of its AUROC on the same calibration rows is above $0.5$, under the same ten-and-ten support rule.
+\item \textbf{Owned:} on the test rows, the write meets the \emph{steering reference} ($W_{q,q}>0$, above the 95th percentile of the 119 random writes, and above the sham's absolute effect) and every simultaneous lower bound of $W_{q,q}-W_{q,d}$ is positive. A cell with any simultaneous upper bound below zero has a \emph{stronger competitor}; the rest are \emph{unresolved}.
+\end{itemize}
+A checkpoint--concept pair on one dataset is a \emph{cell}, and a checkpoint--dataset pair is a \emph{block}. A cell graded owned is said to be owned, and the checkpoint is said to own the concept; an alternative direction is owned in a cell when its write meets the same rule for that concept. A block contributes to the answerable and owned counts only when its write matrix and its calibration pass both completed. The grades are defined for one direction construction, one primary dose with a five-point sweep, six templates, pooled consumed-token features, and two loci, the consumed block and the connector output. Before a block is scored, seven acceptance checks on 16 held-out preflight rows confirm, at both loci, that scoring is deterministic, that $\alpha=0$ changes nothing, that the write reaches the answer and changes nothing outside the consumed tokens, and that every template maps its answers correctly without an image (Appendix~\ref{app:cf-gates}).
+\label{sec:gates}
+

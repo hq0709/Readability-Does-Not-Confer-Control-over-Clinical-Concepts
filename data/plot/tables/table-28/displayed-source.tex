@@ -1,0 +1,33 @@
+\begin{table}[h]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{5pt}
+\caption{\textbf{Protocol amendments.} Every addition to the registered protocol file after the first wave, with the date the file records for it. Each date precedes the first outcome shard of the module it registers.}
+\label{tab:cf-amendments}
+\begin{tabular}{ll>{\raggedright\arraybackslash}p{0.62\textwidth}}
+\toprule
+Amendment & Date & What it adds and what it fixes \\
+\midrule
+A1 & 2026-09-14 & Per-block primary template: the single-template modules score the first eligible template in the order (IY, IB), so a checkpoint whose yes/no template fails the image-free mapping gate is graded on its B-positive template instead of losing its grade. Llama~3.2 Vision 11B re-ran on all three datasets. \\
+A2 & 2026-09-14 & CheXpert gains the dose sweep, the two probe refits, the connector locus, the connector-locus calibration, and the five additional templates, with Effusion and Edema as its two template concepts, so the second chest set carries the same modules as the first. \\
+A3 & 2026-09-14 & Four alternative direction constructions per concept: difference of class means, Haufe pattern, orthogonalised normal, and residualised normal. Fixes the reading that the deficit belongs to the logistic normal. \\
+A4 & 2026-09-14 & Extra clinical directions for every additional dataset label with at least 100 known positives and negatives, added to the competitor family. Fixes the reading that the six protocol concepts are too narrow a competitor set. \\
+A5 & 2026-09-14 & Softmax-weighted and top-quarter token weights for the six logistic directions. Fixes the reading that a uniform write dilutes the concept over tokens that do not carry it. \\
+A6 & 2026-09-14 & The write grid rescored with fp32 weights and forward pass, and in bf16 at batch size one. Fixes the reading that the grades are a numerical artefact. \\
+A7 & 2026-09-14 & The answer direction: a ridge regression of the clean answer margin on the same projected, train-scaled features. Fixes the reading that nothing in the consumed representation moves the answer. \\
+A8 & 2026-09-15 & The difference-of-means and pattern vectors lifted as displacements through the minimum-norm preimage. Fixes the reading that the coefficient lift is what fails. \\
+A9 & 2026-09-15 & Three non-clinical attribute directions written with the six clinical directions as one nine-direction family. Fixes the reading that the deficit follows from something about radiographs rather than from the concepts. \\
+A10 & 2026-09-15 & The answer directions fitted on the primary template written under the five held-out templates. Fixes the reading that the answer direction is a property of one prompt. \\
+A11 & 2026-09-15 & The write grid regraded on the CheXpert validation split with radiologist consensus labels. Fixes the reading that report-derived labels are the source of the deficit. \\
+A12 & 2026-09-16 & The crossed tower and reader: one checkpoint's vision tower loaded behind the other's connector and language model, and all four combinations of tower and reader graded on the same rows. Fixes the reading that ownership is a property of the representation alone or of the reader alone. \\
+A13 & 2026-09-16 & The identical-tensor replay: the consumed block's stored token tensors fed to every reader of a shared-tower group. Fixes the reading that two readers of one tower differ because their inputs differ by bf16 rounding. \\
+A14 & 2026-09-16 & The four semantic endpoints: the negated question, the counterbalanced two-finding forced choice, and the finding word's log-probability in a report continuation, each with its own clean baseline, sham, and random family, together with the incremental-validity test of the ownership contrast. Fixes the reading that ownership is validated only against the model's answers under the six templates. \\
+A15 & 2026-09-16 & The fine-grained object family: six further COCO categories chosen by the rule stated below, fitted, written, and graded as their own six-direction family in the same blocks and rows. Fixes the reading that the chest-to-COCO contrast is a contrast in task difficulty. \\
+A16 & 2026-09-16 & The clean pass of the fine-grained categories on the calibration rows, so their clean-answer AUROC is measured on the same rows and by the same rule as every other cell and the difficulty matching compares like with like. \\
+A17 & 2026-09-16 & The matched attribute reference: the protocol's own 119-direction random family written against the three attribute questions. Fixes the attribute-versus-finding comparison, which until then referenced attribute cells against their sham alone and clinical cells against the random 95th percentile as well. \\
+A18 & 2026-09-16 & Three phrasings of each attribute question scored clean on the calibration rows, with the selection rule and its reason recorded per cell. Fixes the reading that an attribute cell is unowned because the model cannot answer the phrasing that was written. \\
+A19 & 2026-09-16 & The expert-label refits: the six concept probes refitted on the radiologist-labelled films, cross-fitted over patients, and written on the test rows. Fixes the reading that the label source, not the concept, decides ownership. \\
+A20 & 2026-09-16 & Projection seeds 1 and 2: the probes, the random family, and the sham redrawn in two further random projections and regraded against that projection's own references. Fixes the reading that the grades depend on the seed-0 projection. \\
+\bottomrule
+\end{tabular}
+\end{table}

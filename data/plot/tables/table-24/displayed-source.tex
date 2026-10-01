@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\input{tables/cf_colors}
+\caption{\textbf{Seed replication: Qwen2.5-VL-7B on NIH ChestX-ray14, 600 new patients.} One row per concept, with the concept write $W_{qq}$ against the random 95th percentile (p95), the absolute sham, and the 120 compared effects it is ranked among. Blue shades a negative ownership contrast, darker for larger magnitude.}
+\label{tab:cf-seed}
+\begin{tabular}{lrrrrrrrll}
+\toprule
+Concept & \multicolumn{1}{c}{$S$} & \multicolumn{1}{c}{AUROC} & \multicolumn{1}{c}{$W_{qq}$} & \multicolumn{1}{c}{p95} & \multicolumn{1}{c}{$|$sham$|$} & \multicolumn{1}{c}{rank} & \multicolumn{1}{c}{$O_q$ [95\% CI]} & Competitor & Verdict\\
+\midrule
+Effusion & 0.102 & 0.593 & +0.190 & 0.137 & 0.017 & 2/120 & \cellcolor{cfSlate2}-0.071 [-0.080, -0.062] & Nodule & competitor \\
+Atelectasis & 0.062 & 0.566 & +0.101 & 0.297 & 0.096 & 55/120 & \cellcolor{cfSlate3}-0.226 [-0.233, -0.219] & Nodule & competitor \\
+Pneumothorax & 0.152 & 0.508 & +0.089 & 0.320 & 0.113 & 52/120 & \cellcolor{cfSlate3}-0.102 [-0.108, -0.096] & Effusion & competitor \\
+Cardiomegaly & 0.205 & 0.742 & +0.085 & 0.311 & 0.158 & 33/120 & \cellcolor{cfSlate3}-0.219 [-0.227, -0.211] & Atelectasis & competitor \\
+Mass & 0.021 & 0.678 & +0.359 & 0.372 & 0.092 & 10/120 & \cellcolor{cfSlate3}-0.169 [-0.178, -0.160] & Effusion & competitor \\
+Nodule & -0.041 & 0.642 & +0.118 & 0.158 & 0.055 & 15/120 & \cellcolor{cfSlate2}-0.072 [-0.081, -0.063] & Effusion & competitor \\
+\bottomrule
+\end{tabular}
+\end{table}

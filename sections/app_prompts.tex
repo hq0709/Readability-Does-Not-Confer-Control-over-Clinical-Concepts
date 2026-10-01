@@ -1,0 +1,37 @@
+\section{Questions, Scores, and Notation}
+\label{app:protocol}
+
+\paragraph{Templates and score.} Each concept is asked in six templates that cross two wordings, \emph{is there} (I) and \emph{does the image show} (W), with three answer interfaces, yes/no (Y), A-present (A), and B-present (B). A template is named by its wording and its interface, and the primary template is IY. At the first answer position, $\ell_{\mathrm{yes}}$ and $\ell_{\mathrm{no}}$ are the maximum log probabilities among the valid single-token case and leading-space variants of each answer, and the registered score is $P(\mathrm{yes})=\sigma(\ell_{\mathrm{yes}}-\ell_{\mathrm{no}})$, where $\sigma$ is the logistic function. Taking the best valid variant for each answer makes the score insensitive to which capitalisation or leading-space form receives the highest probability. The score measures the relative support for yes versus no at the first answer position, not the accuracy of a generated report. Questions are the rows of $W$ and directions its columns, so changing a direction never changes the question being scored.
+
+\paragraph{Notation.} Table~\ref{tab:notation} collects the notation of the paper.
+
+\begin{table}[H]
+\centering
+\caption{Notation used in the paper.}
+\label{tab:notation}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l>{\raggedright\arraybackslash}p{0.867\linewidth}}
+\toprule
+Symbol & Definition \\
+\midrule
+$c$, $q$, $d$ & A concept; the yes/no question about a concept; a write direction. Questions and directions are indexed by the concept they belong to. \\
+cell, block & A checkpoint--concept pair on one dataset; a checkpoint--dataset pair. \\
+$\hvec_{it}$, $\hvec_i$ & Output of the consumed block for image $i$ and consumed token $t$; its mean over the consumed tokens. \\
+$D$ & Hidden width of the consumed block. \\
+$R$, $\boldsymbol s$, $\boldsymbol\beta_c$ & Fixed $D\times512$ Gaussian projection; training-row feature scales; logistic coefficients of concept $c$'s probe. \\
+$\hat\wvec_c$ & Label direction: the probe's logit gradient $R\,\mathrm{diag}(\boldsymbol s)^{-1}\boldsymbol\beta_c$ at unit length (Equation~\ref{eq:lift}). \\
+$a_q$ & Answer direction: the ridge fit of the clean answer margin $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$, lifted in the same way. \\
+$\alpha$ & Signed dose; $|\alpha|$ is the write's norm as a fraction of each token's norm. \\
+$S$ & Probe selectivity: concept AUROC minus the mean AUROC of 20 random-label control probes (Equation~\ref{eq:selectivity}). \\
+$W_{q,d}$ & Mean change in question $q$'s $P(\mathrm{yes})$ when direction $d$ is written. \\
+$O_q$ & Ownership, $W_{q,q}-\max_{d\neq q}W_{q,d}$ (Equation~\ref{eq:margin}). \\
+$O^m_q$ & Ownership computed on changes in the logit margin $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$. \\
+$\kappa_d$ & Column selectivity, $W_{d,d}/\sum_q|W_{q,d}|$. \\
+$F_{q,d}$ & Mean over checkpoints of $\max(W_{q,d},0)$, the band width in Figure~\ref{fig:write-flow}. \\
+$\cos_\Sigma$ & Whitened cosine under the training-feature covariance $\Sigma$ (Appendix~\ref{app:cf-ansdir}). \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\FloatBarrier
+

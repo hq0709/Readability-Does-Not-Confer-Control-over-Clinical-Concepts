@@ -1,0 +1,24 @@
+\begin{table}[htbp]
+\centering
+\setlength{\tabcolsep}{6pt}
+\caption{\textbf{Non-clinical attributes of the same radiographs.} Per attribute and dataset, medians over blocks of the attribute probe's AUROC and selectivity, the clean-answer AUROC of the attribute question, and the absolute raw cosine to the clinical normals, with the owned attribute cells.}
+\label{tab:cf-attr}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llrrrrr}
+\toprule
+Attribute & Dataset & \multicolumn{1}{c}{probe AUROC} & \multicolumn{1}{c}{selectivity} & \multicolumn{1}{c}{answer AUROC} & \multicolumn{1}{c}{med.\ $|\cos|$} & \multicolumn{1}{c}{owned} \\
+\midrule
+AP (portable) projection & NIH ChestX-ray14 & 0.999 & 0.32 & 0.76 & 0.03 & 1/19 \\
+AP (portable) projection & CheXpert Plus & 0.998 & 0.31 & 0.73 & 0.05 & 0/19 \\
+AP (portable) projection & \textit{chest} & 0.999 & 0.31 & 0.74 & 0.04 & 1/38 \\
+\addlinespace
+female sex & NIH ChestX-ray14 & 0.984 & 0.30 & 0.73 & 0.05 & 3/19 \\
+female sex & CheXpert Plus & 0.957 & 0.27 & 0.65 & 0.06 & 1/19 \\
+female sex & \textit{chest} & 0.971 & 0.28 & 0.71 & 0.05 & 4/38 \\
+\addlinespace
+age $\geq60$ & NIH ChestX-ray14 & 0.896 & 0.21 & 0.62 & 0.05 & 3/19 \\
+age $\geq60$ & CheXpert Plus & 0.898 & 0.21 & 0.64 & 0.06 & 4/19 \\
+age $\geq60$ & \textit{chest} & 0.896 & 0.21 & 0.63 & 0.06 & 7/38 \\
+\bottomrule
+\end{tabular}}
+\end{table}
