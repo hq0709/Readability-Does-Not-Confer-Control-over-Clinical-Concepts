@@ -18,3 +18,4 @@ figures/fig2_dose_responses.pdf
 figures/fig3_direction_specificity.pdf
 # rebuild/output is redrawn by rebuild/build.sh; the PDFs it installs live in figures/
 rebuild/output/*/*.png
+figures/fig1_framework_matplotlib.*

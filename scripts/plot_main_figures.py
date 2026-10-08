@@ -1,6 +1,8 @@
 """Render the main-text figures 1-3 from the repository data in the house style.
 
-fig1_framework            schematic of reading, answering and writing at one consumed visual block
+fig1_framework_matplotlib schematic of reading, answering and writing at one consumed visual block. The
+                          paper's Figure 1 is figures/fig1_framework.pdf, drawn by hand in diagrams.net;
+                          this is the stand-in it replaced and does not share its filename.
 fig2_dose_responses       dose-response curves of the three original cells (data/accepted_results.json: cells)
 fig3_direction_specificity locked-dose effects of the Effusion direction, the five clinical alternatives,
                           the sham and the random group, plus the ownership contrast
@@ -182,7 +184,10 @@ def framework():
     ins.set_ylim(0, 0.31); ins.set_yticks([0, 0.1, 0.2, 0.3]); ins.tick_params(axis="y", labelsize=6.5)
     ins.set_title("seed: Effusion question, Qwen2.5-VL-7B, NIH", fontsize=7.2, pad=3)
     ins.set_ylabel(r"change in $P(\mathrm{yes})$", fontsize=6.8)
-    save_figure(fig, "fig1_framework")
+    # figures/fig1_framework.pdf is drawn by hand in diagrams.net and is the figure the paper uses.
+    # This schematic is the matplotlib stand-in it replaced; writing it under that name overwrites the
+    # hand-made file, which is what happened once. It keeps its own name.
+    save_figure(fig, "fig1_framework_matplotlib")
 
 
 def main():
