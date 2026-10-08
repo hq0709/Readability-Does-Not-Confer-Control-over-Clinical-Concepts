@@ -4,6 +4,7 @@
 \usepackage{newtxtext,newtxmath}
 \usepackage{microtype}
 \usepackage{graphicx}
+\usepackage[export]{adjustbox}  % max width: shrink a wide table to the line, never magnify a narrow one, so every table renders at the same font size
 \usepackage{booktabs}
 \usepackage{multirow}   % header labels that span both rows of a two-row header, so they centre vertically
 \usepackage{float}
@@ -61,7 +62,7 @@ Linear probes are the standard tool for testing what a vision-language model (VL
 
 A steering write that changes the answer does not settle the question. In Qwen2.5-VL-7B on NIH ChestX-ray14, a probe reads effusion from the visual tokens the language model consumes, and writing its direction back raises the model's probability of answering yes to the Effusion question by $\cfSeedWEff$, more than the 95th percentile of 119 random directions and a coordinate-permutation sham written at the same dose. By the usual steering criteria, the write works. Writing the Nodule direction into the same patients at the same dose raises the Effusion answer further, by $\cfSeedWNodule$ (Figure~\ref{fig:framework}b, right), although Nodule is the competing direction least similar to Effusion (Appendix~\ref{app:cf-robustness}). Random and sham directions carry no label, so they cannot expose a direction whose effect is shared with other findings \citep{pahde2025navigating}. Exposing it requires writing every competing clinical direction at the same locus and dose in the same patients and asking whether the concept's own direction moves the concept's own answer more than any other. We call the outcome \emph{ownership}. When a concept is readable but not owned, its probe direction reads the concept without writing it: reading is not writing.
 
-We turn this comparison into an evaluation (Section~\ref{sec:framework}, Figure~\ref{fig:framework}). At the \emph{consumed block}, the final visual block whose output the language model reads, each concept receives three grades. It is \emph{readable} if its probe beats random-label probes of equal capacity, \emph{answerable} if the model's yes/no answer without any write beats chance, and \emph{owned} if a fixed-dose write along its direction clears the random and sham references and moves its own answer more than every competing clinical direction under simultaneous bounds. We apply the evaluation to \cfCheckpoints{} checkpoints from \cfFamiliesWord{} families (3B--72B; general-purpose and medical) on two chest-radiograph datasets with report-derived labels, NIH ChestX-ray14 and CheXpert Plus, and on COCO objects as a natural-image control (Section~\ref{sec:setup}).
+We turn this comparison into an evaluation (Section~\ref{sec:framework}, Figure~\ref{fig:framework}). At the \emph{consumed block}, the final visual block whose output the language model reads, each concept receives three grades. It is \emph{readable} if its probe beats random-label probes of equal capacity, \emph{answerable} if the model's yes/no answer without any write beats chance, and \emph{owned} if a fixed-dose write along its direction clears the random and sham references and moves its own answer more than every competing clinical direction does. We apply the evaluation to \cfCheckpoints{} checkpoints from \cfFamiliesWord{} families (3B--72B; general-purpose and medical) on two chest-radiograph datasets with report-derived labels, NIH ChestX-ray14 and CheXpert Plus, and on COCO objects as a natural-image control (Section~\ref{sec:setup}).
 
 On chest radiographs most readable and answerable concepts are not owned, while most COCO objects are, and the gap persists among concepts the model answers well (Section~\ref{sec:results}). We call this gap the \emph{attribution deficit}. Since the same write succeeds on natural images, the remaining results locate the deficit. Checkpoints that share a vision tower write identical vectors into identical representations yet own different concepts, so the model that reads the representation decides ownership. Non-clinical attributes of the same radiographs (projection, sex, and age) are owned no more often than findings, so the deficit does not depend on the concept being clinical. The reader responds to a different direction: a direction fitted to the model's own answers is owned in \cfAnsChestOwnedA{} of \cfAnsChestN{} chest checkpoint--concept cells where the label direction is owned in \cfAnsChestOwnedLabel{}, and on chest radiographs it is nearly orthogonal to the probe direction.
 
@@ -128,16 +129,16 @@ Each dataset has six concepts, and we index both the yes/no question about a con
 O_q=W_{q,q}-\max_{d\neq q}W_{q,d},
 \label{eq:margin}
 \end{equation}
-the advantage of the concept's own direction over its strongest clinical competitor on the concept's own question. $W_{q,q}$ measures how far the concept's own direction moves its answer; $O_q$ measures whether it moves that answer further than every competitor built the same way. A large $W_{q,q}$ shows that $d=q$ can write the answer; only $O_q>0$ shows that the label names the effective direction. A concept can therefore fail ownership in two ways: its own write stays within the random and sham references, or the write clears them without holding its advantage over every competitor. Section~\ref{sec:headline} measures both. The Effusion case of the introduction illustrates the latter: the Effusion direction raises the Effusion answer by $\cfSeedWEff$, above the random 95th percentile and the sham, and the Nodule direction raises the same answer by $\cfSeedWNodule$, so $O_{\mathrm{Effusion}}=\cfSeedEffO$. Uncertainty over patients comes from 2{,}000 bootstrap draws of test rows, with the maximum in Equation~\ref{eq:margin} recomputed inside every draw. The 30 contrasts $W_{q,q}-W_{q,d}$ (six questions, five competitors each) receive simultaneous 95\% bounds from a centred studentised max-$T$ bootstrap, which hold jointly across all 30 (Appendix~\ref{app:simultaneous-bounds}).
+the advantage of the concept's own direction over its strongest clinical competitor on the concept's own question. $W_{q,q}$ measures how far the concept's own direction moves its answer; $O_q$ measures whether it moves that answer further than every competitor built the same way. A large $W_{q,q}$ shows that $d=q$ can write the answer; only $O_q>0$ shows that the label names the effective direction. A concept can therefore fail ownership in two ways: its own write stays within the random and sham references, or the write clears them without holding its advantage over every competitor. Section~\ref{sec:headline} measures both. The Effusion case of the introduction illustrates the latter: the Effusion direction raises the Effusion answer by $\cfSeedWEff$, above the random 95th percentile and the sham, and the Nodule direction raises the same answer by $\cfSeedWNodule$, so $O_{\mathrm{Effusion}}=\cfSeedEffO$. Every grade is read from the measurement itself: the write matrix is an average over the 600 test rows of each block, and the three rules above compare those averages with each other and with the reference families. Where a spread is informative we give the standard deviation over blocks or over cells.
 
 \subsection{Graded outcomes}
 \label{sec:grades}
 
 The readable and answerable grades are computed on the 400 calibration rows, which carry no write. The write matrix and every ownership quantity are computed on the 600 test rows, which share no patient with the calibration rows.
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
-\item \textbf{Readable:} the one-sided 95\% lower bound of $S$ on the calibration rows is above zero, with at least ten known positives and ten known negatives among those 400 rows.
-\item \textbf{Answerable:} the \emph{clean answer}, $P(\mathrm{yes})$ with no write, separates the concept's labels: the one-sided 95\% lower bound of its AUROC on the same calibration rows is above $0.5$, under the same ten-and-ten support rule.
-\item \textbf{Owned:} on the test rows, the write meets the \emph{steering reference} ($W_{q,q}>0$, above the 95th percentile of the 119 random writes, and above the sham's absolute effect) and every simultaneous lower bound of $W_{q,q}-W_{q,d}$ is positive. A cell with any simultaneous upper bound below zero has a \emph{stronger competitor}; the rest are \emph{unresolved}.
+\item \textbf{Readable:} $S>0$ on the calibration rows, with at least ten known positives and ten known negatives among those 400 rows.
+\item \textbf{Answerable:} the \emph{clean answer}, $P(\mathrm{yes})$ with no write, separates the concept's labels: its AUROC on the same calibration rows is above $0.5$, under the same ten-and-ten support rule.
+\item \textbf{Owned:} on the test rows, the write meets the \emph{steering reference} ($W_{q,q}>0$, above the 95th percentile of the 119 random writes, and above the sham's absolute effect) and $O_q>0$: the concept's own direction moves its own answer further than any of the five competitors does. A cell that meets the reference while some competitor moves the answer at least as far has a \emph{stronger competitor}.
 \end{itemize}
 A checkpoint--concept pair on one dataset is a \emph{cell}, and a checkpoint--dataset pair is a \emph{block}. A cell graded owned is said to be owned, and the checkpoint is said to own the concept; an alternative direction is owned in a cell when its write meets the same rule for that concept. A block contributes to the answerable and owned counts only when its write matrix and its calibration pass both completed. The grades are defined for one direction construction, one primary dose with a five-point sweep, six templates, pooled consumed-token features, and two loci, the consumed block and the connector output. Before a block is scored, seven acceptance checks on 16 held-out preflight rows confirm, at both loci, that scoring is deterministic, that $\alpha=0$ changes nothing, that the write reaches the answer and changes nothing outside the consumed tokens, and that every template maps its answers correctly without an image (Appendix~\ref{app:cf-gates}).
 \label{sec:gates}
@@ -164,52 +165,52 @@ Each concept is asked as a yes/no question in six templates that cross two wordi
 
 On both chest datasets, reading and answering far outpace writing (Table~\ref{tab:cf-main}, Figure~\ref{fig:overview}a--b). Clinical concepts are readable in \cfChestReadable{} of \cfChestReadableN{} cells (\cfChestReadablePct\%; median selectivity $\cfSelChestMed$), and \cfChestAnswerable{} (\cfChestAnswerablePct\%) are answerable. Yet only \cfChestOwned{} cells (\cfChestOwnedPct\%) are owned, and reading and answering together barely change this: \cfReadAnsOwned{} of the \cfReadAns{} readable and answerable cells are owned (\cfReadAnsOwnedPct\%), against \cfRestOwned{} of the remaining \cfRestN{} (\cfRestOwnedPct\%).
 
-Ownership on chest radiographs breaks at the write itself. \cfChestRefBelow{} of \cfChestCellsN{} label directions fail the random and sham reference for their own question, and these cells carry \cfChestBelowStrong{} of the \cfChestCompetitor{} stronger-competitor verdicts (\cfChestBelowStrongPct\%). Once an own write clears the reference, \cfChestOwned{} of \cfChestRefMet{} cells are owned; on COCO, \cfCocoRefMet{} of \cfCocoOwnedN{} writes clear it and \cfCocoOwned{} are owned. On chest radiographs, most label directions therefore scarcely move the answers they name, while the directions of other findings often move those answers more.
+Ownership on chest radiographs breaks at the write itself. \cfChestRefBelow{} of \cfChestCellsN{} label directions fail the random and sham reference for their own question, and these cells carry \cfChestBelowStrong{} of the \cfChestCompetitor{} stronger-competitor verdicts (\cfChestBelowStrongPct\%). Once an own write clears the reference, \cfChestOwned{} of \cfChestRefMet{} cells are owned and \cfChestRefStrong{} have a stronger competitor; on COCO, \cfCocoRefMet{} of \cfCocoOwnedN{} writes clear it and \cfCocoOwned{} are owned. On chest radiographs, most label directions therefore scarcely move the answers they name, while the directions of other findings often move those answers more.
 
-\label{sec:seed}The Effusion case reproduces on 600 new patients (Table~\ref{tab:cf-seed}). The Effusion write raises its answer by $\cfSeedWEff$, second among the 120 compared effects, the Nodule write raises it by $\cfSeedWNodule$, and $O_{\mathrm{Effusion}}=\cfSeedEffO$ $[\cfSeedEffOLo,\cfSeedEffOHi]$, matching the $\cfSeedPriorO$ $[\cfSeedPriorOLo,\cfSeedPriorOHi]$ of the two-model pilot study that motivated the evaluation (Appendix~\ref{app:seed}). Across the grid, Effusion is owned in \cfEffusionOwnedBlocks{} of \cfChestBlocks{} chest blocks, and in \cfEffusionOwnedSmall{} of these $O_{\mathrm{Effusion}}\leq0.03$.
+\label{sec:seed}The Effusion case reproduces on 600 new patients (Table~\ref{tab:cf-seed}). The Effusion write raises its answer by $\cfSeedWEff$, second among the 120 compared effects, the Nodule write raises it by $\cfSeedWNodule$, and $O_{\mathrm{Effusion}}=\cfSeedEffO$, matching the $\cfSeedPriorO$ of the two-model pilot study that motivated the evaluation (Appendix~\ref{app:seed}). Across the grid, Effusion is owned in \cfEffusionOwnedBlocks{} of \cfChestBlocks{} chest blocks, and in \cfEffusionOwnedSmall{} of these $O_{\mathrm{Effusion}}\leq0.03$.
 
 \begin{table}[t]
 \centering
-\setlength{\tabcolsep}{2pt}
+\setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.08}
 \input{tables/cf_colors}
 \caption{\textbf{Reading, answering, and writing per checkpoint.} Per dataset: mean probe selectivity $S$ (\textsc{Read}), mean clean-answer AUROC (\textsc{Ans}), and mean ownership $O_q$ (\textsc{Own}), each superscripted with the number of the six concepts that receive the grade; then the owned share of clinical and COCO cells and their ratio, by which rows are sorted. Shading darkens with magnitude (blue for negative \textsc{Own}); ``--'' marks an undefined ratio.}
 \label{tab:cf-main}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{l@{\hspace{3pt}}ccc@{\hspace{4pt}}ccc@{\hspace{4pt}}ccc@{\hspace{4pt}}ccc}
 \toprule
 \multirow{2}{*}{Checkpoint} & \multicolumn{3}{c}{NIH ChestX-ray14} & \multicolumn{3}{c}{CheXpert Plus} & \multicolumn{3}{c}{COCO (control)} & \multicolumn{3}{c}{Owned share}\\
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
 & \multicolumn{1}{c}{\textsc{Read}} & \multicolumn{1}{c}{\textsc{Ans}} & \multicolumn{1}{c}{\textsc{Own}} & \multicolumn{1}{c}{\textsc{Read}} & \multicolumn{1}{c}{\textsc{Ans}} & \multicolumn{1}{c}{\textsc{Own}} & \multicolumn{1}{c}{\textsc{Read}} & \multicolumn{1}{c}{\textsc{Ans}} & \multicolumn{1}{c}{\textsc{Own}} & \multicolumn{1}{c}{clin.} & \multicolumn{1}{c}{COCO} & \multicolumn{1}{c}{ratio}\\
 \midrule
-Lingshu 32B & \cellcolor{cfSage2}0.08$^{3}$ & \cellcolor{cfSage3}0.78$^{6}$ & \cellcolor{cfSlate2}-0.02$^{2}$ & \cellcolor{cfSage4}0.20$^{4}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfTerra2}+0.04$^{5}$ & \cellcolor{cfSage1}0.03$^{1}$ & \cellcolor{cfSage4}0.95$^{5}$ & \cellcolor{cfTerra4}+0.28$^{6}$ & \cellcolor{cfTerra4}58\% & \cellcolor{cfTerra4}100\% & 58\% \\
-CheXagent-2-3B & \cellcolor{cfSage3}0.13$^{5}$ & \cellcolor{cfSage3}0.86$^{6}$ & \cellcolor{cfTerra1}+0.00$^{2}$ & \cellcolor{cfSage4}0.21$^{5}$ & \cellcolor{cfSage4}0.95$^{5}$ & \cellcolor{cfTerra1}+0.01$^{4}$ & \cellcolor{cfSage3}0.13$^{4}$ & \cellcolor{cfSage3}0.81$^{5}$ & \cellcolor{cfTerra2}+0.03$^{2}$ & \cellcolor{cfTerra4}50\% & \cellcolor{cfTerra2}33\% & 150\% \\
-Qwen2.5-VL-72B & \cellcolor{cfSage2}0.07$^{2}$ & \cellcolor{cfSage2}0.62$^{4}$ & \cellcolor{cfSlate2}-0.03$^{3}$ & \cellcolor{cfSage3}0.20$^{4}$ & \cellcolor{cfSage2}0.71$^{4}$ & \cellcolor{cfSlate2}-0.09$^{1}$ & \cellcolor{cfSage1}0.01$^{1}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra4}+0.66$^{6}$ & \cellcolor{cfTerra3}33\% & \cellcolor{cfTerra4}100\% & 33\% \\
-Lingshu 7B & \cellcolor{cfSage2}0.08$^{3}$ & \cellcolor{cfSage3}0.76$^{6}$ & \cellcolor{cfTerra2}+0.02$^{1}$ & \cellcolor{cfSage4}0.21$^{4}$ & \cellcolor{cfSage3}0.86$^{5}$ & \cellcolor{cfTerra2}+0.04$^{3}$ & \cellcolor{cfSage1}0.02$^{1}$ & \cellcolor{cfSage4}0.97$^{5}$ & \cellcolor{cfTerra4}+0.68$^{6}$ & \cellcolor{cfTerra3}33\% & \cellcolor{cfTerra4}100\% & 33\% \\
-Qwen3-VL-4B & \cellcolor{cfSage2}0.08$^{3}$ & \cellcolor{cfSage2}0.71$^{6}$ & \cellcolor{cfSlate3}-0.11$^{0}$ & \cellcolor{cfSage4}0.20$^{4}$ & \cellcolor{cfSage2}0.74$^{4}$ & \cellcolor{cfSlate1}-0.01$^{2}$ & \cellcolor{cfSage1}0.04$^{4}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra4}+0.34$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
-Qwen3-VL-32B & \cellcolor{cfSage2}0.10$^{2}$ & \cellcolor{cfSage2}0.70$^{6}$ & \cellcolor{cfSlate2}-0.02$^{1}$ & \cellcolor{cfSage3}0.17$^{5}$ & \cellcolor{cfSage3}0.82$^{5}$ & \cellcolor{cfSlate2}-0.02$^{1}$ & \cellcolor{cfSage2}0.05$^{4}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra3}+0.15$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
-InternVL3.5-38B & \cellcolor{cfSage2}0.10$^{5}$ & \cellcolor{cfSage3}0.78$^{6}$ & \cellcolor{cfSlate1}-0.00$^{0}$ & \cellcolor{cfSage3}0.17$^{4}$ & \cellcolor{cfSage3}0.86$^{5}$ & \cellcolor{cfSlate1}-0.00$^{2}$ & \cellcolor{cfSage2}0.08$^{4}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra1}+0.01$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
-Gemma 3 12B & \cellcolor{cfSage2}0.07$^{2}$ & \cellcolor{cfSage2}0.62$^{5}$ & \cellcolor{cfSlate4}-0.37$^{1}$ & \cellcolor{cfSage3}0.18$^{4}$ & \cellcolor{cfSage1}0.52$^{0}$ & \cellcolor{cfSlate4}-0.38$^{1}$ & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage4}0.95$^{5}$ & \cellcolor{cfTerra4}+0.44$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
-MedGemma 4B & \cellcolor{cfSage3}0.12$^{3}$ & \cellcolor{cfSage3}0.80$^{6}$ & \cellcolor{cfSlate3}-0.13$^{0}$ & \cellcolor{cfSage4}0.21$^{4}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfSlate3}-0.16$^{2}$ & \cellcolor{cfSage2}0.06$^{4}$ & \cellcolor{cfSage4}0.94$^{5}$ & \cellcolor{cfTerra3}+0.23$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
-InternVL3.5-14B & \cellcolor{cfSage2}0.07$^{4}$ & \cellcolor{cfSage2}0.73$^{6}$ & \cellcolor{cfSlate1}-0.00$^{1}$ & \cellcolor{cfSage3}0.16$^{4}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfTerra1}+0.00$^{1}$ & \cellcolor{cfSage3}0.12$^{4}$ & \cellcolor{cfSage4}0.98$^{5}$ & \cellcolor{cfTerra1}+0.02$^{5}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra3}83\% & 20\% \\
-Qwen2.5-VL-32B & \cellcolor{cfSage2}0.09$^{3}$ & \cellcolor{cfSage2}0.63$^{4}$ & \cellcolor{cfSlate2}-0.06$^{1}$ & \cellcolor{cfSage3}0.16$^{4}$ & \cellcolor{cfSage2}0.70$^{4}$ & \cellcolor{cfSlate3}-0.11$^{0}$ & \cellcolor{cfSage1}0.02$^{1}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra4}+0.38$^{6}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra4}100\% & 8\% \\
-InternVL3.5-8B & \cellcolor{cfSage2}0.06$^{2}$ & \cellcolor{cfSage2}0.73$^{6}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage3}0.19$^{4}$ & \cellcolor{cfSage3}0.86$^{5}$ & \cellcolor{cfSlate1}-0.00$^{1}$ & \cellcolor{cfSage2}0.12$^{5}$ & \cellcolor{cfSage4}0.98$^{5}$ & \cellcolor{cfTerra2}+0.03$^{6}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra4}100\% & 8\% \\
-HuatuoGPT-Vision-7B & \cellcolor{cfSage2}0.08$^{3}$ & \cellcolor{cfSage2}0.71$^{6}$ & \cellcolor{cfSlate2}-0.03$^{1}$ & \cellcolor{cfSage3}0.19$^{4}$ & \cellcolor{cfSage3}0.78$^{4}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage2}0.07$^{4}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra1}+0.01$^{4}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra3}67\% & 12\% \\
-LLaVA-Med 1.5 7B & \cellcolor{cfSage2}0.08$^{3}$ & \cellcolor{cfSage1}0.53$^{0}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage3}0.19$^{4}$ & \cellcolor{cfSage1}0.59$^{2}$ & \cellcolor{cfSlate1}-0.01$^{1}$ & \cellcolor{cfSage2}0.07$^{4}$ & \cellcolor{cfSage3}0.76$^{5}$ & \cellcolor{cfTerra1}+0.00$^{1}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra2}17\% & 50\% \\
-CheXagent-8B & \cellcolor{cfSage3}0.16$^{5}$ & \cellcolor{cfSage2}0.73$^{6}$ & \cellcolor{cfSlate1}-0.00$^{0}$ & \cellcolor{cfSage4}0.23$^{5}$ & \cellcolor{cfSage3}0.88$^{5}$ & \cellcolor{cfSlate1}-0.02$^{1}$ & \cellcolor{cfSage2}0.05$^{3}$ & \cellcolor{cfSage1}0.52$^{1}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra1}0\% & -- \\
-Qwen2.5-VL-3B & \cellcolor{cfSage2}0.07$^{2}$ & \cellcolor{cfSage1}0.58$^{2}$ & \cellcolor{cfSlate2}-0.08$^{0}$ & \cellcolor{cfSage3}0.17$^{4}$ & \cellcolor{cfSage1}0.57$^{2}$ & \cellcolor{cfSlate2}-0.07$^{0}$ & \cellcolor{cfSage1}0.05$^{4}$ & \cellcolor{cfSage4}0.97$^{5}$ & \cellcolor{cfTerra4}+0.52$^{6}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra4}100\% & 0\% \\
-Qwen2.5-VL-7B & \cellcolor{cfSage2}0.08$^{3}$ & \cellcolor{cfSage2}0.62$^{3}$ & \cellcolor{cfSlate3}-0.14$^{0}$ & \cellcolor{cfSage3}0.20$^{4}$ & \cellcolor{cfSage2}0.65$^{2}$ & \cellcolor{cfSlate2}-0.08$^{0}$ & \cellcolor{cfSage1}0.02$^{1}$ & \cellcolor{cfSage4}0.98$^{5}$ & \cellcolor{cfTerra4}+0.67$^{6}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra4}100\% & 0\% \\
-Qwen3-VL-8B & \cellcolor{cfSage2}0.10$^{4}$ & \cellcolor{cfSage2}0.69$^{6}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage3}0.17$^{4}$ & \cellcolor{cfSage2}0.75$^{4}$ & \cellcolor{cfSlate2}-0.04$^{0}$ & \cellcolor{cfSage1}0.04$^{3}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra4}+0.58$^{6}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra4}100\% & 0\% \\
-Gemma 3 27B & \cellcolor{cfSage2}0.07$^{2}$ & \cellcolor{cfSage2}0.60$^{3}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfSage3}0.18$^{4}$ & \cellcolor{cfSage1}0.55$^{2}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage4}0.96$^{5}$ & \cellcolor{cfTerra4}+0.31$^{6}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra4}100\% & 0\% \\
-Gemma 3 4B & \cellcolor{cfSage2}0.07$^{2}$ & \cellcolor{cfSage1}0.56$^{2}$ & \cellcolor{cfSlate3}-0.11$^{0}$ & \cellcolor{cfSage3}0.18$^{4}$ & \cellcolor{cfSage1}0.53$^{1}$ & \cellcolor{cfSlate4}-0.27$^{0}$ & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage4}0.94$^{5}$ & \cellcolor{cfTerra3}+0.24$^{5}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra3}83\% & 0\% \\
-LLaVA-1.5-7B & \cellcolor{cfSage2}0.08$^{2}$ & \cellcolor{cfSage1}0.51$^{0}$ & \cellcolor{cfSlate2}-0.04$^{0}$ & \cellcolor{cfSage3}0.17$^{4}$ & \cellcolor{cfSage1}0.52$^{0}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfSage4}0.28$^{5}$ & \cellcolor{cfSage4}0.97$^{5}$ & \cellcolor{cfTerra2}+0.03$^{5}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra3}83\% & 0\% \\
-MedGemma 27B & \cellcolor{cfSage3}0.12$^{3}$ & \cellcolor{cfSage3}0.80$^{6}$ & \cellcolor{cfSlate3}-0.14$^{0}$ & \cellcolor{cfSage4}0.21$^{4}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfSlate2}-0.06$^{0}$ & \cellcolor{cfSage2}0.06$^{4}$ & \cellcolor{cfSage4}0.97$^{5}$ & \cellcolor{cfTerra3}+0.12$^{4}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra3}67\% & 0\% \\
-LLaVA-1.5-13B & \cellcolor{cfSage2}0.08$^{2}$ & \cellcolor{cfSage1}0.53$^{0}$ & \cellcolor{cfSlate2}-0.02$^{0}$ & \cellcolor{cfSage3}0.17$^{4}$ & \cellcolor{cfSage1}0.51$^{1}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage4}0.28$^{5}$ & \cellcolor{cfSage4}0.96$^{5}$ & \cellcolor{cfTerra2}+0.02$^{2}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra2}33\% & 0\% \\
-Llama 3.2 Vision 11B & \cellcolor{cfSage2}0.08$^{2}$ & \cellcolor{cfSage2}0.65$^{4}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfSage3}0.16$^{4}$ & \cellcolor{cfSage2}0.73$^{4}$ & \cellcolor{cfSlate2}-0.04$^{0}$ & \cellcolor{cfSage3}0.12$^{5}$ & \cellcolor{cfSage4}0.95$^{5}$ & \cellcolor{cfSlate1}-0.01$^{1}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra2}17\% & 0\% \\
-LLaVA-Rad-7B & \cellcolor{cfSage3}0.15$^{4}$ & \cellcolor{cfSage2}0.71$^{5}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage4}0.27$^{5}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfSlate1}-0.02$^{0}$ & \cellcolor{cfSage3}0.12$^{4}$ & \cellcolor{cfSage1}0.50$^{0}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra1}0\% & -- \\
+Lingshu 32B & \cellcolor{cfSage2}0.08$^{5}$ & \cellcolor{cfSage3}0.78$^{6}$ & \cellcolor{cfSlate2}-0.02$^{2}$ & \cellcolor{cfSage4}0.20$^{5}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfTerra2}+0.04$^{5}$ & \cellcolor{cfSage1}0.03$^{4}$ & \cellcolor{cfSage4}0.95$^{5}$ & \cellcolor{cfTerra4}+0.28$^{6}$ & \cellcolor{cfTerra4}58\% & \cellcolor{cfTerra4}100\% & 58\% \\
+CheXagent-2-3B & \cellcolor{cfSage3}0.13$^{5}$ & \cellcolor{cfSage3}0.86$^{6}$ & \cellcolor{cfTerra1}+0.00$^{2}$ & \cellcolor{cfSage4}0.21$^{5}$ & \cellcolor{cfSage4}0.95$^{5}$ & \cellcolor{cfTerra1}+0.01$^{4}$ & \cellcolor{cfSage3}0.13$^{5}$ & \cellcolor{cfSage3}0.81$^{5}$ & \cellcolor{cfTerra2}+0.03$^{2}$ & \cellcolor{cfTerra4}50\% & \cellcolor{cfTerra2}33\% & 150\% \\
+Lingshu 7B & \cellcolor{cfSage2}0.08$^{5}$ & \cellcolor{cfSage3}0.76$^{6}$ & \cellcolor{cfTerra2}+0.02$^{1}$ & \cellcolor{cfSage4}0.21$^{4}$ & \cellcolor{cfSage3}0.86$^{5}$ & \cellcolor{cfTerra2}+0.04$^{4}$ & \cellcolor{cfSage1}0.02$^{4}$ & \cellcolor{cfSage4}0.97$^{5}$ & \cellcolor{cfTerra4}+0.68$^{6}$ & \cellcolor{cfTerra4}42\% & \cellcolor{cfTerra4}100\% & 42\% \\
+Qwen2.5-VL-72B & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage2}0.62$^{5}$ & \cellcolor{cfSlate2}-0.03$^{3}$ & \cellcolor{cfSage3}0.20$^{5}$ & \cellcolor{cfSage2}0.71$^{5}$ & \cellcolor{cfSlate2}-0.09$^{1}$ & \cellcolor{cfSage1}0.01$^{3}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra4}+0.66$^{6}$ & \cellcolor{cfTerra3}33\% & \cellcolor{cfTerra4}100\% & 33\% \\
+Qwen3-VL-32B & \cellcolor{cfSage2}0.10$^{5}$ & \cellcolor{cfSage2}0.70$^{6}$ & \cellcolor{cfSlate2}-0.02$^{2}$ & \cellcolor{cfSage3}0.17$^{5}$ & \cellcolor{cfSage3}0.82$^{5}$ & \cellcolor{cfSlate2}-0.02$^{2}$ & \cellcolor{cfSage2}0.05$^{4}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra3}+0.15$^{6}$ & \cellcolor{cfTerra3}33\% & \cellcolor{cfTerra4}100\% & 33\% \\
+InternVL3.5-38B & \cellcolor{cfSage2}0.10$^{5}$ & \cellcolor{cfSage3}0.78$^{6}$ & \cellcolor{cfSlate1}-0.00$^{1}$ & \cellcolor{cfSage3}0.17$^{5}$ & \cellcolor{cfSage3}0.86$^{5}$ & \cellcolor{cfSlate1}-0.00$^{2}$ & \cellcolor{cfSage2}0.08$^{5}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra1}+0.01$^{6}$ & \cellcolor{cfTerra3}25\% & \cellcolor{cfTerra4}100\% & 25\% \\
+Qwen3-VL-4B & \cellcolor{cfSage2}0.08$^{5}$ & \cellcolor{cfSage2}0.71$^{6}$ & \cellcolor{cfSlate3}-0.11$^{0}$ & \cellcolor{cfSage4}0.20$^{5}$ & \cellcolor{cfSage2}0.74$^{4}$ & \cellcolor{cfSlate1}-0.01$^{2}$ & \cellcolor{cfSage1}0.04$^{5}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra4}+0.34$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
+InternVL3.5-14B & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage2}0.73$^{6}$ & \cellcolor{cfSlate1}-0.00$^{1}$ & \cellcolor{cfSage3}0.16$^{4}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfTerra1}+0.00$^{1}$ & \cellcolor{cfSage3}0.12$^{5}$ & \cellcolor{cfSage4}0.98$^{5}$ & \cellcolor{cfTerra1}+0.02$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
+Gemma 3 12B & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage2}0.62$^{6}$ & \cellcolor{cfSlate4}-0.37$^{1}$ & \cellcolor{cfSage3}0.18$^{5}$ & \cellcolor{cfSage1}0.52$^{4}$ & \cellcolor{cfSlate4}-0.38$^{1}$ & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage4}0.95$^{5}$ & \cellcolor{cfTerra4}+0.44$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
+Gemma 3 27B & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage2}0.60$^{6}$ & \cellcolor{cfSlate2}-0.03$^{1}$ & \cellcolor{cfSage3}0.18$^{5}$ & \cellcolor{cfSage1}0.55$^{4}$ & \cellcolor{cfSlate1}-0.01$^{1}$ & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage4}0.96$^{5}$ & \cellcolor{cfTerra4}+0.31$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
+MedGemma 4B & \cellcolor{cfSage3}0.12$^{6}$ & \cellcolor{cfSage3}0.80$^{6}$ & \cellcolor{cfSlate3}-0.13$^{0}$ & \cellcolor{cfSage4}0.21$^{5}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfSlate3}-0.16$^{2}$ & \cellcolor{cfSage2}0.06$^{5}$ & \cellcolor{cfSage4}0.94$^{5}$ & \cellcolor{cfTerra3}+0.23$^{6}$ & \cellcolor{cfTerra3}17\% & \cellcolor{cfTerra4}100\% & 17\% \\
+Qwen2.5-VL-32B & \cellcolor{cfSage2}0.09$^{6}$ & \cellcolor{cfSage2}0.63$^{5}$ & \cellcolor{cfSlate2}-0.06$^{1}$ & \cellcolor{cfSage3}0.16$^{5}$ & \cellcolor{cfSage2}0.70$^{5}$ & \cellcolor{cfSlate3}-0.11$^{0}$ & \cellcolor{cfSage1}0.02$^{4}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra4}+0.38$^{6}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra4}100\% & 8\% \\
+InternVL3.5-8B & \cellcolor{cfSage2}0.06$^{5}$ & \cellcolor{cfSage2}0.73$^{6}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage3}0.19$^{4}$ & \cellcolor{cfSage3}0.86$^{5}$ & \cellcolor{cfSlate1}-0.00$^{1}$ & \cellcolor{cfSage2}0.12$^{5}$ & \cellcolor{cfSage4}0.98$^{5}$ & \cellcolor{cfTerra2}+0.03$^{6}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra4}100\% & 8\% \\
+HuatuoGPT-Vision-7B & \cellcolor{cfSage2}0.08$^{6}$ & \cellcolor{cfSage2}0.71$^{6}$ & \cellcolor{cfSlate2}-0.03$^{1}$ & \cellcolor{cfSage3}0.19$^{5}$ & \cellcolor{cfSage3}0.78$^{5}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra1}+0.01$^{6}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra4}100\% & 8\% \\
+LLaVA-Med 1.5 7B & \cellcolor{cfSage2}0.08$^{6}$ & \cellcolor{cfSage1}0.53$^{5}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage3}0.19$^{5}$ & \cellcolor{cfSage1}0.59$^{5}$ & \cellcolor{cfSlate1}-0.01$^{1}$ & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage3}0.76$^{5}$ & \cellcolor{cfTerra1}+0.00$^{1}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra2}17\% & 50\% \\
+CheXagent-8B & \cellcolor{cfSage3}0.16$^{6}$ & \cellcolor{cfSage2}0.73$^{6}$ & \cellcolor{cfSlate1}-0.00$^{0}$ & \cellcolor{cfSage4}0.23$^{5}$ & \cellcolor{cfSage3}0.88$^{5}$ & \cellcolor{cfSlate1}-0.02$^{1}$ & \cellcolor{cfSage2}0.05$^{5}$ & \cellcolor{cfSage1}0.52$^{3}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfTerra2}8\% & \cellcolor{cfTerra1}0\% & -- \\
+Qwen2.5-VL-3B & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage1}0.58$^{5}$ & \cellcolor{cfSlate2}-0.08$^{0}$ & \cellcolor{cfSage3}0.17$^{5}$ & \cellcolor{cfSage1}0.57$^{4}$ & \cellcolor{cfSlate2}-0.07$^{0}$ & \cellcolor{cfSage1}0.05$^{5}$ & \cellcolor{cfSage4}0.97$^{5}$ & \cellcolor{cfTerra4}+0.52$^{6}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra4}100\% & 0\% \\
+Qwen2.5-VL-7B & \cellcolor{cfSage2}0.08$^{5}$ & \cellcolor{cfSage2}0.62$^{6}$ & \cellcolor{cfSlate3}-0.14$^{0}$ & \cellcolor{cfSage3}0.20$^{4}$ & \cellcolor{cfSage2}0.65$^{5}$ & \cellcolor{cfSlate2}-0.08$^{0}$ & \cellcolor{cfSage1}0.02$^{4}$ & \cellcolor{cfSage4}0.98$^{5}$ & \cellcolor{cfTerra4}+0.67$^{6}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra4}100\% & 0\% \\
+Qwen3-VL-8B & \cellcolor{cfSage2}0.10$^{5}$ & \cellcolor{cfSage2}0.69$^{6}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage3}0.17$^{5}$ & \cellcolor{cfSage2}0.75$^{4}$ & \cellcolor{cfSlate2}-0.04$^{0}$ & \cellcolor{cfSage1}0.04$^{5}$ & \cellcolor{cfSage4}0.99$^{5}$ & \cellcolor{cfTerra4}+0.58$^{6}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra4}100\% & 0\% \\
+Gemma 3 4B & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage1}0.56$^{5}$ & \cellcolor{cfSlate3}-0.11$^{0}$ & \cellcolor{cfSage3}0.18$^{5}$ & \cellcolor{cfSage1}0.53$^{3}$ & \cellcolor{cfSlate4}-0.27$^{0}$ & \cellcolor{cfSage2}0.07$^{5}$ & \cellcolor{cfSage4}0.94$^{5}$ & \cellcolor{cfTerra3}+0.24$^{5}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra3}83\% & 0\% \\
+LLaVA-1.5-7B & \cellcolor{cfSage2}0.08$^{6}$ & \cellcolor{cfSage1}0.51$^{5}$ & \cellcolor{cfSlate2}-0.04$^{0}$ & \cellcolor{cfSage3}0.17$^{5}$ & \cellcolor{cfSage1}0.52$^{3}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfSage4}0.28$^{5}$ & \cellcolor{cfSage4}0.97$^{5}$ & \cellcolor{cfTerra2}+0.03$^{5}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra3}83\% & 0\% \\
+MedGemma 27B & \cellcolor{cfSage3}0.12$^{6}$ & \cellcolor{cfSage3}0.80$^{6}$ & \cellcolor{cfSlate3}-0.14$^{0}$ & \cellcolor{cfSage4}0.21$^{5}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfSlate2}-0.06$^{0}$ & \cellcolor{cfSage2}0.06$^{5}$ & \cellcolor{cfSage4}0.97$^{5}$ & \cellcolor{cfTerra3}+0.12$^{4}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra3}67\% & 0\% \\
+LLaVA-1.5-13B & \cellcolor{cfSage2}0.08$^{6}$ & \cellcolor{cfSage1}0.53$^{5}$ & \cellcolor{cfSlate2}-0.02$^{0}$ & \cellcolor{cfSage3}0.17$^{5}$ & \cellcolor{cfSage1}0.51$^{3}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage4}0.28$^{5}$ & \cellcolor{cfSage4}0.96$^{5}$ & \cellcolor{cfTerra2}+0.02$^{3}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra3}50\% & 0\% \\
+Llama 3.2 Vision 11B & \cellcolor{cfSage2}0.08$^{6}$ & \cellcolor{cfSage2}0.65$^{6}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfSage3}0.16$^{5}$ & \cellcolor{cfSage2}0.73$^{5}$ & \cellcolor{cfSlate2}-0.04$^{0}$ & \cellcolor{cfSage3}0.12$^{5}$ & \cellcolor{cfSage4}0.95$^{5}$ & \cellcolor{cfSlate1}-0.01$^{1}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra2}17\% & 0\% \\
+LLaVA-Rad-7B & \cellcolor{cfSage3}0.15$^{6}$ & \cellcolor{cfSage2}0.71$^{6}$ & \cellcolor{cfSlate1}-0.01$^{0}$ & \cellcolor{cfSage4}0.27$^{5}$ & \cellcolor{cfSage3}0.87$^{5}$ & \cellcolor{cfSlate1}-0.02$^{0}$ & \cellcolor{cfSage3}0.12$^{5}$ & \cellcolor{cfSage1}0.50$^{3}$ & \cellcolor{cfSlate2}-0.03$^{0}$ & \cellcolor{cfTerra1}0\% & \cellcolor{cfTerra1}0\% & -- \\
 \midrule
-\textbf{All cells} & 0.09 & 0.68 & -0.06 & 0.19 & 0.74 & -0.05 & 0.08 & 0.92 & +0.23 & 13\% & 75\% & 17\% \\
-\quad count / cells & 74/150 & 110/150 & 13/150 & 104/150 & 89/150 & 25/150 & 90/150 & 116/150 & 113/150 & & & \\
+\textbf{All cells} & 0.09 & 0.68 & -0.06 & 0.19 & 0.74 & -0.05 & 0.08 & 0.92 & +0.23 & 15\% & 78\% & 19\% \\
+\quad count / cells & 135/150 & 143/150 & 16/150 & 121/150 & 114/150 & 28/150 & 118/150 & 121/150 & 117/150 & & & \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -218,7 +219,7 @@ LLaVA-Rad-7B & \cellcolor{cfSage3}0.15$^{4}$ & \cellcolor{cfSage2}0.71$^{5}$ & \
 \begin{figure}[t]
     \centering
     \resizebox{\textwidth}{!}{\includegraphics{figures/fig2_overview.pdf}}
-    \caption{\textbf{Reading, answering, and writing across the grid.} (a) Readable, answerable, and owned cells of 150 per dataset, with descriptive 95\% bootstrap intervals over cells. (b) Mean readability against mean ownership per checkpoint. (c) Median ownership and interquartile band over 25 blocks against the dose; the dotted line marks the graded dose $\alpha=+0.25$, and the COCO band is clipped at $0.2$. (d) Cumulative share of cells by the rank of the concept write among the 120 compared effects.}
+    \caption{\textbf{Reading, answering, and writing across the grid.} (a) Concept cells of 150 per dataset passing each grade. (b) One marker per checkpoint and dataset: mean readability against mean ownership over its six concepts. (c) Median ownership and interquartile range over 25 blocks against the dose; the dotted line marks the graded dose $\alpha=+0.25$, and the COCO band is clipped at $0.2$. (d) Cumulative share of cells by the rank of the concept write among the 120 compared effects; the key gives the share ranked first.}
     \label{fig:overview}
 \end{figure}
 
@@ -253,12 +254,12 @@ Clinical writes are not selective (Figure~\ref{fig:write-flow}). The written con
 
 On COCO, the same procedure yields the opposite result (Table~\ref{tab:cf-main}, right block). Object ownership holds in \cfCocoOwned{} of \cfCocoOwnedN{} cells (\cfCocoOwnedPct\%), \cfCocoRefMet{} cells meet the steering reference, only \cfCocoCompetitor{} have a stronger competitor, and \cfCocoBlocksFourPlus{} of the \cfCocoBlocks{} checkpoints own at least four of the six objects. Ownership also tracks the dose: on COCO, median ownership rises from $\cfDoseCocoLow$ at $\alpha=-0.1$ to $\cfDoseCocoPeak$ at $\alpha=+0.25$ and stays positive at $\alpha=+0.5$ ($\cfDoseCocoHalf$), while on NIH it stays between $\cfDoseNihMin$ and $\cfDoseNihMax$ at every dose (Figure~\ref{fig:overview}c). The write, direction construction, reference family, and decision rules thus work as intended.
 
-The contrast survives two difficulty controls. Six small or fine-grained COCO categories (handbag, book, backpack, traffic light, knife, and cell phone) remain owned in \cfFgFineOwned{} of \cfFgFineCells{} cells, against \cfFgEasySameOwned{} of \cfFgEasySameCells{} for the easy six in the same \cfFgSameBlocks{} checkpoints (sign test $p=\cfFgSameSignP$), at a median clean-answer AUROC of \cfFgFineAuroc{} against \cfFgEasySameAuroc{}. On the chest sets, ownership also stays rare where the model already answers the question well: at a clean-answer AUROC of at least \cfStratTopEdge{}, \cfStratChestTopOwned{} of \cfStratChestTopN{} chest cells are owned (\cfStratChestTopPct\%) against \cfStratNatTopOwned{} of \cfStratNatTopN{} natural-image cells (\cfStratNatTopPct\%), a difference of $\cfStratCvnDiff$ $[\cfStratCvnLo,\cfStratCvnHi]$ (Appendix~\ref{app:cf-difficulty} states the category rule, the bins, and the bootstrap).
+The contrast survives two difficulty controls. Six small or fine-grained COCO categories (handbag, book, backpack, traffic light, knife, and cell phone) remain owned in \cfFgFineOwned{} of \cfFgFineCells{} cells, against \cfFgEasySameOwned{} of \cfFgEasySameCells{} for the easy six in the same \cfFgSameBlocks{} checkpoints (sign test $p=\cfFgSameSignP$), at a median clean-answer AUROC of \cfFgFineAuroc{} against \cfFgEasySameAuroc{}. On the chest sets, ownership also stays rare where the model already answers the question well: at a clean-answer AUROC of at least \cfStratTopEdge{}, \cfStratChestTopOwned{} of \cfStratChestTopN{} chest cells are owned (\cfStratChestTopPct\%) against \cfStratNatTopOwned{} of \cfStratNatTopN{} natural-image cells (\cfStratNatTopPct\%), a difference of $\cfStratCvnDiff$ (Appendix~\ref{app:cf-difficulty} states the category rule and the bins).
 
 \subsection{The reader decides ownership}
 \label{sec:reader}
 
-Checkpoints that share a vision tower differ in what they own. Gemma~3 shares one SigLIP tower across its 4B, 12B, and 27B checkpoints, MedGemma one MedSigLIP tower across 4B and 27B, and LLaVA-1.5 one CLIP tower across 7B and 13B. Within each family, pooled features, fitted probes, and lifted write vectors are identical across sizes (Table~\ref{tab:cf-pairs}), so readability is identical by construction and only the connector and language model that read the written representation differ. Steering a feature of the vision tower and letting the language model say what it sees treats that language model as a stable read-out of the tower \citep{ferrando2026explain}; here the read-out is what varies. In \cfPairsFiveOrSix{} of the \cfPairsN{} shared-tower pair--dataset combinations, the paired patient-bootstrap interval for the between-reader difference $\Delta O_q$ excludes zero for five or six of the six concepts (Figure~\ref{fig:readers}). On NIH Effusion, the identical write on the same 600 patients yields an $O_q$ difference of $\cfPairDeltaEffFourTwelve$ $[\cfPairDeltaEffFourTwelveLo,\cfPairDeltaEffFourTwelveHi]$ between Gemma~3 4B and 12B. In 12B, competing directions win the chest answers outright ($O_{\mathrm{Effusion}}=\cfOGemmaTwelveEff$ on both chest sets), and LLaVA-1.5 7B and 13B own no chest concept yet own \cfLlavaSevenCoco{} and \cfLlavaThirteenCoco{} COCO objects with the same write (Appendix~\ref{app:cf-reader}).
+Checkpoints that share a vision tower differ in what they own. Gemma~3 shares one SigLIP tower across its 4B, 12B, and 27B checkpoints, MedGemma one MedSigLIP tower across 4B and 27B, and LLaVA-1.5 one CLIP tower across 7B and 13B. Within each family, pooled features, fitted probes, and lifted write vectors are identical across sizes (Table~\ref{tab:cf-pairs}), so readability is identical by construction and only the connector and language model that read the written representation differ. Steering a feature of the vision tower and letting the language model say what it sees treats that language model as a stable read-out of the tower \citep{ferrando2026explain}; here the read-out is what varies. The two readers disagree by more than the measurement moves under a probe refit: across the \cfPairsRatioN{} shared-tower pair--dataset combinations the median $|\Delta O_q|$ is \cfPairsRatioMin{}--\cfPairsRatioMax{} times the refit standard deviation of the same cells, above one in \cfPairsRatioAboveOne{} of them, and reaches \cfPairsRatioSingleMax{} times for a single concept (Table~\ref{tab:cf-pairs}, Figure~\ref{fig:readers}). On NIH Effusion, the identical write on the same 600 patients yields an $O_q$ difference of $\cfPairDeltaEffFourTwelve$ between Gemma~3 4B and 12B. In 12B, competing directions win the chest answers outright ($O_{\mathrm{Effusion}}=\cfOGemmaTwelveEff$ on both chest sets), and LLaVA-1.5 7B and 13B own no chest concept yet own \cfLlavaSevenCoco{} and \cfLlavaThirteenCoco{} COCO objects with the same write (Appendix~\ref{app:cf-reader}).
 
 A better chest representation does not supply the missing reader. The three checkpoints whose towers are trained on chest radiographs read and answer the findings best in the grid (median probe AUROC \cfSpecTowerProbeAuroc{} on NIH against \cfSpecRestProbeAuroc{} for the other NIH cells; median clean-answer AUROC \cfSpecTowerAnsAuroc{} against \cfSpecMedAnsAuroc{} and \cfSpecGenAnsAuroc{} for medically tuned and general checkpoints), yet they own \cfSpecTowerOwned{} of their \cfSpecTowerN{} chest cells, against \cfSpecMedOwned{} of \cfSpecMedN{} for medically tuned checkpoints on general towers and \cfSpecGenOwned{} of \cfSpecGenN{} for general checkpoints. Scale raises chest ownership within some families, from none at Qwen2.5-VL 3B and 7B to three NIH concepts at 72B and from three to five CheXpert concepts across Lingshu 7B and 32B, but answering alone does not produce it: InternVL3.5 answers every NIH question at every size while its chest writes stay within $\cfInternvlWqqMax$ of zero (Figure~\ref{fig:ladders}). Ownership is therefore a property of the checkpoint that reads the representation, and a probe fitted to the tower alone cannot certify it.
 
@@ -348,67 +349,67 @@ This appendix lists the checkpoints and their consumed loci, the acceptance deci
 \subsection{Grid and consumed loci}
 \label{app:cf-grid}
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{4pt}
 \input{tables/cf_colors}
-\caption{\textbf{Checkpoints and families.} Per checkpoint: vision tower, consumed tokens per image, input size, and eligible templates. Bold family rows give mean selectivity and clean-answer AUROC over clinical cells and the owned clinical and COCO cells, shaded by owned share.}
+\caption{\textbf{Checkpoints and families.} Per checkpoint: vision tower, consumed tokens per image, input size, eligible templates, and pinned Hugging Face revision. Bold family rows give mean selectivity and clean-answer AUROC over clinical cells and the owned clinical and COCO cells, shaded by owned share.}
 \label{tab:cf-models}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{lllll@{\hspace{8pt}}rrrr}
+\fitwidth{%
+\begin{tabular}{llllll@{\hspace{8pt}}rrrr}
 \toprule
-\multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Vision tower} & \multirow{2}{*}{Tokens} & \multirow{2}{*}{Image} & \multirow{2}{*}{Templates} & \multirow{2}{*}{$\bar S$} & \multirow{2}{*}{$\overline{\mathrm{AUROC}}$} & \multicolumn{2}{c}{owned cells}\\
-\cmidrule(lr){8-9}
-&  &  &  &  &  &  & \multicolumn{1}{c}{clinical} & \multicolumn{1}{c}{COCO}\\
+\multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Vision tower} & \multirow{2}{*}{Tokens} & \multirow{2}{*}{Image} & \multirow{2}{*}{Templates} & \multirow{2}{*}{Revision} & \multirow{2}{*}{$\bar S$} & \multirow{2}{*}{$\overline{\mathrm{AUROC}}$} & \multicolumn{2}{c}{owned cells}\\
+\cmidrule(lr){9-10}
+&  &  &  &  &  &  &  & \multicolumn{1}{c}{clinical} & \multicolumn{1}{c}{COCO}\\
 \midrule
-\multicolumn{5}{l}{\textbf{Qwen2.5-VL}~\citep{bai2025qwen25vl}} & 0.132 & 0.635 & \cellcolor{cfTerra2}5/48 & \cellcolor{cfTerra4}24/24 \\
-\quad Qwen2.5-VL-3B & native ViT 675M & 576$\to$144 & $336^2$ & IYWYIAWA & & & & \\
-\quad Qwen2.5-VL-7B & native ViT 675M & 576$\to$144 & $336^2$ & all & & & & \\
-\quad Qwen2.5-VL-32B & native ViT 675M & 576$\to$144 & $336^2$ & all & & & & \\
-\quad Qwen2.5-VL-72B & native ViT 675M & 576$\to$144 & $336^2$ & all & & & & \\
+\multicolumn{6}{l}{\textbf{Qwen2.5-VL}~\citep{bai2025qwen25vl}} & 0.132 & 0.635 & \cellcolor{cfTerra2}5/48 & \cellcolor{cfTerra4}24/24 \\
+\quad Qwen2.5-VL-3B & native ViT 675M & 576$\to$144 & $336^2$ & IYWYIAWA & \texttt{6628554} & & & & \\
+\quad Qwen2.5-VL-7B & native ViT 675M & 576$\to$144 & $336^2$ & all & \texttt{cc59489} & & & & \\
+\quad Qwen2.5-VL-32B & native ViT 675M & 576$\to$144 & $336^2$ & all & \texttt{7cfb30d} & & & & \\
+\quad Qwen2.5-VL-72B & native ViT 675M & 576$\to$144 & $336^2$ & all & \texttt{89c8620} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{Qwen3-VL}~\citep{qwen2025qwen3vl}} & 0.137 & 0.735 & \cellcolor{cfTerra2}4/36 & \cellcolor{cfTerra4}18/18 \\
-\quad Qwen3-VL-4B & SigLIP2-based & $\leq$1024 & $\leq 512^2$ & all & & & & \\
-\quad Qwen3-VL-8B & SigLIP2-based & $\leq$1024 & $\leq 512^2$ & all & & & & \\
-\quad Qwen3-VL-32B & SigLIP2-based & $\leq$1024 & $\leq 512^2$ & all & & & & \\
+\multicolumn{6}{l}{\textbf{Qwen3-VL}~\citep{qwen2025qwen3vl}} & 0.137 & 0.735 & \cellcolor{cfTerra3}6/36 & \cellcolor{cfTerra4}18/18 \\
+\quad Qwen3-VL-4B & SigLIP2-based & $\leq$1024 & $\leq 512^2$ & all & \texttt{ebb281e} & & & & \\
+\quad Qwen3-VL-8B & SigLIP2-based & $\leq$1024 & $\leq 512^2$ & all & \texttt{0c351dd} & & & & \\
+\quad Qwen3-VL-32B & SigLIP2-based & $\leq$1024 & $\leq 512^2$ & all & \texttt{0cfaf48} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{InternVL3.5}~\citep{wang2025internvl35}} & 0.125 & 0.807 & \cellcolor{cfTerra2}5/36 & \cellcolor{cfTerra4}17/18 \\
-\quad InternVL3.5-8B & InternViT-300M & 1024 & $448^2$ & all & & & & \\
-\quad InternVL3.5-14B & InternViT-300M & 1024 & $448^2$ & all & & & & \\
-\quad InternVL3.5-38B & InternViT-6B & 1024 & $448^2$ & all & & & & \\
+\multicolumn{6}{l}{\textbf{InternVL3.5}~\citep{wang2025internvl35}} & 0.125 & 0.807 & \cellcolor{cfTerra3}6/36 & \cellcolor{cfTerra4}18/18 \\
+\quad InternVL3.5-8B & InternViT-300M & 1024 & $448^2$ & all & \texttt{741a7d0} & & & & \\
+\quad InternVL3.5-14B & InternViT-300M & 1024 & $448^2$ & all & \texttt{226b96d} & & & & \\
+\quad InternVL3.5-38B & InternViT-6B & 1024 & $448^2$ & all & \texttt{7c830fc} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{Gemma 3}~\citep{gemma2025gemma3}} & 0.124 & 0.564 & \cellcolor{cfTerra2}2/36 & \cellcolor{cfTerra4}17/18 \\
-\quad Gemma 3 4B & SigLIP-So400m & 4096 & $896^2$ & all & & & & \\
-\quad Gemma 3 12B & SigLIP-So400m & 4096 & $896^2$ & all & & & & \\
-\quad Gemma 3 27B & SigLIP-So400m & 4096 & $896^2$ & all & & & & \\
+\multicolumn{6}{l}{\textbf{Gemma 3}~\citep{gemma2025gemma3}} & 0.124 & 0.564 & \cellcolor{cfTerra2}4/36 & \cellcolor{cfTerra4}17/18 \\
+\quad Gemma 3 4B & SigLIP-So400m & 4096 & $896^2$ & all & \texttt{093f9f3} & & & & \\
+\quad Gemma 3 12B & SigLIP-So400m & 4096 & $896^2$ & all & \texttt{96b6f1e} & & & & \\
+\quad Gemma 3 27B & SigLIP-So400m & 4096 & $896^2$ & all & \texttt{005ad34} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{MedGemma} (medical)~\citep{sellergren2025medgemma}} & 0.164 & 0.835 & \cellcolor{cfTerra2}2/24 & \cellcolor{cfTerra3}10/12 \\
-\quad MedGemma 4B & MedSigLIP & 4096 & $896^2$ & all & & & & \\
-\quad MedGemma 27B & MedSigLIP & 4096 & $896^2$ & all & & & & \\
+\multicolumn{6}{l}{\textbf{MedGemma} (medical)~\citep{sellergren2025medgemma}} & 0.164 & 0.835 & \cellcolor{cfTerra2}2/24 & \cellcolor{cfTerra3}10/12 \\
+\quad MedGemma 4B & MedSigLIP & 4096 & $896^2$ & all & \texttt{290cda5} & & & & \\
+\quad MedGemma 27B & MedSigLIP & 4096 & $896^2$ & all & \texttt{2d3e00e} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{Lingshu} (medical)~\citep{lasa2025lingshu}} & 0.142 & 0.820 & \cellcolor{cfTerra4}11/24 & \cellcolor{cfTerra4}12/12 \\
-\quad Lingshu 7B & Qwen2.5-VL ViT & 576$\to$144 & $336^2$ & all & & & & \\
-\quad Lingshu 32B & Qwen2.5-VL ViT & 576$\to$144 & $336^2$ & all & & & & \\
+\multicolumn{6}{l}{\textbf{Lingshu} (medical)~\citep{lasa2025lingshu}} & 0.142 & 0.820 & \cellcolor{cfTerra4}12/24 & \cellcolor{cfTerra4}12/12 \\
+\quad Lingshu 7B & Qwen2.5-VL ViT & 576$\to$144 & $336^2$ & all & \texttt{b98aecd} & & & & \\
+\quad Lingshu 32B & Qwen2.5-VL ViT & 576$\to$144 & $336^2$ & all & \texttt{36b9827} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{LLaVA-1.5}~\citep{liu2024improved}} & 0.124 & 0.516 & \cellcolor{cfTerra1}0/24 & \cellcolor{cfTerra3}7/12 \\
-\quad LLaVA-1.5-7B & CLIP ViT-L/14-336 & 576 & $336^2$ & IYWY & & & & \\
-\quad LLaVA-1.5-13B & CLIP ViT-L/14-336 & 576 & $336^2$ & IYWYIAWA & & & & \\
+\multicolumn{6}{l}{\textbf{LLaVA-1.5}~\citep{liu2024improved}} & 0.124 & 0.516 & \cellcolor{cfTerra1}0/24 & \cellcolor{cfTerra3}8/12 \\
+\quad LLaVA-1.5-7B & CLIP ViT-L/14-336 & 576 & $336^2$ & IYWY & \texttt{b234b80} & & & & \\
+\quad LLaVA-1.5-13B & CLIP ViT-L/14-336 & 576 & $336^2$ & IYWYIAWA & \texttt{5dda288} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{LLaVA-Med} (medical)~\citep{li2023llavamed}} & 0.136 & 0.560 & \cellcolor{cfTerra2}1/12 & \cellcolor{cfTerra2}1/6 \\
-\quad LLaVA-Med 1.5 7B & CLIP ViT-L/14-336 & 576 & $336^2$ & IYWY & & & & \\
+\multicolumn{6}{l}{\textbf{LLaVA-Med} (medical)~\citep{li2023llavamed}} & 0.136 & 0.560 & \cellcolor{cfTerra2}1/12 & \cellcolor{cfTerra2}1/6 \\
+\quad LLaVA-Med 1.5 7B & CLIP ViT-L/14-336 & 576 & $336^2$ & IYWY & \texttt{91bb16c} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{Llama 3.2 Vision}~\citep{meta2024llama32vision}} & 0.119 & 0.688 & \cellcolor{cfTerra1}0/12 & \cellcolor{cfTerra2}1/6 \\
-\quad Llama 3.2 Vision 11B & ViT-H/14 & 1601 & $560^2$ & IBWB & & & & \\
+\multicolumn{6}{l}{\textbf{Llama 3.2 Vision}~\citep{meta2024llama32vision}} & 0.119 & 0.688 & \cellcolor{cfTerra1}0/12 & \cellcolor{cfTerra2}1/6 \\
+\quad Llama 3.2 Vision 11B & ViT-H/14 & 1601 & $560^2$ & IBWB & \texttt{9eb2daa} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{CheXagent} (medical)~\citep{chen2024chexagent}} & 0.180 & 0.857 & \cellcolor{cfTerra3}7/24 & \cellcolor{cfTerra2}2/12 \\
-\quad CheXagent-2-3B & XraySigLIP ViT-L/16 & 1024 & $512^2$ & IYWYIAWA & & & & \\
-\quad CheXagent-8B & EVA-CLIP ViT 1.4B & 1025$\to$128 & $448^2$ & IYWYIAWA & & & & \\
+\multicolumn{6}{l}{\textbf{CheXagent} (medical)~\citep{chen2024chexagent}} & 0.180 & 0.857 & \cellcolor{cfTerra3}7/24 & \cellcolor{cfTerra2}2/12 \\
+\quad CheXagent-2-3B & XraySigLIP ViT-L/16 & 1024 & $512^2$ & IYWYIAWA & \texttt{8f19b53} & & & & \\
+\quad CheXagent-8B & EVA-CLIP ViT 1.4B & 1025$\to$128 & $448^2$ & IYWYIAWA & \texttt{4934e91} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{LLaVA-Rad} (medical)~\citep{zambranochaves2025llavarad}} & 0.209 & 0.793 & \cellcolor{cfTerra1}0/12 & \cellcolor{cfTerra1}0/6 \\
-\quad LLaVA-Rad-7B & BiomedCLIP-CXR-518 & 1369 & $518^2$ & IYWY & & & & \\
+\multicolumn{6}{l}{\textbf{LLaVA-Rad} (medical)~\citep{zambranochaves2025llavarad}} & 0.209 & 0.793 & \cellcolor{cfTerra1}0/12 & \cellcolor{cfTerra1}0/6 \\
+\quad LLaVA-Rad-7B & BiomedCLIP-CXR-518 & 1369 & $518^2$ & IYWY & \texttt{dcdbc6c} & & & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{HuatuoGPT-Vision} (medical)~\citep{chen2024huatuogptvision}} & 0.136 & 0.746 & \cellcolor{cfTerra2}1/12 & \cellcolor{cfTerra3}4/6 \\
-\quad HuatuoGPT-Vision-7B & CLIP ViT-L/14-336 & 576 & $336^2$ & all & & & & \\
+\multicolumn{6}{l}{\textbf{HuatuoGPT-Vision} (medical)~\citep{chen2024huatuogptvision}} & 0.136 & 0.746 & \cellcolor{cfTerra2}1/12 & \cellcolor{cfTerra4}6/6 \\
+\quad HuatuoGPT-Vision-7B & CLIP ViT-L/14-336 & 576 & $336^2$ & all & \texttt{34dfcdb} & & & & \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -446,23 +447,24 @@ Tables~\ref{tab:cf-own-nih}--\ref{tab:cf-own-coco} report the ownership contrast
 \begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{4pt}
-\caption{\textbf{Ownership of every concept, NIH ChestX-ray14.} $O_q$ at $\alpha=+0.25$: bold is owned, $\dagger$ a stronger competitor, $\ddagger$ unresolved; the last row counts owned cells. Shading darkens with $|O_q|$ (terracotta positive, blue negative).}
+\caption{\textbf{Ownership of every concept, NIH ChestX-ray14.} $O_q$ at $\alpha=+0.25$: bold is owned and $\dagger$ marks a stronger competitor among the cells that clear the reference; the last row counts owned cells. Shading darkens with $|O_q|$ (terracotta positive, blue negative).}
 \label{tab:cf-own-nih}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lrrrrrr}
 \toprule
 Checkpoint & \multicolumn{1}{c}{Effusion} & \multicolumn{1}{c}{Atelectasis} & \multicolumn{1}{c}{Pneumothorax} & \multicolumn{1}{c}{Cardiomegaly} & \multicolumn{1}{c}{Mass} & \multicolumn{1}{c}{Nodule}\\
 \midrule
 Lingshu 32B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfTerra3}\textbf{+0.14} & \cellcolor{cfTerra2}\textbf{+0.05} & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate3}-0.18 \\
-CheXagent-2-3B & \cellcolor{cfSlate1}-0.00$^{\ddagger}$ & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.01 \\
-Qwen2.5-VL-72B & \cellcolor{cfSlate4}-0.32 & \cellcolor{cfTerra4}\textbf{+0.54} & \cellcolor{cfSlate4}-0.50 & \cellcolor{cfTerra4}\textbf{+0.26} & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfSlate3}-0.23 \\
+CheXagent-2-3B & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.01 \\
 Lingshu 7B & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfTerra3}\textbf{+0.17} & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfTerra1}+0.02 \\
+Qwen2.5-VL-72B & \cellcolor{cfSlate4}-0.32 & \cellcolor{cfTerra4}\textbf{+0.54} & \cellcolor{cfSlate4}-0.50 & \cellcolor{cfTerra4}\textbf{+0.26} & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfSlate3}-0.23 \\
+Qwen3-VL-32B & \cellcolor{cfSlate3}-0.14 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfTerra3}\textbf{+0.17} \\
+InternVL3.5-38B & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra1}+0.00 \\
 Qwen3-VL-4B & \cellcolor{cfSlate2}-0.03$^{\dagger}$ & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate4}-0.29 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate2}-0.09 \\
-Qwen3-VL-32B & \cellcolor{cfSlate3}-0.14 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfTerra3}\textbf{+0.17} \\
-InternVL3.5-38B & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra1}+0.00 \\
-Gemma 3 12B & \cellcolor{cfSlate4}-0.83 & \cellcolor{cfSlate4}-0.57 & \cellcolor{cfSlate3}-0.17 & \cellcolor{cfSlate3}-0.19 & \cellcolor{cfSlate4}-0.65 & \cellcolor{cfTerra3}\textbf{+0.17} \\
-MedGemma 4B & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate4}-0.56 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate4}-0.27 & \cellcolor{cfTerra2}+0.09 \\
 InternVL3.5-14B & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 \\
+Gemma 3 12B & \cellcolor{cfSlate4}-0.83 & \cellcolor{cfSlate4}-0.57 & \cellcolor{cfSlate3}-0.17 & \cellcolor{cfSlate3}-0.19 & \cellcolor{cfSlate4}-0.65 & \cellcolor{cfTerra3}\textbf{+0.17} \\
+Gemma 3 27B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate1}-0.02 \\
+MedGemma 4B & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate4}-0.56 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate4}-0.27 & \cellcolor{cfTerra2}+0.09 \\
 Qwen2.5-VL-32B & \cellcolor{cfSlate3}-0.22 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfTerra3}\textbf{+0.11} & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate2}-0.05 \\
 InternVL3.5-8B & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.01 \\
 HuatuoGPT-Vision-7B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}\textbf{+0.01} \\
@@ -471,7 +473,6 @@ CheXagent-8B & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate1}-0.01 & \cellcolo
 Qwen2.5-VL-3B & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate3}-0.18 & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.04 \\
 Qwen2.5-VL-7B & \cellcolor{cfSlate2}-0.07$^{\dagger}$ & \cellcolor{cfSlate3}-0.23 & \cellcolor{cfSlate3}-0.10 & \cellcolor{cfSlate3}-0.22 & \cellcolor{cfSlate3}-0.17 & \cellcolor{cfSlate2}-0.07 \\
 Qwen3-VL-8B & \cellcolor{cfTerra2}+0.07 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfTerra2}+0.03 \\
-Gemma 3 27B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate1}-0.02 \\
 Gemma 3 4B & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate3}-0.24 & \cellcolor{cfSlate4}-0.28 & \cellcolor{cfSlate3}-0.12 \\
 LLaVA-1.5-7B & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfTerra2}+0.02 & \cellcolor{cfSlate1}-0.02 \\
 MedGemma 27B & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfSlate4}-0.45 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate3}-0.20 \\
@@ -479,33 +480,32 @@ LLaVA-1.5-13B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.05 & \cellcol
 Llama 3.2 Vision 11B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfTerra2}+0.02 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfSlate1}-0.01 \\
 LLaVA-Rad-7B & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.03 \\
 \midrule
-\textbf{Owned} & 1 & 2 & 1 & 4 & 2 & 3 \\
+\textbf{Owned} & 2 & 2 & 2 & 5 & 2 & 3 \\
 \bottomrule
 \end{tabular}}
 \end{table}
-
-\paragraph{CheXpert Plus.} \cfChexOwned{} of the \cfChexCells{} cells are owned, \cfChexCompetitor{} have a stronger competitor, and the contrast is positive in \cfGeoOwnWinsChexPct\% of cells. Lingshu contributes the largest share of the owned cells, with three concepts at 7B and five at 32B.
 
 \begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{4pt}
 \caption{\textbf{Ownership of every concept, CheXpert Plus.} As Table~\ref{tab:cf-own-nih}.}
 \label{tab:cf-own-chexpert}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lrrrrrr}
 \toprule
 Checkpoint & \multicolumn{1}{c}{Effusion} & \multicolumn{1}{c}{Atelectasis} & \multicolumn{1}{c}{Pneumothorax} & \multicolumn{1}{c}{Cardiomegaly} & \multicolumn{1}{c}{Consolidation} & \multicolumn{1}{c}{Edema}\\
 \midrule
 Lingshu 32B & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfSlate2}-0.04$^{\dagger}$ & \cellcolor{cfTerra2}\textbf{+0.02} & \cellcolor{cfTerra3}\textbf{+0.11} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra3}\textbf{+0.11} \\
-CheXagent-2-3B & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.00$^{\ddagger}$ \\
+CheXagent-2-3B & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.00$^{\dagger}$ \\
+Lingshu 7B & \cellcolor{cfTerra2}\textbf{+0.10} & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfTerra3}\textbf{+0.21} \\
 Qwen2.5-VL-72B & \cellcolor{cfSlate3}-0.12 & \cellcolor{cfTerra2}+0.09 & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfSlate4}-0.29 & \cellcolor{cfSlate3}-0.13 \\
-Lingshu 7B & \cellcolor{cfTerra2}\textbf{+0.10} & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra1}+0.01$^{\ddagger}$ & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfTerra3}\textbf{+0.21} \\
+Qwen3-VL-32B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate3}-0.12 & \cellcolor{cfTerra2}\textbf{+0.05} \\
+InternVL3.5-38B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate2}-0.02 \\
 Qwen3-VL-4B & \cellcolor{cfSlate1}-0.01$^{\dagger}$ & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate3}-0.23 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra2}\textbf{+0.09} \\
-Qwen3-VL-32B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate3}-0.12 & \cellcolor{cfTerra2}\textbf{+0.05} \\
-InternVL3.5-38B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00$^{\ddagger}$ & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate2}-0.02 \\
-Gemma 3 12B & \cellcolor{cfSlate4}-0.83 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate4}-0.71 & \cellcolor{cfSlate4}-0.47 & \cellcolor{cfSlate4}-0.26 & \cellcolor{cfTerra3}\textbf{+0.15} \\
-MedGemma 4B & \cellcolor{cfSlate3}-0.20 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate4}-0.60 & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfSlate3}-0.20 & \cellcolor{cfTerra3}\textbf{+0.10} \\
 InternVL3.5-14B & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate1}-0.00 \\
+Gemma 3 12B & \cellcolor{cfSlate4}-0.83 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate4}-0.71 & \cellcolor{cfSlate4}-0.47 & \cellcolor{cfSlate4}-0.26 & \cellcolor{cfTerra3}\textbf{+0.15} \\
+Gemma 3 27B & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfTerra1}\textbf{+0.00} \\
+MedGemma 4B & \cellcolor{cfSlate3}-0.20 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate4}-0.60 & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfSlate3}-0.20 & \cellcolor{cfTerra3}\textbf{+0.10} \\
 Qwen2.5-VL-32B & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate3}-0.19 & \cellcolor{cfSlate3}-0.12 & \cellcolor{cfSlate3}-0.19 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate2}-0.02 \\
 InternVL3.5-8B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate1}-0.00 \\
 HuatuoGPT-Vision-7B & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.01 \\
@@ -514,7 +514,6 @@ CheXagent-8B & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfSlate1}-0.02 & \cellcolo
 Qwen2.5-VL-3B & \cellcolor{cfSlate3}-0.18 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate2}-0.08 \\
 Qwen2.5-VL-7B & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate2}-0.10 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate3}-0.15 & \cellcolor{cfSlate3}-0.18 \\
 Qwen3-VL-8B & \cellcolor{cfSlate2}-0.07$^{\dagger}$ & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfSlate2}-0.10 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.04$^{\dagger}$ & \cellcolor{cfSlate2}-0.06 \\
-Gemma 3 27B & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ \\
 Gemma 3 4B & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate4}-0.65 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate4}-0.35 & \cellcolor{cfSlate4}-0.58 \\
 LLaVA-1.5-7B & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfSlate2}-0.10 & \cellcolor{cfTerra2}+0.03 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.00 \\
 MedGemma 27B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfTerra2}+0.03 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate4}-0.28 \\
@@ -522,50 +521,48 @@ LLaVA-1.5-13B & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcol
 Llama 3.2 Vision 11B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate1}-0.01 \\
 LLaVA-Rad-7B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfTerra2}+0.02 & \cellcolor{cfSlate1}-0.00 \\
 \midrule
-\textbf{Owned} & 6 & 0 & 5 & 3 & 5 & 6 \\
+\textbf{Owned} & 6 & 1 & 5 & 4 & 5 & 7 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\paragraph{COCO.} \cfCocoOwned{} of the \cfCocoOwnedN{} cells are owned and \cfCocoCompetitor{} have a stronger competitor, and \cfCocoBlocksFourPlus{} of the \cfCocoBlocks{} checkpoints own at least four of the six objects. The rows without owned objects are CheXagent-8B and LLaVA-Rad-7B, whose clean answers to the COCO questions are near chance (Table~\ref{tab:cf-main}).
-
 \begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{11pt}
+\setlength{\tabcolsep}{4pt}
 \caption{\textbf{Ownership of every concept, COCO.} As Table~\ref{tab:cf-own-nih}.}
 \label{tab:cf-own-coco}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lrrrrrr}
 \toprule
 Checkpoint & \multicolumn{1}{c}{person} & \multicolumn{1}{c}{dog} & \multicolumn{1}{c}{car} & \multicolumn{1}{c}{chair} & \multicolumn{1}{c}{bottle} & \multicolumn{1}{c}{bicycle}\\
 \midrule
 Lingshu 32B & \cellcolor{cfTerra4}\textbf{+0.29} & \cellcolor{cfTerra3}\textbf{+0.23} & \cellcolor{cfTerra2}\textbf{+0.08} & \cellcolor{cfTerra4}\textbf{+0.53} & \cellcolor{cfTerra4}\textbf{+0.34} & \cellcolor{cfTerra3}\textbf{+0.22} \\
 CheXagent-2-3B & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfTerra2}+0.03 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra2}+0.04 & \cellcolor{cfTerra1}+0.00 \\
-Qwen2.5-VL-72B & \cellcolor{cfTerra4}\textbf{+0.66} & \cellcolor{cfTerra4}\textbf{+0.44} & \cellcolor{cfTerra4}\textbf{+0.95} & \cellcolor{cfTerra4}\textbf{+0.89} & \cellcolor{cfTerra4}\textbf{+0.62} & \cellcolor{cfTerra4}\textbf{+0.40} \\
 Lingshu 7B & \cellcolor{cfTerra4}\textbf{+0.39} & \cellcolor{cfTerra4}\textbf{+0.74} & \cellcolor{cfTerra4}\textbf{+0.70} & \cellcolor{cfTerra4}\textbf{+0.76} & \cellcolor{cfTerra4}\textbf{+0.64} & \cellcolor{cfTerra4}\textbf{+0.85} \\
-Qwen3-VL-4B & \cellcolor{cfTerra4}\textbf{+0.46} & \cellcolor{cfTerra3}\textbf{+0.13} & \cellcolor{cfTerra4}\textbf{+0.33} & \cellcolor{cfTerra4}\textbf{+0.71} & \cellcolor{cfTerra4}\textbf{+0.34} & \cellcolor{cfTerra2}\textbf{+0.07} \\
+Qwen2.5-VL-72B & \cellcolor{cfTerra4}\textbf{+0.66} & \cellcolor{cfTerra4}\textbf{+0.44} & \cellcolor{cfTerra4}\textbf{+0.95} & \cellcolor{cfTerra4}\textbf{+0.89} & \cellcolor{cfTerra4}\textbf{+0.62} & \cellcolor{cfTerra4}\textbf{+0.40} \\
 Qwen3-VL-32B & \cellcolor{cfTerra3}\textbf{+0.13} & \cellcolor{cfTerra3}\textbf{+0.12} & \cellcolor{cfTerra3}\textbf{+0.11} & \cellcolor{cfTerra3}\textbf{+0.23} & \cellcolor{cfTerra3}\textbf{+0.24} & \cellcolor{cfTerra2}\textbf{+0.07} \\
 InternVL3.5-38B & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.01} \\
+Qwen3-VL-4B & \cellcolor{cfTerra4}\textbf{+0.46} & \cellcolor{cfTerra3}\textbf{+0.13} & \cellcolor{cfTerra4}\textbf{+0.33} & \cellcolor{cfTerra4}\textbf{+0.71} & \cellcolor{cfTerra4}\textbf{+0.34} & \cellcolor{cfTerra2}\textbf{+0.07} \\
+InternVL3.5-14B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}\textbf{+0.00} \\
 Gemma 3 12B & \cellcolor{cfTerra3}\textbf{+0.19} & \cellcolor{cfTerra4}\textbf{+0.76} & \cellcolor{cfTerra4}\textbf{+0.48} & \cellcolor{cfTerra4}\textbf{+0.45} & \cellcolor{cfTerra3}\textbf{+0.18} & \cellcolor{cfTerra4}\textbf{+0.61} \\
+Gemma 3 27B & \cellcolor{cfTerra3}\textbf{+0.24} & \cellcolor{cfTerra4}\textbf{+0.36} & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra4}\textbf{+0.28} & \cellcolor{cfTerra3}\textbf{+0.15} & \cellcolor{cfTerra4}\textbf{+0.75} \\
 MedGemma 4B & \cellcolor{cfTerra4}\textbf{+0.35} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra4}\textbf{+0.43} & \cellcolor{cfTerra3}\textbf{+0.19} & \cellcolor{cfTerra3}\textbf{+0.20} & \cellcolor{cfTerra3}\textbf{+0.14} \\
-InternVL3.5-14B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ \\
 Qwen2.5-VL-32B & \cellcolor{cfTerra4}\textbf{+0.44} & \cellcolor{cfTerra3}\textbf{+0.12} & \cellcolor{cfTerra4}\textbf{+0.27} & \cellcolor{cfTerra4}\textbf{+0.83} & \cellcolor{cfTerra4}\textbf{+0.41} & \cellcolor{cfTerra3}\textbf{+0.19} \\
 InternVL3.5-8B & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra1}\textbf{+0.02} \\
-HuatuoGPT-Vision-7B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ \\
+HuatuoGPT-Vision-7B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}\textbf{+0.00} \\
 LLaVA-Med 1.5 7B & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 \\
 CheXagent-8B & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate2}-0.03 \\
 Qwen2.5-VL-3B & \cellcolor{cfTerra4}\textbf{+0.46} & \cellcolor{cfTerra4}\textbf{+0.42} & \cellcolor{cfTerra4}\textbf{+0.53} & \cellcolor{cfTerra4}\textbf{+0.68} & \cellcolor{cfTerra4}\textbf{+0.61} & \cellcolor{cfTerra4}\textbf{+0.39} \\
 Qwen2.5-VL-7B & \cellcolor{cfTerra4}\textbf{+0.48} & \cellcolor{cfTerra4}\textbf{+0.75} & \cellcolor{cfTerra4}\textbf{+0.61} & \cellcolor{cfTerra4}\textbf{+0.87} & \cellcolor{cfTerra4}\textbf{+0.51} & \cellcolor{cfTerra4}\textbf{+0.81} \\
 Qwen3-VL-8B & \cellcolor{cfTerra4}\textbf{+0.42} & \cellcolor{cfTerra4}\textbf{+0.51} & \cellcolor{cfTerra4}\textbf{+0.74} & \cellcolor{cfTerra4}\textbf{+0.79} & \cellcolor{cfTerra4}\textbf{+0.59} & \cellcolor{cfTerra4}\textbf{+0.43} \\
-Gemma 3 27B & \cellcolor{cfTerra3}\textbf{+0.24} & \cellcolor{cfTerra4}\textbf{+0.36} & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra4}\textbf{+0.28} & \cellcolor{cfTerra3}\textbf{+0.15} & \cellcolor{cfTerra4}\textbf{+0.75} \\
 Gemma 3 4B & \cellcolor{cfTerra3}\textbf{+0.16} & \cellcolor{cfTerra4}\textbf{+0.54} & \cellcolor{cfTerra3}\textbf{+0.24} & \cellcolor{cfTerra4}\textbf{+0.34} & \cellcolor{cfTerra4}\textbf{+0.44} & \cellcolor{cfSlate4}-0.27 \\
 LLaVA-1.5-7B & \cellcolor{cfTerra2}\textbf{+0.06} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfTerra1}\textbf{+0.00} \\
 MedGemma 27B & \cellcolor{cfTerra4}\textbf{+0.33} & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra2}\textbf{+0.08} & \cellcolor{cfTerra3}\textbf{+0.18} & \cellcolor{cfTerra3}\textbf{+0.21} & \cellcolor{cfSlate2}-0.04 \\
-LLaVA-1.5-13B & \cellcolor{cfTerra2}\textbf{+0.05} & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra2}\textbf{+0.08} & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfSlate2}-0.03 \\
+LLaVA-1.5-13B & \cellcolor{cfTerra2}\textbf{+0.05} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra2}\textbf{+0.08} & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfSlate2}-0.03 \\
 Llama 3.2 Vision 11B & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfTerra2}+0.02 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}\textbf{+0.01} \\
 LLaVA-Rad-7B & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate1}-0.00 \\
 \midrule
-\textbf{Owned} & 21 & 19 & 19 & 20 & 18 & 16 \\
+\textbf{Owned} & 21 & 21 & 19 & 20 & 18 & 18 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -578,7 +575,7 @@ Across the three tables, \cfChestOwned{} of the \cfChestCellsN{} chest cells are
 \subsection{What each analysis scores its writes against}
 \label{app:cf-ledger}
 
-Unless stated otherwise, an analysis uses the write matrix's rule: the own write must exceed the 95th percentile of the 119-direction random family and the absolute sham, and the verdict comes from simultaneous max-$T$ bounds on the contrasts with the competitors. \cfLedgerFullReference{} of the \cfLedgerAnalyses{} graded analyses (\cfLedgerCells{} cells) keep this reference and \cfLedgerMaxT{} keep this rule. The exceptions are the semantic endpoints, which take the maximum of \cfSemLedgerRandom{} random directions of their own; the answer direction under held-out templates, which has the random 95th percentile in \cfAnsdirtRefPairs{} of its \cfAnsdirtLedgerPairs{} (cell, template) pairs and the sham alone in the rest; and the logit-scale grade, which decides by a percentile interval on the margin-scale ownership contrast. The probe refits, alternative constructions, displacement lifts, and expert-label refits (\cfLedgerSeedShamCells{} cells) take the sham of the seed-0 logistic normal.
+Unless stated otherwise, an analysis uses the write matrix's rule: the own write must exceed the 95th percentile of the 119-direction random family and the absolute sham, and the verdict compares the own write with each competitor's on the same rows. \cfLedgerFullReference{} of the \cfLedgerAnalyses{} graded analyses (\cfLedgerCells{} cells) keep this reference and \cfLedgerMaxT{} keep this rule. The exceptions are the semantic endpoints, which take the maximum of \cfSemLedgerRandom{} random directions of their own; the answer direction under held-out templates, which has the random 95th percentile in \cfAnsdirtRefPairs{} of its \cfAnsdirtLedgerPairs{} (cell, template) pairs and the sham alone in the rest; and the logit-scale grade, which applies the same rule to the margin-scale ownership contrast. The probe refits, alternative constructions, displacement lifts, and expert-label refits (\cfLedgerSeedShamCells{} cells) take the sham of the seed-0 logistic normal.
 
 \subsection{Controls and robustness}
 \label{app:cf-robustness}
@@ -602,12 +599,12 @@ The two lifts differ because $R^{\top}R$ is not a multiple of the identity (Appe
 \end{equation}
 where $z_t$ is the probe's score of token $t$. The softmax variant keeps the uniform write's L1 dose and the top-quarter variant doubles its Frobenius norm. The extended competitor family, scored across \cfExtcompBlocks{} blocks, adds a direction for every other label with at least 100 known positives and 100 known negatives (NIH: Consolidation, Edema, Infiltration; CheXpert: Enlarged Cardiomediastinum, Fracture, Lung Lesion, Lung Opacity, Pneumonia, Support Devices), fitted and written like the protocol normals; a cell is then owned only if its write also beats every added direction.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{4pt}
 \caption{\textbf{Alternative directions and competitor families.} Cells owned under the paper's rule within each family, and the median $O_q$, per dataset. Each panel repeats the reference write on its own blocks.}
 \label{tab:cf-altdir}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{llrrrrrr}
 \toprule
 \multirow{2}{*}{Direction} & \multirow{2}{*}{Lift} & \multicolumn{2}{c}{NIH ChestX-ray14} & \multicolumn{2}{c}{CheXpert Plus} & \multicolumn{2}{c}{COCO}\\
@@ -615,17 +612,17 @@ where $z_t$ is the probe's score of token $t$. The softmax variant keeps the uni
 &  & \multicolumn{1}{c}{owned} & \multicolumn{1}{c}{med.\ $O_q$} & \multicolumn{1}{c}{owned} & \multicolumn{1}{c}{med.\ $O_q$} & \multicolumn{1}{c}{owned} & \multicolumn{1}{c}{med.\ $O_q$}\\
 \midrule
 \multicolumn{8}{l}{\textit{Direction construction (20 blocks per dataset)}} \\
-\quad logistic normal & coefficient & 7/120 & -0.03 & 19/120 & -0.01 & 101/120 & +0.18 \\
-\quad difference of means & coefficient & 16/120 & -0.02 & 18/120 & -0.01 & 62/120 & +0.02 \\
-\quad Haufe pattern & coefficient & 17/120 & -0.02 & 17/120 & -0.01 & 53/120 & +0.01 \\
-\quad orthogonalised normal & coefficient & 8/120 & -0.02 & 14/120 & -0.01 & 98/120 & +0.13 \\
-\quad residualised normal & coefficient & 8/120 & -0.02 & 13/120 & -0.01 & 102/120 & +0.20 \\
-\quad owned under at least one &  & 25/120 & -- & 41/120 & -- & 108/120 & -- \\
+\quad logistic normal & coefficient & 10/120 & -0.03 & 22/120 & -0.01 & 103/120 & +0.18 \\
+\quad difference of means & coefficient & 22/120 & -0.02 & 23/120 & -0.01 & 69/120 & +0.02 \\
+\quad Haufe pattern & coefficient & 19/120 & -0.02 & 20/120 & -0.01 & 58/120 & +0.01 \\
+\quad orthogonalised normal & coefficient & 11/120 & -0.02 & 16/120 & -0.01 & 99/120 & +0.13 \\
+\quad residualised normal & coefficient & 12/120 & -0.02 & 16/120 & -0.01 & 102/120 & +0.20 \\
+\quad owned under at least one &  & 33/120 & -- & 48/120 & -- & 110/120 & -- \\
 \midrule
 \multicolumn{8}{l}{\textit{Displacement lift (19 blocks per dataset)}} \\
-\quad logistic normal & coefficient & 7/114 & -0.03 & 19/114 & -0.01 & 100/114 & +0.19 \\
-\quad difference of means & displacement & 21/114 & -0.03 & 19/114 & -0.00 & 58/114 & +0.02 \\
-\quad Haufe pattern & displacement & 17/114 & -0.02 & 17/114 & -0.00 & 49/114 & +0.01 \\
+\quad logistic normal & coefficient & 10/114 & -0.03 & 22/114 & -0.01 & 102/114 & +0.19 \\
+\quad difference of means & displacement & 24/114 & -0.03 & 22/114 & -0.00 & 61/114 & +0.02 \\
+\quad Haufe pattern & displacement & 21/114 & -0.02 & 18/114 & -0.00 & 51/114 & +0.01 \\
 \midrule
 \multicolumn{8}{l}{\textit{Token weights of the logistic normal (4 NIH, 2 CheXpert, 2 COCO blocks)}} \\
 \quad uniform & coefficient & 3/24 & -0.08 & 5/12 & +0.00 & 12/12 & +0.60 \\
@@ -634,7 +631,7 @@ where $z_t$ is the probe's score of token $t$. The softmax variant keeps the uni
 \midrule
 \multicolumn{8}{l}{\textit{Competitor family of the logistic normal (5 NIH, 4 CheXpert blocks)}} \\
 \quad six clinical directions & coefficient & 3/30 & -0.07 & 8/24 & -0.07 & -- & -- \\
-\quad with every extra dataset label & coefficient & 3/30 & -0.07 & 5/24 & -0.10 & -- & -- \\
+\quad with every extra dataset label & coefficient & 3/30 & -0.07 & 7/24 & -0.10 & -- & -- \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -644,12 +641,12 @@ where $z_t$ is the probe's score of token $t$. The softmax variant keeps the uni
 
 NIH shows the deficit although its six directions are nearly orthogonal and its labels nearly uncorrelated, while on CheXpert directions and labels are correlated (Effusion--Consolidation cosine $\cfGeoCosEffCons$ averaged over blocks, $\phi=\cfGeoPhiEffCons$) and the dominance is the same. At least two competitors exceed the own write in \cfGeoTwoAbovePct\% of chest cells, so removing the strongest competitor leaves $O_q$ negative in those cells. On COCO, competitors restricted to co-occurring objects (for example person and dog, $\phi=\cfGeoFamPhiPersonDog$) still leave $O_q>0$ in \cfGeoCocoFamMinPct{}--\cfGeoCocoFamMaxPct\% of each family's cells, against \cfGeoCocoFamFullMinPct{}--\cfGeoCocoFamFullMaxPct\% with all five. In the Effusion case, Nodule is the least similar direction to Effusion (raw cosine $\cfSeedCosNodule$), yet it moves the Effusion answer by $\cfSeedWNodule$ against $\cfSeedWEff$ for Effusion's own direction.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{5pt}
+\setlength{\tabcolsep}{4pt}
 \caption{\textbf{Direction and label geometry against off-diagonal dominance.} One column per dataset, with the two chest sets pooled in the third. A ``--'' marks a row that is defined per dataset only.}
 \label{tab:cf-geometry}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lrrrr}
 \toprule
 & \multicolumn{1}{c}{NIH ChestX-ray14} & \multicolumn{1}{c}{CheXpert Plus} & \multicolumn{1}{c}{both chest sets} & \multicolumn{1}{c}{COCO}\\
@@ -678,27 +675,27 @@ NIH shows the deficit although its six directions are nearly orthogonal and its 
 \end{table}
 
 
-\paragraph{Scale and saturation.} Let $O^m_q$ denote ownership recomputed from changes in the margin $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$ instead of $P(\mathrm{yes})$. The margin-scale grade reproduces the owned grade in \cfScaleAgree{} of \cfScaleAgreeN{} cells, every owned cell keeps $O^m_q>0$, and the full margin-scale grade keeps \cfScaleOwnedKeepFull{} of the \cfScaleOwned{} owned cells. Rows with $P(\mathrm{yes})\notin[0.01,0.99]$ are far more common in COCO blocks (median block share $\cfScaleSatCoco$) than in NIH ($\cfScaleSatNih$) and CheXpert ($\cfScaleSatChex$) blocks. On unsaturated rows alone, all \cfScaleUnsatOwned{} owned chest cells keep $O_q>0$ and \cfScaleUnsatOtherPos{} of the \cfScaleUnsatOther{} others have $O_q>0$; the full regrade keeps \cfScaleUnsatGradeKept{} of \cfScaleUnsatGradeN{} owned chest cells and raises \cfScaleUnsatGradeGained{} of the \cfScaleUnsatGradeOtherN{} others to owned. The clean-No, clean-Yes, label-present, and label-absent strata give the same pattern.
+\paragraph{Scale and saturation.} Let $O^m_q$ denote ownership recomputed from changes in the margin $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$ instead of $P(\mathrm{yes})$. The margin-scale grade reproduces the owned grade in \cfScaleAgree{} of \cfScaleAgreeN{} cells, \cfScaleOwnedMpos{} of the \cfScaleOwned{} owned cells keep $O^m_q>0$, and the full margin-scale grade keeps \cfScaleOwnedKeepFull{} of the \cfScaleOwned{} owned cells. Rows with $P(\mathrm{yes})\notin[0.01,0.99]$ are far more common in COCO blocks (median block share $\cfScaleSatCoco$) than in NIH ($\cfScaleSatNih$) and CheXpert ($\cfScaleSatChex$) blocks. On unsaturated rows alone, all \cfScaleUnsatOwned{} owned chest cells keep $O_q>0$ and \cfScaleUnsatOtherPos{} of the \cfScaleUnsatOther{} others have $O_q>0$; the full regrade keeps \cfScaleUnsatGradeKept{} of \cfScaleUnsatGradeN{} owned chest cells and raises \cfScaleUnsatGradeGained{} of the \cfScaleUnsatGradeOtherN{} others to owned. The clean-No, clean-Yes, label-present, and label-absent strata give the same pattern.
 
-\paragraph{Refits and numerics.} Refitting the probes on resampled training patients and grading each refit against the seed-0 references changes $O_q$ by a median of $\cfScaleRefitMedian$ (Table~\ref{tab:cf-refit}). Rescoring the first 200 test rows of each block in fp32 and at batch size one moves a written cell by at most \cfPrecisionMaxDW{} and changes \cfPrecisionVerdictChanges{} verdicts and \cfPrecisionRefChanges{} steering references among \cfPrecisionGradeCells{} grades. The bf16 batch effects declared at the gates ($\cfScaleBatchMin$--$\cfScaleBatchMax$ in candidate logits) leave the margin sign unchanged in \cfScaleBatchAgree{} of \cfScaleBatchN{} blocks, and the \cfScaleBatchDisagree{} others contain no owned cell. Re-scoring the clean baseline in a second module agrees bit for bit on every row in \cfScaleBaselineIdentical{} of \cfScaleBaselineN{} blocks.
+\paragraph{Refits and numerics.} Refitting the probes on resampled training patients and grading each refit against the seed-0 references changes $O_q$ by a median of $\cfScaleRefitMedian$ (Table~\ref{tab:cf-refit}). Rescoring the first 200 test rows of each block in fp32 and at batch size one moves a written cell by at most \cfPrecisionMaxDW{} and changes \cfPrecisionVerdictChanges{} verdicts and \cfPrecisionRefChanges{} steering references among \cfPrecisionGradeCells{} grades. The bf16 batch effects declared at the gates ($\cfScaleBatchMin$--$\cfScaleBatchMax$ in candidate logits) leave the margin sign unchanged in \cfScaleBatchAgree{} of \cfScaleBatchN{} blocks, and the \cfScaleBatchDisagree{} others hold \cfScaleBatchDisagreeOwned{} owned cell between them. Re-scoring the clean baseline in a second module agrees bit for bit on every row in \cfScaleBaselineIdentical{} of \cfScaleBaselineN{} blocks.
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{3pt}
-\caption{\textbf{The full grade under refitted probes.} Cells per seed-0 grade (owned, stronger competitor, unresolved, fixed-family advantage without the reference) and how many keep it under both refits, one, or none.}
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{The full grade under refitted probes.} Cells per seed-0 grade (owned, stronger competitor, advantage without the reference) and how many keep it under both refits, one, or none.}
 \label{tab:cf-refit}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{lrrrrrrrrrrrrrrr}
+\fitwidth{%
+\begin{tabular}{lrrrrrrrrrrrr}
 \toprule
-\multirow{2}{*}{Dataset} & \multirow{2}{*}{blocks} & \multirow{2}{*}{cells} & \multicolumn{4}{c}{owned} & \multicolumn{3}{c}{stronger competitor} & \multicolumn{3}{c}{unresolved} & \multicolumn{2}{c}{adv.\ no ref.} & \multicolumn{1}{c}{seed 0}\\
-\cmidrule(lr){4-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}\cmidrule(lr){14-15}
- &  &  & \multicolumn{1}{c}{$n$} & \multicolumn{1}{c}{both} & \multicolumn{1}{c}{$\geq1$} & \multicolumn{1}{c}{none} & \multicolumn{1}{c}{$n$} & \multicolumn{1}{c}{both} & \multicolumn{1}{c}{$\geq1$} & \multicolumn{1}{c}{$n$} & \multicolumn{1}{c}{both} & \multicolumn{1}{c}{$\geq1$} & \multicolumn{1}{c}{$n$} & \multicolumn{1}{c}{both} & \multicolumn{1}{c}{agrees}\\
+\multirow{2}{*}{Dataset} & \multirow{2}{*}{blocks} & \multirow{2}{*}{cells} & \multicolumn{4}{c}{owned} & \multicolumn{3}{c}{stronger competitor} & \multicolumn{2}{c}{adv.\ no ref.} & \multicolumn{1}{c}{seed 0}\\
+\cmidrule(lr){4-7}\cmidrule(lr){8-10}\cmidrule(lr){11-12}
+ &  &  & \multicolumn{1}{c}{$n$} & \multicolumn{1}{c}{both} & \multicolumn{1}{c}{$\geq1$} & \multicolumn{1}{c}{none} & \multicolumn{1}{c}{$n$} & \multicolumn{1}{c}{both} & \multicolumn{1}{c}{$\geq1$} & \multicolumn{1}{c}{$n$} & \multicolumn{1}{c}{both} & \multicolumn{1}{c}{agrees}\\
 \midrule
-NIH ChestX-ray14 & 25 & 150 & 13 & 4 & 8 & 5 & 101 & 69 & 97 & 21 & 5 & 12 & 15 & 0 & 150/150 \\
-CheXpert Plus & 25 & 150 & 25 & 6 & 17 & 8 & 95 & 63 & 89 & 21 & 3 & 10 & 9 & 3 & 150/150 \\
-COCO & 25 & 150 & 113 & 99 & 110 & 3 & 17 & 13 & 17 & 10 & 4 & 7 & 10 & 2 & 149/150 \\
-\textit{chest} & 50 & 300 & 38 & 10 & 25 & 13 & 196 & 132 & 186 & 42 & 8 & 22 & 24 & 3 & 300/300 \\
-\textit{all} & 75 & 450 & 151 & 109 & 135 & 16 & 213 & 145 & 203 & 52 & 12 & 29 & 34 & 5 & 449/450 \\
+NIH ChestX-ray14 & 25 & 150 & 16 & 4 & 11 & 5 & 112 & 78 & 109 & 22 & 3 & 150/150 \\
+CheXpert Plus & 25 & 150 & 28 & 8 & 21 & 7 & 107 & 82 & 104 & 15 & 7 & 150/150 \\
+COCO & 25 & 150 & 117 & 105 & 114 & 3 & 21 & 17 & 21 & 12 & 2 & 150/150 \\
+\textit{chest} & 50 & 300 & 44 & 12 & 32 & 12 & 219 & 160 & 213 & 37 & 10 & 300/300 \\
+\textit{all} & 75 & 450 & 161 & 117 & 146 & 15 & 240 & 177 & 234 & 49 & 12 & 450/450 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -719,32 +716,32 @@ The size-matched report refit also lies as far from the shipped direction as the
 \subsection{The reader}
 \label{app:cf-reader}
 
-\paragraph{Shared-tower pairs.} Gemma~3 4B and 12B write bit-identical vectors, and the other Gemma~3 and MedGemma pairs agree to bf16 precision (Table~\ref{tab:cf-pairs}). On NIH Effusion, the identical write gives Gemma~3 12B and 27B an $O_q$ difference of $\cfPairDeltaEffTwelveTwentySeven$ $[\cfPairDeltaEffTwelveTwentySevenLo,\cfPairDeltaEffTwelveTwentySevenHi]$. In 12B, competing directions win the chest answers outright ($O_{\mathrm{Effusion}}=\cfOGemmaTwelveEff$ on both chest sets, $O_{\mathrm{Mass}}=\cfOGemmaTwelveMass$ on NIH, $O_{\mathrm{Pneumothorax}}=\cfOGemmaTwelvePneu$ on CheXpert); in 27B, no direction moves the same answers ($\cfOGemmaTwentySevenEff$, $\cfOGemmaTwentySevenMass$, $\cfOGemmaTwentySevenPneu$). Gemma~3 4B answers yes on \cfGemmaFourYesMin--\cfGemmaFourYesMax\% of chest rows, so many of its cells sit at ceiling; on the margin scale its $O^m_q$ runs from $\cfPairsGemmaFourOmNear$ to $\cfPairsGemmaFourOmFar$ with every interval below zero, so every own write lowers its answer's margin more than any competitor raises it. MedGemma 4B and 27B differ in the same way (CheXpert Pneumothorax $\cfOMedFourPneu$ against $\cfOMedTwentySevenPneu$, Edema $\cfOMedFourEdema$ against $\cfOMedTwentySevenEdema$).
+\paragraph{Shared-tower pairs.} Gemma~3 4B and 12B write bit-identical vectors, and the other Gemma~3 and MedGemma pairs agree to bf16 precision (Table~\ref{tab:cf-pairs}). On NIH Effusion, the identical write gives Gemma~3 12B and 27B an $O_q$ difference of $\cfPairDeltaEffTwelveTwentySeven$. In 12B, competing directions win the chest answers outright ($O_{\mathrm{Effusion}}=\cfOGemmaTwelveEff$ on both chest sets, $O_{\mathrm{Mass}}=\cfOGemmaTwelveMass$ on NIH, $O_{\mathrm{Pneumothorax}}=\cfOGemmaTwelvePneu$ on CheXpert); in 27B, no direction moves the same answers ($\cfOGemmaTwentySevenEff$, $\cfOGemmaTwentySevenMass$, $\cfOGemmaTwentySevenPneu$). Gemma~3 4B answers yes on \cfGemmaFourYesMin--\cfGemmaFourYesMax\% of chest rows, so many of its cells sit at ceiling; on the margin scale its $O^m_q$ runs from $\cfPairsGemmaFourOmNear$ to $\cfPairsGemmaFourOmFar$ with every interval below zero, so every own write lowers its answer's margin more than any competitor raises it. MedGemma 4B and 27B differ in the same way (CheXpert Pneumothorax $\cfOMedFourPneu$ against $\cfOMedTwentySevenPneu$, Edema $\cfOMedFourEdema$ against $\cfOMedTwentySevenEdema$).
 
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{4pt}
-\caption{\textbf{Same write, different reader: paired differences.} $\Delta O_q=O_q(\text{larger})-O_q(\text{smaller})$ per shared-tower pair on the same 600 test rows, with paired patient-bootstrap 95\% intervals; the last two columns divide $|\Delta O_q|$ by the two blocks' mean refit standard deviation.}
+\caption{\textbf{Same write, different reader: paired differences.} $\Delta O_q=O_q(\text{larger})-O_q(\text{smaller})$ per shared-tower pair on the same 600 test rows; the last two columns divide $|\Delta O_q|$ by the two blocks' mean refit standard deviation.}
 \label{tab:cf-pairs}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{llcrrrrr}
+\fitwidth{%
+\begin{tabular}{llcrrrr}
 \toprule
-\multirow{2}{*}{Pair} & \multirow{2}{*}{Dataset} & \multirow{2}{*}{relation} & \multicolumn{1}{c}{$\Delta O_q$ CI} & \multicolumn{2}{c}{$|\Delta O_q|$} & \multicolumn{2}{c}{ratio to refit SD}\\
-\cmidrule(lr){5-6}\cmidrule(lr){7-8}
-&  &  & \multicolumn{1}{c}{$\not\ni 0$} & \multicolumn{1}{c}{median} & \multicolumn{1}{c}{max} & \multicolumn{1}{c}{median} & \multicolumn{1}{c}{max}\\
+\multirow{2}{*}{Pair} & \multirow{2}{*}{Dataset} & \multirow{2}{*}{relation} & \multicolumn{2}{c}{$|\Delta O_q|$} & \multicolumn{2}{c}{ratio to refit SD}\\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+&  &  & \multicolumn{1}{c}{median} & \multicolumn{1}{c}{max} & \multicolumn{1}{c}{median} & \multicolumn{1}{c}{max}\\
 \midrule
-Gemma 3 4B $\to$ Gemma 3 12B & NIH ChestX-ray14 & bit-identical & 5/6 & 0.33 & 0.83 & 2.7 & 6.9 \\
-Gemma 3 4B $\to$ Gemma 3 12B & CheXpert Plus & bit-identical & 6/6 & 0.29 & 0.83 & 2.1 & 5.9 \\
-Gemma 3 4B $\to$ Gemma 3 12B & COCO & bit-identical & 5/6 & 0.23 & 0.87 & 1.6 & 6.0 \\
-Gemma 3 12B $\to$ Gemma 3 27B & NIH ChestX-ray14 & bf16-equal & 6/6 & 0.37 & 0.79 & 3.7 & 8.0 \\
-Gemma 3 12B $\to$ Gemma 3 27B & CheXpert Plus & bf16-equal & 6/6 & 0.35 & 0.81 & 1.4 & 3.3 \\
-Gemma 3 12B $\to$ Gemma 3 27B & COCO & bf16-equal & 5/6 & 0.15 & 0.40 & 1.7 & 4.3 \\
-Gemma 3 4B $\to$ Gemma 3 27B & NIH ChestX-ray14 & bf16-equal & 5/6 & 0.07 & 0.24 & 1.8 & 6.0 \\
-Gemma 3 4B $\to$ Gemma 3 27B & CheXpert Plus & bf16-equal & 6/6 & 0.17 & 0.65 & 4.6 & 17.3 \\
-Gemma 3 4B $\to$ Gemma 3 27B & COCO & bf16-equal & 6/6 & 0.16 & 1.02 & 1.4 & 8.8 \\
-MedGemma 4B $\to$ MedGemma 27B & NIH ChestX-ray14 & bf16-equal & 5/6 & 0.09 & 0.30 & 1.5 & 5.0 \\
-MedGemma 4B $\to$ MedGemma 27B & CheXpert Plus & bf16-equal & 5/6 & 0.19 & 0.54 & 1.8 & 5.0 \\
-MedGemma 4B $\to$ MedGemma 27B & COCO & bf16-equal & 3/6 & 0.05 & 0.35 & 0.6 & 4.6 \\
+Gemma 3 4B $\to$ Gemma 3 12B & NIH ChestX-ray14 & bit-identical & 0.33 & 0.83 & 2.7 & 6.9 \\
+Gemma 3 4B $\to$ Gemma 3 12B & CheXpert Plus & bit-identical & 0.29 & 0.83 & 2.1 & 5.9 \\
+Gemma 3 4B $\to$ Gemma 3 12B & COCO & bit-identical & 0.23 & 0.87 & 1.6 & 6.0 \\
+Gemma 3 12B $\to$ Gemma 3 27B & NIH ChestX-ray14 & bf16-equal & 0.37 & 0.79 & 3.7 & 8.0 \\
+Gemma 3 12B $\to$ Gemma 3 27B & CheXpert Plus & bf16-equal & 0.35 & 0.81 & 1.4 & 3.3 \\
+Gemma 3 12B $\to$ Gemma 3 27B & COCO & bf16-equal & 0.15 & 0.40 & 1.7 & 4.3 \\
+Gemma 3 4B $\to$ Gemma 3 27B & NIH ChestX-ray14 & bf16-equal & 0.07 & 0.24 & 1.8 & 6.0 \\
+Gemma 3 4B $\to$ Gemma 3 27B & CheXpert Plus & bf16-equal & 0.17 & 0.65 & 4.6 & 17.3 \\
+Gemma 3 4B $\to$ Gemma 3 27B & COCO & bf16-equal & 0.16 & 1.02 & 1.4 & 8.8 \\
+MedGemma 4B $\to$ MedGemma 27B & NIH ChestX-ray14 & bf16-equal & 0.09 & 0.30 & 1.5 & 5.0 \\
+MedGemma 4B $\to$ MedGemma 27B & CheXpert Plus & bf16-equal & 0.19 & 0.54 & 1.8 & 5.0 \\
+MedGemma 4B $\to$ MedGemma 27B & COCO & bf16-equal & 0.05 & 0.35 & 0.6 & 4.6 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -754,7 +751,7 @@ MedGemma 4B $\to$ MedGemma 27B & COCO & bf16-equal & 3/6 & 0.05 & 0.35 & 0.6 & 4
 
 \paragraph{Chest-trained towers.} The towers of CheXagent-2-3B, CheXagent-8B, and LLaVA-Rad-7B are trained on chest radiographs; HuatuoGPT-Vision-7B is tuned on medical data over a stock CLIP tower. The chest-trained towers reach a median probe AUROC of \cfSpecTowerProbeAuroc{} across \cfSpecTowerProbeN{} NIH cells, against \cfSpecStockProbeAuroc{} for HuatuoGPT-Vision and \cfSpecRestProbeAuroc{} for the remaining \cfSpecRestProbeN{}, and they read \cfSpecTowerReadable{} and answer \cfSpecTowerAnswerable{} of their \cfSpecTowerN{} chest cells. On NIH, \cfSpecNihTowerOwned{} of \cfSpecNihTowerN{} cells are owned for chest-trained towers, \cfSpecNihMedOwned{} of \cfSpecNihMedN{} for medically tuned checkpoints, and \cfSpecNihGenOwned{} of \cfSpecNihGenN{} for general checkpoints. The COCO control rests on checkpoints that answer natural-image questions: of the COCO cells, \cfSpecGenCocoAnswerable{} of \cfSpecGenCocoN{} are answerable and \cfSpecGenCocoOwned{} owned for the general group (median clean-answer AUROC \cfSpecGenCocoAnsAuroc{}), \cfSpecMedCocoAnswerable{} of \cfSpecMedCocoN{} and \cfSpecMedCocoOwned{} for the medically tuned group (\cfSpecMedCocoAnsAuroc{}), and \cfSpecTowerCocoAnswerable{} of \cfSpecTowerCocoN{} and \cfSpecTowerCocoOwned{} for the chest-trained towers (\cfSpecTowerCocoAnsAuroc{}).
 
-\paragraph{Crossed tower and reader.} We load the vision tower of Gemma~3 4B (G) behind the connector and language model of MedGemma 4B (M), and the reverse. All \cfSwapTensors{} weight tensors of the loaded tower equal the donor's bit for bit, and none of the \cfSwapOutside{} tensors outside it changes. Directions travel with their tower, so changing the tower changes the representation and its six directions together, while changing the reader changes only the connector and the language model. All \cfSwapCombos{} combinations are graded on the same \cfSwapRows{} test rows of the block, at the primary dose and template, against the 119-direction random family and the sham of the tower in use. The two native combinations reproduce the checkpoints' own grades on this smaller cohort: across the \cfSwapNativeCells{} native cells, the ownership contrast moves by at most \cfSwapNativeMaxDO{}, and \cfSwapNativeUnresolved{} of the \cfSwapNativeOwnedFull{} owned cells become unresolved. Writing $Y_q(g/h)$ for a quantity of question $q$ with tower $g$ and reader $h$, the mean reader and tower effects are
+\paragraph{Crossed tower and reader.} We load the vision tower of Gemma~3 4B (G) behind the connector and language model of MedGemma 4B (M), and the reverse. All \cfSwapTensors{} weight tensors of the loaded tower equal the donor's bit for bit, and none of the \cfSwapOutside{} tensors outside it changes. Directions travel with their tower, so changing the tower changes the representation and its six directions together, while changing the reader changes only the connector and the language model. All \cfSwapCombos{} combinations are graded on the same \cfSwapRows{} test rows of the block, at the primary dose and template, against the 119-direction random family and the sham of the tower in use. The two native combinations reproduce the checkpoints' own grades on this smaller cohort: across the \cfSwapNativeCells{} native cells, the ownership contrast moves by at most \cfSwapNativeMaxDO{}, and \cfSwapNativeLostReference{} of the \cfSwapNativeOwnedFull{} owned cells no longer clear the steering reference on the smaller cohort. Writing $Y_q(g/h)$ for a quantity of question $q$ with tower $g$ and reader $h$, the mean reader and tower effects are
 \begin{equation}
 \delta_{\text{reader}}=\frac{1}{12}\sum_{g}\sum_{q}\bigl|Y_q(g/\mathrm G)-Y_q(g/\mathrm M)\bigr|,\qquad
 \delta_{\text{tower}}=\frac{1}{12}\sum_{h}\sum_{q}\bigl|Y_q(\mathrm G/h)-Y_q(\mathrm M/h)\bigr|,
@@ -762,7 +759,7 @@ MedGemma 4B $\to$ MedGemma 27B & COCO & bf16-equal & 3/6 & 0.05 & 0.35 & 0.6 & 4
 \end{equation}
 for $Y_q\in\{W_{q,q},\,O_q,\,M_q\}$, where $M_q=W_{q,q}-\max(\max_{d\neq q}W_{q,d},\,p_{95},\,|W^{\mathrm{sham}}_q|)$ is the own write's margin over the whole reference family, with $p_{95}$ the random 95th percentile and $W^{\mathrm{sham}}_q$ the sham write.
 
-Under the four combinations, \cfSwapChestOwned{} of \cfSwapChestCells{} chest cells are owned, against \cfSwapCocoOwned{} of \cfSwapCocoCells{} COCO cells: on COCO, \cfSwapCocoNativeMin{} of the six objects are owned under each native combination, \cfSwapCocoGemmaTowerCross{} with the Gemma tower behind the MedGemma reader, and \cfSwapCocoMedTowerCross{} with the MedGemma tower behind the Gemma~3 reader. On NIH, the reader effect is \cfSwapReaderNihMin{} $[\cfSwapReaderNihLo,\cfSwapReaderNihHi]$ on $W_{q,q}$ and \cfSwapReaderNihOMin{} $[\cfSwapReaderNihOLo,\cfSwapReaderNihOHi]$ on $O_q$, against \cfSwapTowerNihMin{} and \cfSwapTowerNihOMin{} for the tower; on CheXpert it is \cfSwapReaderChexMin{} and \cfSwapReaderChexOMin{}, against \cfSwapTowerChexMin{} and \cfSwapTowerChexOMin{}; and on the family margin $M_q$ the two chest sets give \cfSwapReaderNihMMin{} and \cfSwapReaderChexMMin{} for the reader against \cfSwapTowerNihMMin{} and \cfSwapTowerChexMMin{} for the tower. On COCO the tower effect is the larger on all three quantities (\cfSwapTowerCocoMin{}, \cfSwapTowerCocoOMin{}, and \cfSwapTowerCocoMMin{} against \cfSwapReaderCocoMin{}, \cfSwapReaderCocoOMin{}, and \cfSwapReaderCocoMMin{}).
+Under the four combinations, \cfSwapChestOwned{} of \cfSwapChestCells{} chest cells are owned, against \cfSwapCocoOwned{} of \cfSwapCocoCells{} COCO cells: on COCO, \cfSwapCocoNativeMin{} of the six objects are owned under each native combination, \cfSwapCocoGemmaTowerCross{} with the Gemma tower behind the MedGemma reader, and \cfSwapCocoMedTowerCross{} with the MedGemma tower behind the Gemma~3 reader. On NIH, the reader effect is \cfSwapReaderNihMin{} on $W_{q,q}$ and \cfSwapReaderNihOMin{} on $O_q$, against \cfSwapTowerNihMin{} and \cfSwapTowerNihOMin{} for the tower; on CheXpert it is \cfSwapReaderChexMin{} and \cfSwapReaderChexOMin{}, against \cfSwapTowerChexMin{} and \cfSwapTowerChexOMin{}; and on the family margin $M_q$ the two chest sets give \cfSwapReaderNihMMin{} and \cfSwapReaderChexMMin{} for the reader against \cfSwapTowerNihMMin{} and \cfSwapTowerChexMMin{} for the tower. On COCO the tower effect is the larger on all three quantities (\cfSwapTowerCocoMin{}, \cfSwapTowerCocoOMin{}, and \cfSwapTowerCocoMMin{} against \cfSwapReaderCocoMin{}, \cfSwapReaderCocoOMin{}, and \cfSwapReaderCocoMMin{}).
 
 The hybrid combinations answer worse than the native ones. With no write applied, all \cfSwapAnsWorse{} of the \cfSwapAnsArms{} hybrid arms have a lower median clean-answer AUROC than the native arm of their block, by \cfSwapAnsDropMin{} to \cfSwapAnsDropMax{}: it falls from \cfSwapAnsNativeGemCoco{} to \cfSwapAnsHybridGemCoco{} when the MedGemma tower serves the Gemma~3 reader on COCO, and from \cfSwapAnsNativeMedNih{} to \cfSwapAnsHybridMedNih{} and from \cfSwapAnsNativeMedChex{} to \cfSwapAnsHybridMedChex{} when the Gemma~3 tower serves the MedGemma reader on NIH and CheXpert.
 
@@ -777,25 +774,76 @@ The three attribute labels come from each dataset's metadata: anteroposterior or
 
 \begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{6pt}
-\caption{\textbf{Non-clinical attributes of the same radiographs.} Per attribute and dataset, medians over blocks of the attribute probe's AUROC and selectivity, the clean-answer AUROC of the attribute question, and the absolute raw cosine to the clinical normals, with the owned attribute cells.}
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{Non-clinical attributes of the same radiographs.} Top: owned attribute and clinical cells in the nine-direction family per checkpoint and dataset, naming the owned attributes. Bottom: medians over blocks per attribute of probe AUROC, selectivity, clean-answer AUROC, and cosine to the clinical normals.}
 \label{tab:cf-attr}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{llrrrrr}
+\fitwidth{%
+\begin{tabular}{llrrccc}
 \toprule
-Attribute & Dataset & \multicolumn{1}{c}{probe AUROC} & \multicolumn{1}{c}{selectivity} & \multicolumn{1}{c}{answer AUROC} & \multicolumn{1}{c}{med.\ $|\cos|$} & \multicolumn{1}{c}{owned} \\
+Checkpoint & Dataset & \multicolumn{1}{c}{attributes owned} & \multicolumn{1}{c}{findings owned} & \multicolumn{1}{c}{view AP} & \multicolumn{1}{c}{sex F} & \multicolumn{1}{c}{age $\geq60$}\\
+\midrule
+Qwen2.5-VL-3B & NIH ChestX-ray14 & 0/3 & 0/6 & -- & -- & -- \\
+Qwen2.5-VL-3B & CheXpert Plus & 0/3 & 0/6 & -- & -- & -- \\
+Qwen2.5-VL-7B & NIH ChestX-ray14 & 0/3 & 0/6 & -- & -- & -- \\
+Qwen2.5-VL-7B & CheXpert Plus & 0/3 & 0/6 & -- & -- & -- \\
+Qwen2.5-VL-32B & NIH ChestX-ray14 & 0/3 & 0/6 & -- & -- & -- \\
+Qwen2.5-VL-32B & CheXpert Plus & 0/3 & 0/6 & -- & -- & -- \\
+Qwen3-VL-4B & NIH ChestX-ray14 & 1/3 & 0/6 & -- & yes & -- \\
+Qwen3-VL-4B & CheXpert Plus & 1/3 & 2/6 & -- & yes & -- \\
+Qwen3-VL-8B & NIH ChestX-ray14 & 1/3 & 0/6 & -- & yes & -- \\
+Qwen3-VL-8B & CheXpert Plus & 1/3 & 0/6 & -- & -- & yes \\
+Qwen3-VL-32B & NIH ChestX-ray14 & 0/3 & 2/6 & -- & -- & -- \\
+Qwen3-VL-32B & CheXpert Plus & 1/3 & 1/6 & -- & -- & yes \\
+InternVL3.5-8B & NIH ChestX-ray14 & 0/3 & 0/6 & -- & -- & -- \\
+InternVL3.5-8B & CheXpert Plus & 0/3 & 1/6 & -- & -- & -- \\
+InternVL3.5-14B & NIH ChestX-ray14 & 0/3 & 1/6 & -- & -- & -- \\
+InternVL3.5-14B & CheXpert Plus & 0/3 & 1/6 & -- & -- & -- \\
+InternVL3.5-38B & NIH ChestX-ray14 & 0/3 & 1/6 & -- & -- & -- \\
+InternVL3.5-38B & CheXpert Plus & 0/3 & 2/6 & -- & -- & -- \\
+Gemma 3 4B & NIH ChestX-ray14 & 0/3 & 0/6 & -- & -- & -- \\
+Gemma 3 4B & CheXpert Plus & 0/3 & 0/6 & -- & -- & -- \\
+Gemma 3 12B & NIH ChestX-ray14 & 0/3 & 1/6 & -- & -- & -- \\
+Gemma 3 12B & CheXpert Plus & 0/3 & 1/6 & -- & -- & -- \\
+Gemma 3 27B & NIH ChestX-ray14 & 0/3 & 1/6 & -- & -- & -- \\
+Gemma 3 27B & CheXpert Plus & 0/3 & 1/6 & -- & -- & -- \\
+MedGemma 4B & NIH ChestX-ray14 & 0/3 & 0/6 & -- & -- & -- \\
+MedGemma 4B & CheXpert Plus & 1/3 & 1/6 & -- & -- & yes \\
+MedGemma 27B & NIH ChestX-ray14 & 1/3 & 0/6 & -- & -- & yes \\
+MedGemma 27B & CheXpert Plus & 0/3 & 0/6 & -- & -- & -- \\
+Lingshu 7B & NIH ChestX-ray14 & 2/3 & 1/6 & -- & yes & yes \\
+Lingshu 7B & CheXpert Plus & 1/3 & 4/6 & -- & -- & yes \\
+Lingshu 32B & NIH ChestX-ray14 & 2/3 & 2/6 & -- & yes & yes \\
+Lingshu 32B & CheXpert Plus & 1/3 & 5/6 & -- & -- & yes \\
+LLaVA-1.5-7B & NIH ChestX-ray14 & 0/3 & 0/6 & -- & -- & -- \\
+LLaVA-1.5-7B & CheXpert Plus & 0/3 & 0/6 & -- & -- & -- \\
+LLaVA-1.5-13B & NIH ChestX-ray14 & 1/3 & 0/6 & yes & -- & -- \\
+LLaVA-1.5-13B & CheXpert Plus & 0/3 & 0/6 & -- & -- & -- \\
+LLaVA-Med 1.5 7B & NIH ChestX-ray14 & 0/3 & 0/6 & -- & -- & -- \\
+LLaVA-Med 1.5 7B & CheXpert Plus & 0/3 & 1/6 & -- & -- & -- \\
+\midrule
+NIH ChestX-ray14 & 19 blocks & 8/57 & 9/114 & 1/19 & 4/19 & 3/19 \\
+CheXpert Plus & 19 blocks & 6/57 & 20/114 & 0/19 & 1/19 & 5/19 \\
+\textit{chest} & 38 blocks & 14/114 & 29/228 & 1/38 & 5/38 & 8/38 \\
+\midrule
+\multicolumn{7}{l}{\textit{Attribute probes and directions: medians over the blocks of each dataset}} \\
+Attribute & Dataset & probe AUROC & selectivity & answer AUROC & med.\ $|\cos|$ & owned \\
 \midrule
 AP (portable) projection & NIH ChestX-ray14 & 0.999 & 0.32 & 0.76 & 0.03 & 1/19 \\
 AP (portable) projection & CheXpert Plus & 0.998 & 0.31 & 0.73 & 0.05 & 0/19 \\
 AP (portable) projection & \textit{chest} & 0.999 & 0.31 & 0.74 & 0.04 & 1/38 \\
-\addlinespace
-female sex & NIH ChestX-ray14 & 0.984 & 0.30 & 0.73 & 0.05 & 3/19 \\
+female sex & NIH ChestX-ray14 & 0.984 & 0.30 & 0.73 & 0.05 & 4/19 \\
 female sex & CheXpert Plus & 0.957 & 0.27 & 0.65 & 0.06 & 1/19 \\
-female sex & \textit{chest} & 0.971 & 0.28 & 0.71 & 0.05 & 4/38 \\
-\addlinespace
+female sex & \textit{chest} & 0.971 & 0.28 & 0.71 & 0.05 & 5/38 \\
 age $\geq60$ & NIH ChestX-ray14 & 0.896 & 0.21 & 0.62 & 0.05 & 3/19 \\
-age $\geq60$ & CheXpert Plus & 0.898 & 0.21 & 0.64 & 0.06 & 4/19 \\
-age $\geq60$ & \textit{chest} & 0.896 & 0.21 & 0.63 & 0.06 & 7/38 \\
+age $\geq60$ & CheXpert Plus & 0.898 & 0.21 & 0.64 & 0.06 & 5/19 \\
+age $\geq60$ & \textit{chest} & 0.896 & 0.21 & 0.63 & 0.06 & 8/38 \\
+\midrule
+\multicolumn{7}{l}{\textit{The same comparison read three ways, pooled over the 38 chest blocks}} \\
+Comparison & unit & attribute cells & owned & finding cells & owned & difference \\
+\midrule
+every cell & cell & 114 & 14 & 228 & 29 & -0.004 \\
+answerable cells only & cell & 100 & 13 & 141 & 26 & -0.054 \\
+answerability-matched pairs & pair & 188 & 17 & 188 & 23 & -0.032 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -815,30 +863,53 @@ fitted on the first 3{,}000 training rows in the manifest's label-blind order, w
 
 \begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{5pt}
-\caption{\textbf{Ownership under the answer direction.} Per block, on the primary template: concepts owned by the label direction $\hat w_q$ and by the answer direction $a_q$, split into kept (both), rescued ($a_q$ only), and lost ($\hat w_q$ only); cells where the write of $a_q$ beats the strongest logistic competitor; and medians over the six questions of the own write of $a_q$, $W^a_{q,q}$, and of the ridge fit's $R^2$.}
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{The answer direction.} Top, primary template: concepts owned by the label direction $\hat w_q$ and the answer direction $a_q$ (kept, rescued, lost), and medians over the six questions. Bottom: $a_q$ under each held-out template, with owned concepts, in parentheses those owned under IY, and kept (concept, template) pairs.}
 \label{tab:cf-ansdir}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{llrrrrrrrr}
+\fitwidth{%
+\begin{tabular}{llrrrrrrrrrr}
 \toprule
-\multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{5}{c}{owned concepts} & \multirow{2}{*}{$a_q>$ comp.} & \multicolumn{2}{c}{median}\\
-\cmidrule(lr){3-7}\cmidrule(lr){9-10}
-&  & \multicolumn{1}{c}{$\hat w_q$} & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{kept} & \multicolumn{1}{c}{rescued} & \multicolumn{1}{c}{lost} &  & \multicolumn{1}{c}{$W^a_{q,q}$} & \multicolumn{1}{c}{$R^2$}\\
+\multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{5}{c}{owned concepts} & \multirow{2}{*}{$a_q>$ comp.} & \multicolumn{4}{c}{median}\\
+\cmidrule(lr){3-7}\cmidrule(lr){9-12}
+&  & \multicolumn{1}{c}{$\hat w_q$} & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{kept} & \multicolumn{1}{c}{rescued} & \multicolumn{1}{c}{lost} &  & \multicolumn{1}{c}{$W^a_{q,q}$} & \multicolumn{1}{c}{$\cos$} & \multicolumn{1}{c}{$\cos_\Sigma$} & \multicolumn{1}{c}{$R^2$}\\
 \midrule
-Qwen2.5-VL-7B & NIH ChestX-ray14 & 0/6 & 3/6 & 0 & 3 & 0 & 6/6 & 0.61 & 0.54 \\
-Qwen2.5-VL-7B & CheXpert Plus & 0/6 & 6/6 & 0 & 6 & 0 & 6/6 & 0.55 & 0.48 \\
-Qwen2.5-VL-7B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.78 & 0.58 \\
-Gemma 3 12B & NIH ChestX-ray14 & 1/6 & 2/6 & 1 & 1 & 0 & 5/6 & 0.47 & 0.17 \\
-Gemma 3 12B & CheXpert Plus & 1/6 & 0/6 & 0 & 0 & 1 & 1/6 & 0.37 & 0.19 \\
-Gemma 3 12B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.61 & 0.37 \\
-Lingshu 32B & NIH ChestX-ray14 & 2/6 & 3/6 & 2 & 1 & 0 & 6/6 & 0.24 & 0.77 \\
-Lingshu 32B & CheXpert Plus & 5/6 & 5/6 & 5 & 0 & 0 & 6/6 & 0.22 & 0.80 \\
-Lingshu 32B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.36 & 0.55 \\
+Qwen2.5-VL-7B & NIH ChestX-ray14 & 0/6 & 3/6 & 0 & 3 & 0 & 6/6 & 0.61 & 0.07 & 0.35 & 0.54 \\
+Qwen2.5-VL-7B & CheXpert Plus & 0/6 & 6/6 & 0 & 6 & 0 & 6/6 & 0.55 & 0.06 & 0.36 & 0.48 \\
+Qwen2.5-VL-7B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.78 & 0.64 & 0.84 & 0.58 \\
+Gemma 3 12B & NIH ChestX-ray14 & 1/6 & 3/6 & 1 & 2 & 0 & 5/6 & 0.47 & 0.18 & 0.33 & 0.17 \\
+Gemma 3 12B & CheXpert Plus & 1/6 & 0/6 & 0 & 0 & 1 & 1/6 & 0.37 & 0.17 & 0.10 & 0.19 \\
+Gemma 3 12B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.61 & 0.59 & 0.79 & 0.37 \\
+Lingshu 32B & NIH ChestX-ray14 & 2/6 & 3/6 & 2 & 1 & 0 & 6/6 & 0.24 & 0.30 & 0.60 & 0.77 \\
+Lingshu 32B & CheXpert Plus & 5/6 & 5/6 & 5 & 0 & 0 & 6/6 & 0.22 & 0.33 & 0.87 & 0.80 \\
+Lingshu 32B & COCO & 6/6 & 6/6 & 6 & 0 & 0 & 6/6 & 0.36 & 0.54 & 0.73 & 0.55 \\
 \midrule
-NIH ChestX-ray14 & 3 blocks & 3/18 & 8/18 & 3 & 5 & 0 & 17/18 & 0.47 & 0.54 \\
-CheXpert Plus & 3 blocks & 6/18 & 11/18 & 5 & 6 & 1 & 13/18 & 0.35 & 0.48 \\
-\textit{chest} & 6 blocks & 9/36 & 19/36 & 8 & 11 & 1 & 30/36 & 0.41 & 0.50 \\
-COCO & 3 blocks & 18/18 & 18/18 & 18 & 0 & 0 & 18/18 & 0.61 & 0.54 \\
+NIH ChestX-ray14 & 3 blocks & 3/18 & 9/18 & 3 & 6 & 0 & 17/18 & 0.47 & 0.18 & 0.43 & 0.54 \\
+CheXpert Plus & 3 blocks & 6/18 & 11/18 & 5 & 6 & 1 & 13/18 & 0.35 & 0.16 & 0.36 & 0.48 \\
+\textit{chest} & 6 blocks & 9/36 & 20/36 & 8 & 12 & 1 & 30/36 & 0.41 & 0.18 & 0.39 & 0.50 \\
+COCO & 3 blocks & 18/18 & 18/18 & 18 & 0 & 0 & 18/18 & 0.61 & 0.61 & 0.81 & 0.54 \\
+\bottomrule
+\end{tabular}}
+
+\medskip
+\fitwidth{%
+\begin{tabular}{llrrrrrr}
+\toprule
+\multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{5}{c}{held-out template: owned (IY-owned kept)} & \multirow{2}{*}{kept pairs}\\
+\cmidrule(lr){3-7}
+&  & \multicolumn{1}{c}{WY} & \multicolumn{1}{c}{IA} & \multicolumn{1}{c}{IB} & \multicolumn{1}{c}{WA} & \multicolumn{1}{c}{WB} & \\
+\midrule
+Qwen2.5-VL-7B & NIH ChestX-ray14 & 4 (3) & 3 (3) & 4 (3) & 4 (3) & 4 (3) & 15/15 \\
+Qwen2.5-VL-7B & CheXpert Plus & 4 (4) & 6 (6) & 5 (5) & 5 (5) & 5 (5) & 25/30 \\
+Qwen2.5-VL-7B & COCO & 6 (6) & 6 (6) & 6 (6) & 6 (6) & 6 (6) & 30/30 \\
+Gemma 3 12B & NIH ChestX-ray14 & 4 (3) & 2 (2) & 1 (1) & 3 (2) & 2 (1) & 9/15 \\
+Gemma 3 12B & CheXpert Plus & 0 (0) & 1 (0) & 1 (0) & 1 (0) & 2 (0) & 0/0 \\
+Gemma 3 12B & COCO & 6 (6) & 6 (6) & 6 (6) & 6 (6) & 6 (6) & 30/30 \\
+Lingshu 32B & NIH ChestX-ray14 & 3 (3) & 3 (3) & 3 (3) & 3 (3) & 3 (3) & 15/15 \\
+Lingshu 32B & CheXpert Plus & 5 (5) & 4 (4) & 3 (3) & 4 (4) & 5 (5) & 21/25 \\
+Lingshu 32B & COCO & 6 (6) & 6 (6) & 6 (6) & 6 (6) & 6 (6) & 30/30 \\
+\midrule
+\textit{chest} & 6 blocks & 20 (18) & 19 (18) & 17 (15) & 20 (17) & 21 (17) & 85/100 \\
+COCO & 3 blocks & 18 (18) & 18 (18) & 18 (18) & 18 (18) & 18 (18) & 90/90 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -860,15 +931,13 @@ equals one when a write moves only its own answer. Over the \cfAnsColSelChestN{}
 
 \begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{8pt}
-\caption{\textbf{The answer direction against the label direction.} Per block, medians over the six questions of the AUROCs of $a_q$ and $\hat w_q$ against the label and against the clean answer, the Pearson correlation, and the raw and whitened cosines between $a_q$ and $\hat w_q$.}
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{The answer direction and column selectivity.} Top: per block, medians over the six questions of the AUROCs, the Pearson correlation, and the raw and whitened cosines between $a_q$ and $\hat w_q$. Bottom: column selectivity $\kappa_d=W_{d,d}/\sum_q|W_{q,d}|$ per dataset, and ownership on the rows whose label for $q$ is known.}
 \label{tab:cf-validation}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{llrrrrrrr}
 \toprule
-\multirow{3}{*}{Checkpoint} & \multirow{3}{*}{Dataset} & \multicolumn{4}{c}{AUROC} & \multirow{3}{*}{Pearson} & \multicolumn{2}{c}{\multirow{2}{*}{cosine}}\\
-\cmidrule(lr){3-6}
-&  & \multicolumn{2}{c}{label} & \multicolumn{2}{c}{clean answer} &  & & \\
+\multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{2}{c}{AUROC, label} & \multicolumn{2}{c}{AUROC, clean answer} & \multirow{2}{*}{Pearson} & \multicolumn{2}{c}{cosine}\\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){8-9}
 &  & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{$\hat w_q$} & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{$\hat w_q$} &  & \multicolumn{1}{c}{raw} & \multicolumn{1}{c}{$\Sigma$}\\
 \midrule
@@ -881,6 +950,15 @@ Lingshu 32B & COCO & 0.94 & 0.97 & 0.93 & 0.92 & 0.75 & 0.54 & 0.73 \\
 Gemma 3 12B & NIH ChestX-ray14 & 0.59 & 0.65 & 0.72 & 0.61 & 0.31 & 0.18 & 0.33 \\
 Gemma 3 12B & CheXpert Plus & 0.61 & 0.78 & 0.73 & 0.56 & 0.13 & 0.17 & 0.10 \\
 Gemma 3 12B & COCO & 0.93 & 0.96 & 0.80 & 0.76 & 0.81 & 0.59 & 0.79 \\
+\midrule
+\multicolumn{9}{p{1.314\linewidth}}{\textit{Alignment against ownership over the 54 answer-direction cells: Spearman correlation between $\cos_\Sigma(a_q,\hat w_q)$ and the label direction's $O_q$ $\rho=0.75$ ($p=8\times10^{-11}$); with the label direction's owned indicator $\rho=0.74$ ($p=1\times10^{-10}$); median $\cos_\Sigma$ 0.80 in owned against 0.34 in not-owned cells; within the chest sets alone $\rho=0.59$ ($p=2\times10^{-4}$, 36 cells).}} \\
+\midrule
+\multicolumn{9}{l}{\textit{Column selectivity and known-label ownership, per dataset}} \\
+Dataset & blocks & cells & med.\ $\kappa_d$ & $\kappa_d\geq0.5$ & known rows & sign kept & owned kept & \\
+\midrule
+NIH ChestX-ray14 & 25 & 150 & 0.12 & 2/150 & 600 & 150/150 & 13/13 & \\
+CheXpert Plus & 25 & 150 & 0.12 & 2/150 & 165 & 143/150 & 25/25 & \\
+COCO & 25 & 150 & 0.57 & 92/150 & 600 & 150/150 & 113/113 & \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -891,16 +969,16 @@ Gemma 3 12B & COCO & 0.93 & 0.96 & 0.80 & 0.76 & 0.81 & 0.59 & 0.79 \\
 E_q>\max\Bigl(0,\;\max_{k}E^{\mathrm{rand}}_{k},\;\bigl|E^{\mathrm{sham}}_q\bigr|\Bigr),
 \label{eq:endpoint-reference}
 \end{equation}
-the inner maximum running over the \cfSemLedgerRandom{} random directions, and it is owned when it also holds the $6\times5$ max-$T$ advantage.
+the inner maximum running over the \cfSemLedgerRandom{} random directions, and it is owned when it also leads all $6\times5$ comparisons with the competitors.
 
 Across \cfSemBlocks{} blocks, the negated question moves opposite to the affirmative one in \cfSemNegOpposite{} of \cfSemNegN{} concept--block pairs, the forced choice is owned in both orders in \cfSemForcedOwned{} of \cfSemForcedN{} pairs (mean order gap \cfSemGapMin{}--\cfSemGapMax{}), and the report continuation is owned in \cfSemReportOwned{} of \cfSemReportCells{} cells (Table~\ref{tab:cf-semend}). Adding the ownership contrast to a regression of the endpoint effect on write magnitude, probe selectivity, and clean-answer AUROC changes the held-out $R^2$ by $\cfSemCvLocoDelta$ when one concept is left out and $\cfSemCvLoboDelta$ when one of \cfSemCvBlocks{} blocks is left out; permuting ownership within blocks \cfSemCvPerms{} times gives $p=\cfSemCvLocoP$ and $p=\cfSemCvLoboP$. The predictors vary by concept, so each block contributes an effective sample of six.
 
 \begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{6pt}
-\caption{\textbf{Four endpoints no direction was fitted against.} Per block and endpoint, the concepts of six whose own write is owned and whose own write meets the steering reference, for the label direction and the answer direction.}
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{Four endpoints no direction was fitted against.} Both direction families of Section~\ref{sec:ansdir}, written at the primary dose and read at the negated question, the forced choice in both orders, and a report continuation. Bottom: the ownership contrast added to a regression of the endpoint effect, cross-validated by concept and by block.}
 \label{tab:cf-semend}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lllcccc}
 \toprule
 \multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multirow{2}{*}{Endpoint} & \multicolumn{2}{c}{label direction} & \multicolumn{2}{c}{answer direction}\\
@@ -921,6 +999,40 @@ Qwen2.5-VL-7B & CheXpert Plus & forced choice, competitor first & 0/6 & 0/6 & 2/
 Qwen2.5-VL-7B & CheXpert Plus & report continuation & 0/6 & 0/6 & 0/6 & 0/6 \\
 \midrule
 \textit{all} & \textit{3 blocks} & \textit{4 endpoints} & 10/72 & 11/72 & 30/72 & 37/72 \\
+\midrule
+\multicolumn{7}{l}{\textit{The three endpoint-specific tests}} \\
+Checkpoint & Dataset & opposite on the negation & order gap & forced choice owned & report owned & core owned \\
+\midrule
+Lingshu 32B & CheXpert Plus & 4/6 & 0.026 & 3/6 & 0/6 & 5/6 \\
+Qwen2.5-VL-7B & NIH ChestX-ray14 & 6/6 & 0.089 & 0/6 & 0/6 & 0/6 \\
+Qwen2.5-VL-7B & CheXpert Plus & 6/6 & 0.111 & 0/6 & 0/6 & 0/6 \\
+\midrule
+\multicolumn{7}{l}{\textit{What ownership adds, held out: leaving out one concept at a time}} \\
+Checkpoint & Dataset & Direction & held-out $R^2$ & with ownership & $\Delta R^2$ & permutation $p$ \\
+\midrule
+Lingshu 32B & CheXpert Plus & label direction & -0.034 & 0.147 & 0.181 & 0.39 \\
+Lingshu 32B & CheXpert Plus & answer direction & 0.069 & -0.223 & -0.291 & 0.70 \\
+Qwen2.5-VL-7B & CheXpert Plus & label direction & -0.139 & -0.149 & -0.010 & 0.55 \\
+Qwen2.5-VL-7B & CheXpert Plus & answer direction & -3.168 & -0.112 & 3.057 & 0.18 \\
+Qwen2.5-VL-7B & NIH ChestX-ray14 & label direction & -0.195 & -0.147 & 0.048 & 0.31 \\
+Qwen2.5-VL-7B & NIH ChestX-ray14 & answer direction & -1.310 & -0.176 & 1.134 & 0.50 \\
+\textit{pooled} & \textit{6 tests} & \textit{both} & -- & -- & 0.687 & 0.26 \\
+\midrule
+\multicolumn{7}{l}{\textit{The same, leaving out one block at a time}} \\
+\midrule
+\textit{all 3} & \textit{pooled} & label direction & -0.578 & -0.500 & 0.078 & 0.30 \\
+\textit{all 3} & \textit{pooled} & answer direction & -0.461 & -0.398 & 0.063 & 0.26 \\
+\textit{pooled} & \textit{2 tests} & \textit{both} & -- & -- & 0.070 & 0.26 \\
+\midrule
+\multicolumn{7}{l}{\textit{In-sample reference only, since adding a predictor cannot lower a training $R^2$}} \\
+Checkpoint & Dataset & Direction & training $R^2$ & with ownership & $\Delta R^2$ & \\
+\midrule
+Lingshu 32B & CheXpert Plus & label direction & 0.769 & 0.788 & 0.019 & \\
+Lingshu 32B & CheXpert Plus & answer direction & 0.368 & 0.423 & 0.055 & \\
+Qwen2.5-VL-7B & NIH ChestX-ray14 & label direction & 0.241 & 0.246 & 0.004 & \\
+Qwen2.5-VL-7B & NIH ChestX-ray14 & answer direction & 0.267 & 0.392 & 0.125 & \\
+Qwen2.5-VL-7B & CheXpert Plus & label direction & 0.175 & 0.250 & 0.074 & \\
+Qwen2.5-VL-7B & CheXpert Plus & answer direction & 0.473 & 0.509 & 0.036 & \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -937,22 +1049,22 @@ Qwen2.5-VL-7B & CheXpert Plus & report continuation & 0/6 & 0/6 & 0/6 & 0/6 \\
 \Delta_{\text{match}}=\frac{1}{|\mathcal C|}\sum_{c\in\mathcal C}\Bigl(o_c-\frac{1}{|\mathcal P(c)|}\sum_{p\in\mathcal P(c)}o_p\Bigr);
 \label{eq:matching}
 \end{equation}
-$\Delta_{\text{pool}}$ compares the two matched pools, while $\Delta_{\text{match}}$ weights every chest cell equally however many partners it has; neither can be obtained from the other. Chest cells without a partner leave the matching, which the stratified comparison below avoids. Intervals come from 5{,}000 draws of a cluster bootstrap over models (Table~\ref{tab:cf-matching}). Matched on clean-answer AUROC, $\Delta_{\text{match}}$ shrinks to $\cfFgMatchAnsDiff$ $[\cfFgMatchAnsLo,\cfFgMatchAnsHi]$, and matched on both variables, which keeps \cfFgMatchBothN{} of the \cfFgMatchBothCells{} chest cells, its interval $[\cfFgMatchBothLo,\cfFgMatchBothHi]$ includes zero. The stratified comparison of Section~\ref{sec:coco} keeps every cell instead, binning both pools by clean-answer AUROC at the edges \cfStratEdges{}; the \cfStratChestTopN{} chest cells of the top bin are all CheXpert Plus cells, since no NIH ChestX-ray14 cell reaches \cfStratTopEdge{}.
+$\Delta_{\text{pool}}$ compares the two matched pools, while $\Delta_{\text{match}}$ weights every chest cell equally however many partners it has; neither can be obtained from the other. Chest cells without a partner leave the matching, which the stratified comparison below avoids. Matched on clean-answer AUROC, $\Delta_{\text{match}}$ shrinks to $\cfFgMatchAnsDiff$ (Table~\ref{tab:cf-matching}), and matched on both variables it is $\cfFgMatchBothDiff$ on the \cfFgMatchBothN{} of \cfFgMatchBothCells{} chest cells that keep a partner. The stratified comparison of Section~\ref{sec:coco} keeps every cell instead, binning both pools by clean-answer AUROC at the edges \cfStratEdges{}; the \cfStratChestTopN{} chest cells of the top bin are all CheXpert Plus cells, since no NIH ChestX-ray14 cell reaches \cfStratTopEdge{}.
 
 \begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{8pt}
-\caption{\textbf{Difficulty matching.} Per matching variable: matched chest cells, natural-image partner cells, and the pooled and matched differences of Equation~\ref{eq:matching} with 95\% cluster-bootstrap intervals over models.}
+\caption{\textbf{Difficulty matching.} Per matching variable: matched chest cells, natural-image partner cells, and the pooled and matched differences of Equation~\ref{eq:matching}.}
 \label{tab:cf-matching}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{lrrcc}
 \toprule
-Matching & \multicolumn{1}{c}{chest cells} & \multicolumn{1}{c}{partners} & $\Delta_{\text{pool}}$ [95\% interval] & $\Delta_{\text{match}}$ [95\% interval] \\
+Matching & \multicolumn{1}{c}{chest cells} & \multicolumn{1}{c}{partners} & $\Delta_{\text{pool}}$ & $\Delta_{\text{match}}$ \\
 \midrule
-probe selectivity alone & 300/300 & 186/186 & $-0.642$ $[-0.763, -0.512]$ & $-0.539$ $[-0.678, -0.359]$ \\
-clean-answer AUROC alone & 300/300 & 186/186 & $-0.642$ $[-0.749, -0.505]$ & $-0.066$ $[-0.304, -0.004]$ \\
-both variables & 212/300 & 101/186 & $-0.487$ $[-0.653, -0.201]$ & $-0.024$ $[-0.198, 0.076]$ \\
-both, easy partners only & 211/300 & 79/150 & $-0.432$ $[-0.625, -0.150]$ & $-0.008$ $[-0.198, 0.085]$ \\
+probe selectivity alone & 300/300 & 186/186 & $-0.642$ & $-0.539$ \\
+clean-answer AUROC alone & 300/300 & 186/186 & $-0.642$ & $-0.066$ \\
+both variables & 212/300 & 101/186 & $-0.487$ & $-0.024$ \\
+both, easy partners only & 211/300 & 79/150 & $-0.432$ & $-0.008$ \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -992,7 +1104,7 @@ Figure~\ref{fig:cf-examples} shows grades for individual test images, with $P(\m
 The two-model study that motivated the evaluation registered the procedures below; Appendix~\ref{app:seed-results} reports its results. It uses the construction of Section~\ref{sec:framework}, with the differences stated here.
 
 \paragraph{Data, models, and reading.}
-We use NIH ChestX-ray14 \citep{wang2017chestxray}, whose findings are mined from radiology reports. A deterministic hash of patient identity assigns rows to disjoint train, validation, and test partitions: 18,212 training images and 5,343 test images from 1,659 test patients. The three cells pair LLaVA-1.5-7B \citep{liu2024improved} with Effusion and Edema, and Qwen2.5-VL-7B \citep{bai2025qwen25vl} with Effusion, at the final visual block consumed by the connector or merger; hook tests confirm that this block lies on the downstream path, that $\alpha=0$ is a bitwise no-op, and that nonzero doses change downstream logits. Projection, scaling, and probe follow Section~\ref{sec:directions} with seed 0. Selectivity is Equation~\ref{eq:selectivity} on test rows, with 20 control seeds mapping the 39 recurring input types (AP view, sex, and age decade) to random labels and 2,000 patient-cluster bootstrap draws. Selectivity compares the concept with nuisance-type label maps of the same capacity; the write tests whether the model uses it. All uncertainty clusters by patient; prompts appear in Appendix~\ref{app:protocol}.
+We use NIH ChestX-ray14 \citep{wang2017chestxray}, whose findings are mined from radiology reports. A deterministic hash of patient identity assigns rows to disjoint train, validation, and test partitions: 18,212 training images and 5,343 test images from 1,659 test patients. The three cells pair LLaVA-1.5-7B \citep{liu2024improved} with Effusion and Edema, and Qwen2.5-VL-7B \citep{bai2025qwen25vl} with Effusion, at the final visual block consumed by the connector or merger; hook tests confirm that this block lies on the downstream path, that $\alpha=0$ is a bitwise no-op, and that nonzero doses change downstream logits. Projection, scaling, and probe follow Section~\ref{sec:directions} with seed 0. Selectivity is Equation~\ref{eq:selectivity} on test rows, with 20 control seeds mapping the 39 recurring input types (AP view, sex, and age decade) to random labels. Selectivity compares the concept with nuisance-type label maps of the same capacity; the write tests whether the model uses it. Prompts appear in Appendix~\ref{app:protocol}.
 
 \paragraph{Write and doses.}
 The write is Equation~\ref{eq:intervention} along the lifted normal of Equation~\ref{eq:lift}, with every entry of $\boldsymbol s$ floored at $10^{-8}$, and the endpoint is the paired mean change in $P(\mathrm{yes})$ from the common unsteered baseline (Section~\ref{sec:ownership}). Original cells use the doses $\{-1,-0.5,-0.25,-0.1,0,0.1,0.25,0.5,1\}$ on 200 held-out test images. At the six controlled doses $\mathcal A=\{\pm1,\pm0.5,\pm0.25\}$, 20 isotropic random unit directions, one coordinate-permutation sham, and the fixed alternative clinical normals receive the same signed dose on the same rows. Dose monotonicity over $[-0.5,0.5]$ is descriptive.
@@ -1007,34 +1119,34 @@ With $\Delta_c(\alpha)$ the target direction's paired mean change at dose $\alph
 A cell clears the generic gate when $\Delta^\star_c$ exceeds both the 95th percentile of the 20 random directions' changes at $\alpha^\star$, each multiplied by $\operatorname{sign}(\alpha^\star)$, and the largest absolute sham effect over $\mathcal A$. The random directions are evaluated at $\alpha^\star$ alone, so the gate is a registered reference without cross-dose correction.
 
 \paragraph{Direction-specificity supplement.}
-The Nodule response motivated a separately registered supplement at the locked Qwen dose $\alpha=+0.25$, on one row per patient, chosen by label-blind hash, for 400 ChestX-ray14 test patients absent from the original cohort. It estimates the Effusion row of the write matrix (Section~\ref{sec:ownership}) against the five other pre-existing Qwen normals (Atelectasis, Pneumothorax, Cardiomegaly, Mass, and Nodule), fitted like Effusion, together with 20 random directions and the sham: 28 configurations and 11,200 per-image outcomes. Direction specificity requires an Effusion effect above the random 95th percentile and the absolute sham, and a one-sided 95\% lower bound of $O_{\mathrm{Effusion}}$ (Equation~\ref{eq:margin}) above zero, with the maximum recomputed in each of 5,000 patient-bootstrap draws. Adding competitors can only lower $O_q$, so a positive advantage holds for the family tested, while a negative one needs no exhaustive family.
+The Nodule response motivated a separately registered supplement at the locked Qwen dose $\alpha=+0.25$, on one row per patient, chosen by label-blind hash, for 400 ChestX-ray14 test patients absent from the original cohort. It estimates the Effusion row of the write matrix (Section~\ref{sec:ownership}) against the five other pre-existing Qwen normals (Atelectasis, Pneumothorax, Cardiomegaly, Mass, and Nodule), fitted like Effusion, together with 20 random directions and the sham: 28 configurations and 11,200 per-image outcomes. Direction specificity requires an Effusion effect above the random 95th percentile and the absolute sham, and $O_{\mathrm{Effusion}}$ (Equation~\ref{eq:margin}) above zero. Adding competitors can only lower $O_q$, so a positive advantage holds for the family tested, while a negative one needs no exhaustive family.
 
 \paragraph{Causal-ownership matrix.}
-A prospective grid crosses six Qwen directions (Effusion, Atelectasis, Pneumothorax, Cardiomegaly, Mass, and Nodule) with their six questions on 400 new patients at $\alpha=+0.25$, with 119 random directions and a sham. Question $q$ is owned when $W_{q,q}$ exceeds every other clinical direction, every random direction, and the absolute sham, with the 30 clinical contrasts bounded simultaneously by Equation~\ref{eq:max-t}. A separate family of 12 statistics tests shared aliasing: for each direction, its signed mean effect on its five off-diagonal questions and its mean excess over the matching diagonals there.
+A prospective grid crosses six Qwen directions (Effusion, Atelectasis, Pneumothorax, Cardiomegaly, Mass, and Nodule) with their six questions on 400 new patients at $\alpha=+0.25$, with 119 random directions and a sham. Question $q$ is owned when $W_{q,q}$ exceeds every other clinical direction, every random direction, and the absolute sham. A separate family of 12 statistics tests shared aliasing: for each direction, its signed mean effect on its five off-diagonal questions and its mean excess over the matching diagonals there.
 
-\paragraph{Answer-encoding crossover and Mass confirmation.} A registered crossover on 200 patients of the causal-ownership cohort, with the other 200 as a patient-disjoint calibration set, crosses the original yes/no prompt with A-present and B-present prompts that exchange the finding-to-letter mapping, at $\alpha=\pm0.25$ with six clinical directions, 20 random directions, and a sham; a question enters only if both coded mappings have clean-answer AUROC lower bounds above 0.5 with at least ten patients per class. An independent confirmation then tests Mass on 200 patients absent from every earlier Qwen cohort, crossing two wordings (\textit{show}, \textit{is}) with explicit yes/no, A-present, and B-present instructions at $\alpha=+0.25$, with 119 random directions, a sham, and 20 clinical comparisons under simultaneous 95\% lower bounds. Confirmation requires positive bounds and Mass effects above every random effect and the absolute sham, across all four coded cells or both original-wording cells.
+\paragraph{Answer-encoding crossover and Mass confirmation.} A registered crossover on 200 patients of the causal-ownership cohort, with the other 200 as a patient-disjoint calibration set, crosses the original yes/no prompt with A-present and B-present prompts that exchange the finding-to-letter mapping, at $\alpha=\pm0.25$ with six clinical directions, 20 random directions, and a sham; a question enters only if both coded mappings have clean-answer AUROC lower bounds above 0.5 with at least ten patients per class. An independent confirmation then tests Mass on 200 patients absent from every earlier Qwen cohort, crossing two wordings (\textit{show}, \textit{is}) with explicit yes/no, A-present, and B-present instructions at $\alpha=+0.25$, with 119 random directions, a sham, and 20 clinical comparisons. Confirmation requires a positive margin against every competitor and Mass effects above every random effect and the absolute sham, across all four coded cells or both original-wording cells.
 
 
 \section{Pilot study: results}
 \label{app:seed-results}
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{4pt}
 \input{tables/cf_colors}
 \caption{\textbf{Pilot replication on 600 new patients.} Qwen2.5-VL-7B on NIH ChestX-ray14. Per concept: the concept write $W_{q,q}$, the random 95th percentile (p95), the absolute sham, and its rank among the 120 compared effects; blue shades a negative ownership contrast.}
 \label{tab:cf-seed}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lrrrrrrrll}
 \toprule
-Concept & \multicolumn{1}{c}{$S$} & \multicolumn{1}{c}{AUROC} & \multicolumn{1}{c}{$W_{q,q}$} & \multicolumn{1}{c}{p95} & \multicolumn{1}{c}{$|$sham$|$} & \multicolumn{1}{c}{rank} & \multicolumn{1}{c}{$O_q$ [95\% CI]} & Competitor & Verdict\\
+Concept & \multicolumn{1}{c}{$S$} & \multicolumn{1}{c}{AUROC} & \multicolumn{1}{c}{$W_{q,q}$} & \multicolumn{1}{c}{p95} & \multicolumn{1}{c}{$|$sham$|$} & \multicolumn{1}{c}{rank} & \multicolumn{1}{c}{$O_q$} & Competitor & Verdict\\
 \midrule
-Effusion & 0.102 & 0.593 & +0.190 & 0.137 & 0.017 & 2/120 & \cellcolor{cfSlate2}-0.071 [-0.080, -0.062] & Nodule & competitor \\
-Atelectasis & 0.062 & 0.566 & +0.101 & 0.297 & 0.096 & 55/120 & \cellcolor{cfSlate3}-0.226 [-0.233, -0.219] & Nodule & competitor \\
-Pneumothorax & 0.152 & 0.508 & +0.089 & 0.320 & 0.113 & 52/120 & \cellcolor{cfSlate3}-0.102 [-0.108, -0.096] & Effusion & competitor \\
-Cardiomegaly & 0.205 & 0.742 & +0.085 & 0.311 & 0.158 & 33/120 & \cellcolor{cfSlate3}-0.219 [-0.227, -0.211] & Atelectasis & competitor \\
-Mass & 0.021 & 0.678 & +0.359 & 0.372 & 0.092 & 10/120 & \cellcolor{cfSlate3}-0.169 [-0.178, -0.160] & Effusion & competitor \\
-Nodule & -0.041 & 0.642 & +0.118 & 0.158 & 0.055 & 15/120 & \cellcolor{cfSlate2}-0.072 [-0.081, -0.063] & Effusion & competitor \\
+Effusion & 0.102 & 0.593 & +0.190 & 0.137 & 0.017 & 2/120 & \cellcolor{cfSlate2}-0.071 & Nodule & competitor \\
+Atelectasis & 0.062 & 0.566 & +0.101 & 0.297 & 0.096 & 55/120 & \cellcolor{cfSlate3}-0.226 & Nodule & competitor \\
+Pneumothorax & 0.152 & 0.508 & +0.089 & 0.320 & 0.113 & 52/120 & \cellcolor{cfSlate3}-0.102 & Effusion & competitor \\
+Cardiomegaly & 0.205 & 0.742 & +0.085 & 0.311 & 0.158 & 33/120 & \cellcolor{cfSlate3}-0.219 & Atelectasis & competitor \\
+Mass & 0.021 & 0.678 & +0.359 & 0.372 & 0.092 & 10/120 & \cellcolor{cfSlate3}-0.169 & Effusion & competitor \\
+Nodule & -0.041 & 0.642 & +0.118 & 0.158 & 0.055 & 15/120 & \cellcolor{cfSlate2}-0.072 & Effusion & competitor \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1045,9 +1157,9 @@ Nodule & -0.041 & 0.642 & +0.118 & 0.158 & 0.055 & 15/120 & \cellcolor{cfSlate2}
 
 The first finding starts with a successful intervention: Qwen Effusion reproduces beyond random and sham controls before clinical alternatives change its attribution.
 
-Controlled decodability is evaluated at the final visual block each connector consumes: the penultimate CLIP encoder layer for LLaVA and the last of Qwen's 32 visual blocks. Intervals are 95\% patient-cluster bootstrap intervals over 2,000 draws; the control AUROC is the mean over the 20 recurring-type random-label maps, with its 5th--95th percentile spread in parentheses.
+Controlled decodability is evaluated at the final visual block each connector consumes: the penultimate CLIP encoder layer for LLaVA and the last of Qwen's 32 visual blocks. The control AUROC is the mean over the 20 recurring-type random-label maps.
 
-Qwen Effusion first satisfies the reader test. Its probe reaches AUROC \cfSeedDecQwenEffAuroc{} $[\cfSeedDecQwenEffAurocLo,\cfSeedDecQwenEffAurocHi]$ against a control AUROC of \cfSeedDecQwenEffCtrl{} (\cfSeedDecQwenEffCtrlLo--\cfSeedDecQwenEffCtrlHi), a controlled selectivity of \cfSeedDecQwenEffSel{} (95\% CI $[\cfSeedDecQwenEffSelLo,\cfSeedDecQwenEffSelHi]$). LLaVA-1.5-7B reads both of its concepts at its consumed block: Effusion at AUROC \cfSeedDecLlavaEffAuroc{} $[\cfSeedDecLlavaEffAurocLo,\cfSeedDecLlavaEffAurocHi]$ with selectivity \cfSeedDecLlavaEffSel{} $[\cfSeedDecLlavaEffSelLo,\cfSeedDecLlavaEffSelHi]$, and Edema at AUROC \cfSeedDecLlavaEdemaAuroc{} $[\cfSeedDecLlavaEdemaAurocLo,\cfSeedDecLlavaEdemaAurocHi]$ with selectivity \cfSeedDecLlavaEdemaSel{} $[\cfSeedDecLlavaEdemaSelLo,\cfSeedDecLlavaEdemaSelHi]$, against a control AUROC of \cfSeedDecLlavaEffCtrl{} (\cfSeedDecLlavaEffCtrlLo--\cfSeedDecLlavaEffCtrlHi). Original-cohort intervention outcomes maximize the concept-consistent effect over six fixed nonzero doses. Qwen makes a strong write-direction case in the original 200-image cohort: the maximum concept-consistent change is 0.2343 at $\alpha=+0.25$, above the random-direction 95th percentile of 0.0963 and the maximum absolute sham effect of 0.0852.
+Qwen Effusion first satisfies the reader test. Its probe reaches AUROC \cfSeedDecQwenEffAuroc{} against a control AUROC of \cfSeedDecQwenEffCtrl{}, a controlled selectivity of \cfSeedDecQwenEffSel{}. LLaVA-1.5-7B reads both of its concepts at its consumed block: Effusion at AUROC \cfSeedDecLlavaEffAuroc{} with selectivity \cfSeedDecLlavaEffSel{}, and Edema at AUROC \cfSeedDecLlavaEdemaAuroc{} with selectivity \cfSeedDecLlavaEdemaSel{}, against a control AUROC of \cfSeedDecLlavaEffCtrl{}. Original-cohort intervention outcomes maximize the concept-consistent effect over six fixed nonzero doses. Qwen makes a strong write-direction case in the original 200-image cohort: the maximum concept-consistent change is 0.2343 at $\alpha=+0.25$, above the random-direction 95th percentile of 0.0963 and the maximum absolute sham effect of 0.0852.
 
 The response at the locked dose $\alpha=+0.25$ reproduces on the patient-disjoint 400-patient cohort. Effusion changes mean $P(\mathrm{yes})$ by 0.1945, again above the random-direction 95th percentile of 0.0878 and absolute sham effect of 0.0157. None of these patients appears in the original intervention cohort, and the dose was not reselected, supporting a large and reproducible non-generic effect within ChestX-ray14.
 
@@ -1055,34 +1167,34 @@ The response at the locked dose $\alpha=+0.25$ reproduces on the patient-disjoin
 \subsection{Semantic competition changes attribution, not efficacy}
 \label{sec:specificity-results}
 
-The fixed clinical family provides a harder identification test than non-semantic controls. Nodule changes the Effusion answer by 0.2519 and realizes the point-estimate maximum among the five alternatives. The Effusion ownership contrast $O_{\mathrm{Effusion}}$ is $-0.0573$. The registered fixed-family endpoint recomputes the maximum inside each of 5,000 patient-bootstrap draws, giving a two-sided 95\% CI of $[-0.0694,-0.0450]$ and a one-sided 95\% lower bound of $-0.0678$. The entire interval is below zero. Descriptively, all five alternative clinical normals move the Effusion endpoint in the same positive direction; Effusion exceeds four by 0.1172--0.1778, while Nodule alone has a larger point estimate. This shared-sign pattern motivates an answer-sensitive-alias hypothesis but cannot distinguish it from question-specific ownership.
+The fixed clinical family provides a harder identification test than non-semantic controls. Nodule changes the Effusion answer by 0.2519 and realizes the point-estimate maximum among the five alternatives. The Effusion ownership contrast $O_{\mathrm{Effusion}}$ is $-0.0573$. The registered fixed-family endpoint takes the maximum over the five alternatives on the same patients, so the contrast is a comparison between measured effects rather than an estimate with a tolerance. Descriptively, all five alternative clinical normals move the Effusion endpoint in the same positive direction; Effusion exceeds four by 0.1172--0.1778, while Nodule alone has a larger point estimate. This shared-sign pattern motivates an answer-sensitive-alias hypothesis but cannot distinguish it from question-specific ownership.
 
 Qwen Effusion therefore remains a reproducible direction that changes the answer beyond random and sham perturbations, while its specific semantic attribution fails. The familywise endpoint establishes that at least one fixed clinical alternative is stronger; Nodule is the point-estimate maximizer, not a separately familywise-identified semantic owner.
 
 \subsection{Wording changes clinical competition for Mass}
 \label{sec:encoding-results}
 
-In the registered crossover, the four questions that pass capability calibration (Atelectasis, Pneumothorax, Mass, and Nodule) respond more in the component that reverses the raw A-minus-B sign when the finding-to-letter mapping is exchanged, but so do all 20 random directions and the sham, so aggregate mapping response does not separate clinical normals from generic perturbations. Mass is the exception: its clinical margin, the Mass effect minus the largest of the five other clinical effects in finding-present logit units, changes from $-0.7181$ under the original yes/no prompt to $0.2825$ and $0.2900$ under A-present and B-present (Table~\ref{tab:seed-mass}, top). The independent confirmation on 200 new patients reproduces the clinical advantage under both \textit{show} coded prompts, with simultaneous lower bounds of 0.1675 and 0.1462, while both \textit{is} margins are negative and the Mass effects stay below the maximum of the 119 random directions (rank 3 of 120), so neither registered specificity conjunction is met (Table~\ref{tab:seed-mass}, bottom). Mass steering increases Brier error in every cell, and every AUROC-change interval spans zero.
-\begin{table}[H]
+In the registered crossover, the four questions that pass capability calibration (Atelectasis, Pneumothorax, Mass, and Nodule) respond more in the component that reverses the raw A-minus-B sign when the finding-to-letter mapping is exchanged, but so do all 20 random directions and the sham, so aggregate mapping response does not separate clinical normals from generic perturbations. Mass is the exception: its clinical margin, the Mass effect minus the largest of the five other clinical effects in finding-present logit units, changes from $-0.7181$ under the original yes/no prompt to $0.2825$ and $0.2900$ under A-present and B-present (Table~\ref{tab:seed-mass}, top). The independent confirmation on 200 new patients reproduces the clinical advantage under both \textit{show} coded prompts, with clinical margins of 0.1675 and 0.1462, while both \textit{is} margins are negative and the Mass effects stay below the maximum of the 119 random directions (rank 3 of 120), so neither registered specificity conjunction is met (Table~\ref{tab:seed-mass}, bottom). Mass steering increases Brier error in every cell, and every AUROC-change interval spans zero.
+\begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{5pt}
+\setlength{\tabcolsep}{4pt}
 \caption{\textbf{Mass clinical competition across prompts.} Clinical margin per prompt: the Mass effect minus the largest of the five other clinical effects, in finding-present logit units. Top, the discovery crossover; bottom, the registered confirmation on new patients.}
 \label{tab:seed-mass}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{lrrrrr}
+\fitwidth{%
+\begin{tabular}{lrrrr}
 \toprule
-Prompt & Clinical margin & 95\% CI & Mass effect & Random max & $|$Sham$|$ \\
+Prompt & Clinical margin & Mass effect & Random max & $|$Sham$|$ \\
 \midrule
-Standard yes/no & $-0.7181$ & $[-0.7956,-0.6412]$ & 2.8625 & 3.0412 & 0.5869 \\
-A-present & $0.2825$ & $[0.2269,0.3406]$ & 1.6125 & 1.1650 & 0.7550 \\
-B-present & $0.2900$ & $[0.2300,0.3506]$ & 1.7469 & 1.2581 & 1.1475 \\
+Standard yes/no & $-0.7181$ & 2.8625 & 3.0412 & 0.5869 \\
+A-present & $0.2825$ & 1.6125 & 1.1650 & 0.7550 \\
+B-present & $0.2900$ & 1.7469 & 1.2581 & 1.1475 \\
 \midrule
-Condition & Clinical margin & Minimum LCB & Mass effect & Random max & \\
+Condition & Clinical margin & Mass effect & Random max & \\
 \midrule
-\textit{show}/A-present & 0.2525 & 0.1675 & 1.7019 & 2.2100 & \\
-\textit{show}/B-present & 0.2338 & 0.1462 & 1.8188 & 2.2169 & \\
-\textit{is}/A-present & $-0.1087$ & $-0.1751$ & 1.9225 & 2.4750 & \\
-\textit{is}/B-present & $-0.2006$ & $-0.2686$ & 2.0019 & 2.4944 & \\
+\textit{show}/A-present & 0.2525 & 1.7019 & 2.2100 & \\
+\textit{show}/B-present & 0.2338 & 1.8188 & 2.2169 & \\
+\textit{is}/A-present & $-0.1087$ & 1.9225 & 2.4750 & \\
+\textit{is}/B-present & $-0.2006$ & 2.0019 & 2.4944 & \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1127,23 +1239,6 @@ $\cos_\Sigma$ & Whitened cosine under the training-feature covariance $\Sigma$ (
 \end{table}
 
 \FloatBarrier
-
-
-\section{Joint bootstrap and simultaneous lower bounds}
-\label{app:simultaneous-bounds}
-
-For a family of $m$ statistics, let $\widehat C_j$ be statistic $j$'s estimate, $C^*_{bj}$ its value in joint bootstrap draw $b\in\{1,\dots,B\}$, and $\tau_j$ its bootstrap standard deviation with denominator $B-1$. The centred studentised draws, the common critical value, and the simultaneous lower bounds are
-\begin{equation}
-Z_{bj}=\frac{C^*_{bj}-\widehat C_j}{\tau_j},\qquad
-c_{.95}=Q_{.95}\Bigl(\bigl\{\max_{1\leq j\leq m}Z_{bj}\bigr\}_{b=1}^{B}\Bigr),\qquad
-L_j=\widehat C_j-c_{.95}\,\tau_j,
-\label{eq:max-t}
-\end{equation}
-where $Q_{.95}$ is the empirical 95th percentile with linear interpolation. The draws are centred on the estimate, and each $\tau_j$ stays fixed across draws. A component with $\tau_j\leq10^{-12}$ gets $Z_{bj}=0$ but keeps its own $\tau_j$ in $L_j$; every draw is retained. Upper bounds use the same $c_{.95}$ with every contrast's sign reversed.
-
-\paragraph{Verdicts.} For the ownership family of 30 contrasts $W_{q,q}-W_{q,d}$, question $q$'s simultaneous lower bound is the minimum of its five contrast bounds. The question has the advantage when that minimum is positive, a stronger competitor when any of its upper bounds is negative, and is unresolved otherwise. $O_q$ itself receives a percentile interval instead: every draw recomputes the largest competitor, the two-sided interval takes the 2.5th and 97.5th percentiles, and the pilot's Effusion supplement takes the 5th as its one-sided bound. The logit-scale grade (Appendix~\ref{app:cf-robustness}) applies both rules to margin changes.
-
-\paragraph{Draws.} The campaign resamples the 600 test rows of each block in 2{,}000 shared draws (seed 2026090601). The pilot's ownership matrix resamples 400 patients in 5{,}000 draws (seed 20260904), with the same patient indices for every question and intervention, and bounds its shared-alias statistics as a separate family of 12. The Mass confirmation resamples 200 new patients (seed 20260910), with a family of 20 Mass-minus-alternative contrasts across four coded prompts.
 
 
 \section{Reproducibility specification}
@@ -1196,7 +1291,7 @@ Projecting the token-mean read vector $\hvec_i$ gives features $R^{\top}\hvec_i$
 
 \paragraph{Coordinate-permutation sham.} Immediately after the random draw, the same generator produces one permutation of $\{0,\dots,D{-}1\}$ per concept, in protocol concept order. We form concept $c$'s sham by rearranging the coordinates of $\hat\wvec_c$ with concept $c$'s own permutation. This preserves the direction's coordinate multiset and unit norm. We write each question with its own sham.
 
-\paragraph{Matched random-label probes.} Each row has a type: view $\times$ sex $\times$ age decade on the chest sets, and aspect-ratio $\times$ area buckets on COCO. For control seed $k\in\{0,\dots,19\}$, we traverse the types in sorted order and use a PCG64 generator seeded with $k$ to draw one label per type uniformly from $\{0,1\}$. If all types receive the same label, we flip the first. Every row of a type receives that type's label. We give each control probe the concept probe's capacity and nuisance structure by fitting it on the same training rows and known-label subset with the same hyperparameters. A block fits control probes when its training rows span at least eight types. Selectivity is Equation~\ref{eq:selectivity}. Its bootstrap over calibration units retains a draw when the real AUROC is finite and at least ten of the twenty control AUROCs are finite. We grade a cell for readability when at least 1{,}900 of the 2{,}000 draws are retained.
+\paragraph{Matched random-label probes.} Each row has a type: view $\times$ sex $\times$ age decade on the chest sets, and aspect-ratio $\times$ area buckets on COCO. For control seed $k\in\{0,\dots,19\}$, we traverse the types in sorted order and use a PCG64 generator seeded with $k$ to draw one label per type uniformly from $\{0,1\}$. If all types receive the same label, we flip the first. Every row of a type receives that type's label. We give each control probe the concept probe's capacity and nuisance structure by fitting it on the same training rows and known-label subset with the same hyperparameters. A block fits control probes when its training rows span at least eight types. Selectivity is Equation~\ref{eq:selectivity}. A cell is graded for readability when the real AUROC is finite and at least ten of the twenty control AUROCs are finite.
 
 \subsection{Cohort roles}
 \label{app:repro-cohorts}
