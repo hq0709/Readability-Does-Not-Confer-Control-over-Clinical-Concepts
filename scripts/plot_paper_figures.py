@@ -88,7 +88,9 @@ def load_blocks():
 
 
 def owned(v):
-    return bool(v.get("steering_reference") and v.get("verdict") == "fixed_family_advantage")
+    """The one ownership rule, defined once in cf_inclusion and mirrored by cftransfer.manifest. Three
+    scripts carried their own copy of it, which is how a figure and a table come to disagree."""
+    return ci.owned(v)
 
 
 def owned_set(s):
@@ -540,21 +542,22 @@ def grade_cells(blocks, ds):
     read, ans, own = [], [], []
     for (mk, d), b in ci.probe_blocks(ci.load_runs(RUNS, order=ORDER)).items():
         if d == ds:
-            read += [bool(v.get("readable")) for v in ci.calibration(b).values()]
+            read += [ci.readable(v) for v in ci.calibration(b).values()]
     for (mk, d), b in blocks.items():
         if d != ds:
             continue
         cal = b["s"].get("calibration", {}); core = b["s"]["core"]["per_question"]
         for c, v in core.items():
             cc = cal.get(c, {}) if isinstance(cal.get(c, {}), dict) else {}
-            ans.append(bool(cc.get("answer_capable"))); own.append(owned(v))
+            ans.append(ci.answer_capable(cc)); own.append(owned(v))
     return np.array(read), np.array(ans), np.array(own)
 
 
-def boot_frac(flags, n=2000, seed=0):
-    rng = np.random.default_rng(seed); flags = np.asarray(flags, dtype=float)
-    draws = rng.choice(flags, size=(n, len(flags)), replace=True).mean(axis=1)
-    return flags.mean(), np.percentile(draws, 2.5), np.percentile(draws, 97.5)
+def frac(flags):
+    """The share of cells that pass. The bar is a count over the whole grid, not an estimate of one, so it
+    carries no interval: every cell the paper grades is in it."""
+    flags = np.asarray(flags, dtype=float)
+    return flags.mean()
 
 
 def fig2_overview(blocks):
@@ -567,11 +570,10 @@ def fig2_overview(blocks):
         read, ans, own = grade_cells(blocks, ds)
         for gi, flags in enumerate((read, ans, own)):
             grade_counts.setdefault(ds, {})[grades[gi]] = [int(flags.sum()), int(len(flags))]
-            m, lo, hi = boot_frac(flags)
+            m = frac(flags)
             x = gi + (k - 1) * w
             ax.bar(x, m, w - 0.03, color=DS_COL[ds], edgecolor="none", zorder=3)
-            ax.errorbar(x, m, yerr=[[m - lo], [hi - m]], fmt="none", ecolor="#555555", elinewidth=0.7, capsize=1.5, zorder=4)
-            counts.append(ax.annotate(f"{int(flags.sum())}/{len(flags)}", (x, hi), xytext=(0, 2.5), textcoords="offset points",
+            counts.append(ax.annotate(f"{int(flags.sum())}/{len(flags)}", (x, m), xytext=(0, 2.5), textcoords="offset points",
                                       ha="center", va="bottom", fontsize=6, color=fs.INK, zorder=6))
     ax.set_xticks(range(3)); ax.set_xticklabels(grades); ax.set_ylim(0, 1.18); ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
     ax.set_ylabel("fraction of concept cells"); ax.grid(False, axis="x")

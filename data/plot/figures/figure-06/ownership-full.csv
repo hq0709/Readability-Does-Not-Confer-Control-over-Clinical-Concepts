@@ -14,7 +14,7 @@ gemma3-12,nih,Nodule,0.16724688326790937,True,False
 gemma3-27,nih,Effusion,-0.04401375286867054,False,False
 gemma3-27,nih,Atelectasis,-0.02788370226231146,False,True
 gemma3-27,nih,Pneumothorax,-0.011835455811625761,False,False
-gemma3-27,nih,Cardiomegaly,0.0017396996778118248,False,False
+gemma3-27,nih,Cardiomegaly,0.0017396996778118248,True,False
 gemma3-27,nih,Mass,-0.07762491815456275,False,False
 gemma3-27,nih,Nodule,-0.016235912478374144,False,False
 medgemma-4,nih,Effusion,0.005353488997286229,False,True
@@ -46,7 +46,7 @@ gemma3-27,chexpert,Atelectasis,-8.189650520435288e-06,False,True
 gemma3-27,chexpert,Pneumothorax,-0.005891806840293307,False,False
 gemma3-27,chexpert,Cardiomegaly,-9.9231493754081e-05,False,False
 gemma3-27,chexpert,Consolidation,-0.028516393847473565,False,False
-gemma3-27,chexpert,Edema,1.6430545592402424e-05,False,False
+gemma3-27,chexpert,Edema,1.6430545592402424e-05,True,False
 medgemma-4,chexpert,Effusion,-0.20413933532848333,False,True
 medgemma-4,chexpert,Atelectasis,-0.08216892005526723,False,False
 medgemma-4,chexpert,Pneumothorax,-0.6021725553713194,False,True

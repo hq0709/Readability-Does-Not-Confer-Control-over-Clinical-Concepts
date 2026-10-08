@@ -195,8 +195,9 @@ def robustness_macros(M: dict, rows: list[dict], wb: dict, warn: list) -> None:
     M["cfScaleAgree"] = sum(i1[ds]["agreement_owned_p_vs_owned_m"]["a_yes_b_yes"] + i1[ds]["agreement_owned_p_vs_owned_m"]["a_no_b_no"] for ds in ci.DATASETS)
     M["cfScaleAgreeN"] = sum(i1[ds]["agreement_owned_p_vs_owned_m"]["n"] for ds in ci.DATASETS)
     M["cfScaleOwned"] = sum(i1[ds]["owned_p"] for ds in ci.DATASETS); M["cfScaleOwnedKeepFull"] = sum(i1[ds]["owned_p_and_Om_ci_pos_and_beats_random_m"] for ds in ci.DATASETS)
-    if sum(i1[ds]["owned_p_and_Om_pos"] for ds in ci.DATASETS) != M["cfScaleOwned"]:
-        warn.append("scale: not every owned cell keeps O^m_q > 0 (prose says 'every owned cell keeps')")
+    # the margin-scale grade no longer keeps every owned cell, so the count is a macro rather than a word
+    M["cfScaleOwnedMpos"] = sum(i1[ds]["owned_p_and_Om_pos"] for ds in ci.DATASETS)
+    # the prose reports the count; there is nothing to warn about unless the macro and the json disagree
     sat = S["item2_ceiling"]["saturation"]["per_dataset_median_block_sat"]
     for ds, D in DS_MACRO.items():
         M[f"cfScaleSat{D}"] = fx(sat[ds], 2)
@@ -221,8 +222,7 @@ def robustness_macros(M: dict, rows: list[dict], wb: dict, warn: list) -> None:
     b5 = S["item5_batch"]; dist = b5["distribution"]["vis.last"]
     M["cfScaleBatchMin"] = fx(dist["max_abs_candidate_logit_diff"]["min"], 2); M["cfScaleBatchMax"] = fx(dist["max_abs_candidate_logit_diff"]["max"], 2)
     M["cfScaleBatchAgree"] = dist["margin_sign_agreement_true"]; M["cfScaleBatchN"] = dist["n_blocks"]; M["cfScaleBatchDisagree"] = dist["margin_sign_agreement_false"]
-    if b5["owned_cells_in_sign_disagreement_blocks"]:
-        warn.append(f"scale: {b5['owned_cells_in_sign_disagreement_blocks']} owned cell(s) in sign-disagreeing blocks (prose says none)")
+    M["cfScaleBatchDisagreeOwned"] = b5["owned_cells_in_sign_disagreement_blocks"]
     cb = b5["clean_baseline_core_vs_locus"]; rest = sorted({round(x["frac_identical"], 2) for x in cb if x["frac_identical"] < 1.0})
     M["cfScaleBaselineN"] = len(cb); M["cfScaleBaselineIdentical"] = sum(x["frac_identical"] >= 1.0 for x in cb)
     M["cfScaleBaselineRestPct"] = pct(min(rest), 1) if rest else 100; M["cfScaleBaselineDpPct"] = f"{100 * max(x['frac_abs_dp_gt_0.1'] for x in cb):.1f}"
@@ -525,7 +525,7 @@ def extcomp_macros(M: dict, wb: dict, warn: list) -> None:
         for q, v in a["per_question"].items():
             lo = ci.owned(core[q])
             eo = bool(v["W_qq"] > 0 and v["W_qq"] > v.get("random_p95", 0) and v["W_qq"] > v.get("abs_sham", 0)
-                      and v.get("verdict") == "fixed_family_advantage")
+                      and (v.get("O_q") or 0) > 0)
             owned += lo; ext += eo; retained += lo and eo
     M["cfExtcompBlocks"] = blocks; M["cfExtcompOwned"] = owned; M["cfExtcompRetained"] = retained; M["cfExtcompExtOwned"] = ext
     if ext != retained:
@@ -1224,7 +1224,7 @@ def round3_macros(M: dict, rows: list[dict], wb: dict, warn: list) -> None:
     nv = T["native"]
     M["cfSwapNativeCells"] = nv["cells"]; M["cfSwapNativeOwnedFull"] = nv["owned_full"]; M["cfSwapNativeOwned"] = nv["owned_rows"]
     M["cfSwapNativeMaxDO"] = fx(nv["max_abs_dO"], 3) if nv["max_abs_dO"] is not None else "--"
-    M["cfSwapNativeUnresolved"] = nv["lost_to_resolution"]
+    M["cfSwapNativeLostReference"] = nv["lost_to_reference"]
     man = sum(owned_cell[(b["model"], b["dataset"], q)] for b in T["blocks"] for q in ci.core(wb[(b["model"], b["dataset"])]))
     if man != nv["owned_full"]:
         warn.append(f"towerswap: the blocks' published grade owns {nv['owned_full']} cells against {man} in the manifest")

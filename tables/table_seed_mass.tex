@@ -1,23 +1,23 @@
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{5pt}
+\setlength{\tabcolsep}{4pt}
 \caption{\textbf{Mass clinical competition across prompts.} Clinical margin per prompt: the Mass effect minus the largest of the five other clinical effects, in finding-present logit units. Top, the discovery crossover; bottom, the registered confirmation on new patients.}
 \label{tab:seed-mass}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{lrrrrr}
+\fitwidth{%
+\begin{tabular}{lrrrr}
 \toprule
-Prompt & Clinical margin & 95\% CI & Mass effect & Random max & $|$Sham$|$ \\
+Prompt & Clinical margin & Mass effect & Random max & $|$Sham$|$ \\
 \midrule
-Standard yes/no & $-0.7181$ & $[-0.7956,-0.6412]$ & 2.8625 & 3.0412 & 0.5869 \\
-A-present & $0.2825$ & $[0.2269,0.3406]$ & 1.6125 & 1.1650 & 0.7550 \\
-B-present & $0.2900$ & $[0.2300,0.3506]$ & 1.7469 & 1.2581 & 1.1475 \\
+Standard yes/no & $-0.7181$ & 2.8625 & 3.0412 & 0.5869 \\
+A-present & $0.2825$ & 1.6125 & 1.1650 & 0.7550 \\
+B-present & $0.2900$ & 1.7469 & 1.2581 & 1.1475 \\
 \midrule
-Condition & Clinical margin & Minimum LCB & Mass effect & Random max & \\
+Condition & Clinical margin & Mass effect & Random max & \\
 \midrule
-\textit{show}/A-present & 0.2525 & 0.1675 & 1.7019 & 2.2100 & \\
-\textit{show}/B-present & 0.2338 & 0.1462 & 1.8188 & 2.2169 & \\
-\textit{is}/A-present & $-0.1087$ & $-0.1751$ & 1.9225 & 2.4750 & \\
-\textit{is}/B-present & $-0.2006$ & $-0.2686$ & 2.0019 & 2.4944 & \\
+\textit{show}/A-present & 0.2525 & 1.7019 & 2.2100 & \\
+\textit{show}/B-present & 0.2338 & 1.8188 & 2.2169 & \\
+\textit{is}/A-present & $-0.1087$ & 1.9225 & 2.4750 & \\
+\textit{is}/B-present & $-0.2006$ & 2.0019 & 2.4944 & \\
 \bottomrule
 \end{tabular}}
 \end{table}

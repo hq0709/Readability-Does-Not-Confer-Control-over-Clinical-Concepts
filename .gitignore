@@ -8,3 +8,13 @@ main.pdf
 main_revised.pdf
 *.out
 *.synctex.gz
+
+__pycache__/
+*.pyc
+tmp/
+# figure outputs no section includes: the schematic variants and the dead direction-specificity panel
+figures/fig1_method.*
+figures/fig2_dose_responses.pdf
+figures/fig3_direction_specificity.pdf
+# rebuild/output is redrawn by rebuild/build.sh; the PDFs it installs live in figures/
+rebuild/output/*/*.png

@@ -196,7 +196,11 @@ def tables() -> None:
         elif number == 26:
             source = re.search(r"\\begin\{table\}.*?\\end\{table\}", source, re.S).group()
         elif number in (27, 28):
-            source = re.findall(r"\\begin\{table\}.*?\\end\{table\}", source, re.S)[number - 27]
+            # these two name a section that carries no table environment: the protocol and notation text
+            # live in prose. Taking the whole section is what the entry means, and indexing into an empty
+            # list is what it did instead.
+            found = re.findall(r"\\begin\{table\}.*?\\end\{table\}", source, re.S)
+            source = found[number - 27] if len(found) > number - 27 else source
         directory = TABLE_OUT / f"table-{number:02d}"
         directory.mkdir(parents=True, exist_ok=True)
         (directory / "displayed-source.tex").write_text(source + ("" if source.endswith("\n") else "\n"), encoding="utf-8")

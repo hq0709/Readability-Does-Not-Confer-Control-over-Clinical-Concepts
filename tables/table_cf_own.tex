@@ -1,23 +1,24 @@
 \begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{4pt}
-\caption{\textbf{Ownership of every concept, NIH ChestX-ray14.} $O_q$ at $\alpha=+0.25$: bold is owned, $\dagger$ a stronger competitor, $\ddagger$ unresolved; the last row counts owned cells. Shading darkens with $|O_q|$ (terracotta positive, blue negative).}
+\caption{\textbf{Ownership of every concept, NIH ChestX-ray14.} $O_q$ at $\alpha=+0.25$: bold is owned and $\dagger$ marks a stronger competitor among the cells that clear the reference; the last row counts owned cells. Shading darkens with $|O_q|$ (terracotta positive, blue negative).}
 \label{tab:cf-own-nih}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lrrrrrr}
 \toprule
 Checkpoint & \multicolumn{1}{c}{Effusion} & \multicolumn{1}{c}{Atelectasis} & \multicolumn{1}{c}{Pneumothorax} & \multicolumn{1}{c}{Cardiomegaly} & \multicolumn{1}{c}{Mass} & \multicolumn{1}{c}{Nodule}\\
 \midrule
 Lingshu 32B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfTerra3}\textbf{+0.14} & \cellcolor{cfTerra2}\textbf{+0.05} & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate3}-0.18 \\
-CheXagent-2-3B & \cellcolor{cfSlate1}-0.00$^{\ddagger}$ & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.01 \\
-Qwen2.5-VL-72B & \cellcolor{cfSlate4}-0.32 & \cellcolor{cfTerra4}\textbf{+0.54} & \cellcolor{cfSlate4}-0.50 & \cellcolor{cfTerra4}\textbf{+0.26} & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfSlate3}-0.23 \\
+CheXagent-2-3B & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.01 \\
 Lingshu 7B & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfTerra3}\textbf{+0.17} & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfTerra1}+0.02 \\
+Qwen2.5-VL-72B & \cellcolor{cfSlate4}-0.32 & \cellcolor{cfTerra4}\textbf{+0.54} & \cellcolor{cfSlate4}-0.50 & \cellcolor{cfTerra4}\textbf{+0.26} & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfSlate3}-0.23 \\
+Qwen3-VL-32B & \cellcolor{cfSlate3}-0.14 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfTerra3}\textbf{+0.17} \\
+InternVL3.5-38B & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra1}+0.00 \\
 Qwen3-VL-4B & \cellcolor{cfSlate2}-0.03$^{\dagger}$ & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate4}-0.29 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate2}-0.09 \\
-Qwen3-VL-32B & \cellcolor{cfSlate3}-0.14 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfTerra3}\textbf{+0.17} \\
-InternVL3.5-38B & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra1}+0.00 \\
-Gemma 3 12B & \cellcolor{cfSlate4}-0.83 & \cellcolor{cfSlate4}-0.57 & \cellcolor{cfSlate3}-0.17 & \cellcolor{cfSlate3}-0.19 & \cellcolor{cfSlate4}-0.65 & \cellcolor{cfTerra3}\textbf{+0.17} \\
-MedGemma 4B & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate4}-0.56 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate4}-0.27 & \cellcolor{cfTerra2}+0.09 \\
 InternVL3.5-14B & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 \\
+Gemma 3 12B & \cellcolor{cfSlate4}-0.83 & \cellcolor{cfSlate4}-0.57 & \cellcolor{cfSlate3}-0.17 & \cellcolor{cfSlate3}-0.19 & \cellcolor{cfSlate4}-0.65 & \cellcolor{cfTerra3}\textbf{+0.17} \\
+Gemma 3 27B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate1}-0.02 \\
+MedGemma 4B & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate4}-0.56 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate4}-0.27 & \cellcolor{cfTerra2}+0.09 \\
 Qwen2.5-VL-32B & \cellcolor{cfSlate3}-0.22 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfTerra3}\textbf{+0.11} & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate2}-0.05 \\
 InternVL3.5-8B & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.01 \\
 HuatuoGPT-Vision-7B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}\textbf{+0.01} \\
@@ -26,7 +27,6 @@ CheXagent-8B & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate1}-0.01 & \cellcolo
 Qwen2.5-VL-3B & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate3}-0.18 & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.04 \\
 Qwen2.5-VL-7B & \cellcolor{cfSlate2}-0.07$^{\dagger}$ & \cellcolor{cfSlate3}-0.23 & \cellcolor{cfSlate3}-0.10 & \cellcolor{cfSlate3}-0.22 & \cellcolor{cfSlate3}-0.17 & \cellcolor{cfSlate2}-0.07 \\
 Qwen3-VL-8B & \cellcolor{cfTerra2}+0.07 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfTerra2}+0.03 \\
-Gemma 3 27B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate1}-0.02 \\
 Gemma 3 4B & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate3}-0.24 & \cellcolor{cfSlate4}-0.28 & \cellcolor{cfSlate3}-0.12 \\
 LLaVA-1.5-7B & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfTerra2}+0.02 & \cellcolor{cfSlate1}-0.02 \\
 MedGemma 27B & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfSlate4}-0.45 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate3}-0.20 \\
@@ -34,33 +34,32 @@ LLaVA-1.5-13B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.05 & \cellcol
 Llama 3.2 Vision 11B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfTerra2}+0.02 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfSlate1}-0.01 \\
 LLaVA-Rad-7B & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.03 \\
 \midrule
-\textbf{Owned} & 1 & 2 & 1 & 4 & 2 & 3 \\
+\textbf{Owned} & 2 & 2 & 2 & 5 & 2 & 3 \\
 \bottomrule
 \end{tabular}}
 \end{table}
-
-\paragraph{CheXpert Plus.} \cfChexOwned{} of the \cfChexCells{} cells are owned, \cfChexCompetitor{} have a stronger competitor, and the contrast is positive in \cfGeoOwnWinsChexPct\% of cells. Lingshu contributes the largest share of the owned cells, with three concepts at 7B and five at 32B.
 
 \begin{table}[htbp]
 \centering
 \setlength{\tabcolsep}{4pt}
 \caption{\textbf{Ownership of every concept, CheXpert Plus.} As Table~\ref{tab:cf-own-nih}.}
 \label{tab:cf-own-chexpert}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lrrrrrr}
 \toprule
 Checkpoint & \multicolumn{1}{c}{Effusion} & \multicolumn{1}{c}{Atelectasis} & \multicolumn{1}{c}{Pneumothorax} & \multicolumn{1}{c}{Cardiomegaly} & \multicolumn{1}{c}{Consolidation} & \multicolumn{1}{c}{Edema}\\
 \midrule
 Lingshu 32B & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfSlate2}-0.04$^{\dagger}$ & \cellcolor{cfTerra2}\textbf{+0.02} & \cellcolor{cfTerra3}\textbf{+0.11} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra3}\textbf{+0.11} \\
-CheXagent-2-3B & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.00$^{\ddagger}$ \\
+CheXagent-2-3B & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.00$^{\dagger}$ \\
+Lingshu 7B & \cellcolor{cfTerra2}\textbf{+0.10} & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfTerra3}\textbf{+0.21} \\
 Qwen2.5-VL-72B & \cellcolor{cfSlate3}-0.12 & \cellcolor{cfTerra2}+0.09 & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfSlate3}-0.11 & \cellcolor{cfSlate4}-0.29 & \cellcolor{cfSlate3}-0.13 \\
-Lingshu 7B & \cellcolor{cfTerra2}\textbf{+0.10} & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra1}+0.01$^{\ddagger}$ & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfTerra3}\textbf{+0.21} \\
+Qwen3-VL-32B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate3}-0.12 & \cellcolor{cfTerra2}\textbf{+0.05} \\
+InternVL3.5-38B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate2}-0.02 \\
 Qwen3-VL-4B & \cellcolor{cfSlate1}-0.01$^{\dagger}$ & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate3}-0.23 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra2}\textbf{+0.09} \\
-Qwen3-VL-32B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate3}-0.12 & \cellcolor{cfTerra2}\textbf{+0.05} \\
-InternVL3.5-38B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00$^{\ddagger}$ & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate2}-0.02 \\
-Gemma 3 12B & \cellcolor{cfSlate4}-0.83 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate4}-0.71 & \cellcolor{cfSlate4}-0.47 & \cellcolor{cfSlate4}-0.26 & \cellcolor{cfTerra3}\textbf{+0.15} \\
-MedGemma 4B & \cellcolor{cfSlate3}-0.20 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate4}-0.60 & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfSlate3}-0.20 & \cellcolor{cfTerra3}\textbf{+0.10} \\
 InternVL3.5-14B & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate1}-0.00 \\
+Gemma 3 12B & \cellcolor{cfSlate4}-0.83 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate4}-0.71 & \cellcolor{cfSlate4}-0.47 & \cellcolor{cfSlate4}-0.26 & \cellcolor{cfTerra3}\textbf{+0.15} \\
+Gemma 3 27B & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfTerra1}\textbf{+0.00} \\
+MedGemma 4B & \cellcolor{cfSlate3}-0.20 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate4}-0.60 & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfSlate3}-0.20 & \cellcolor{cfTerra3}\textbf{+0.10} \\
 Qwen2.5-VL-32B & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate3}-0.19 & \cellcolor{cfSlate3}-0.12 & \cellcolor{cfSlate3}-0.19 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate2}-0.02 \\
 InternVL3.5-8B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate1}-0.00 \\
 HuatuoGPT-Vision-7B & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.01 \\
@@ -69,7 +68,6 @@ CheXagent-8B & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfSlate1}-0.02 & \cellcolo
 Qwen2.5-VL-3B & \cellcolor{cfSlate3}-0.18 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate2}-0.08 \\
 Qwen2.5-VL-7B & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate2}-0.10 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate3}-0.15 & \cellcolor{cfSlate3}-0.18 \\
 Qwen3-VL-8B & \cellcolor{cfSlate2}-0.07$^{\dagger}$ & \cellcolor{cfSlate1}-0.00$^{\dagger}$ & \cellcolor{cfSlate2}-0.10 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.04$^{\dagger}$ & \cellcolor{cfSlate2}-0.06 \\
-Gemma 3 27B & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ \\
 Gemma 3 4B & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate4}-0.65 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate4}-0.35 & \cellcolor{cfSlate4}-0.58 \\
 LLaVA-1.5-7B & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.09 & \cellcolor{cfSlate2}-0.10 & \cellcolor{cfTerra2}+0.03 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate1}-0.00 \\
 MedGemma 27B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfTerra2}+0.03 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate4}-0.28 \\
@@ -77,50 +75,48 @@ LLaVA-1.5-13B & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfSlate2}-0.03 & \cellcol
 Llama 3.2 Vision 11B & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate2}-0.08 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfSlate2}-0.05 & \cellcolor{cfSlate1}-0.01 \\
 LLaVA-Rad-7B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate2}-0.07 & \cellcolor{cfTerra2}+0.02 & \cellcolor{cfSlate1}-0.00 \\
 \midrule
-\textbf{Owned} & 6 & 0 & 5 & 3 & 5 & 6 \\
+\textbf{Owned} & 6 & 1 & 5 & 4 & 5 & 7 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\paragraph{COCO.} \cfCocoOwned{} of the \cfCocoOwnedN{} cells are owned and \cfCocoCompetitor{} have a stronger competitor, and \cfCocoBlocksFourPlus{} of the \cfCocoBlocks{} checkpoints own at least four of the six objects. The rows without owned objects are CheXagent-8B and LLaVA-Rad-7B, whose clean answers to the COCO questions are near chance (Table~\ref{tab:cf-main}).
-
 \begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{11pt}
+\setlength{\tabcolsep}{4pt}
 \caption{\textbf{Ownership of every concept, COCO.} As Table~\ref{tab:cf-own-nih}.}
 \label{tab:cf-own-coco}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{lrrrrrr}
 \toprule
 Checkpoint & \multicolumn{1}{c}{person} & \multicolumn{1}{c}{dog} & \multicolumn{1}{c}{car} & \multicolumn{1}{c}{chair} & \multicolumn{1}{c}{bottle} & \multicolumn{1}{c}{bicycle}\\
 \midrule
 Lingshu 32B & \cellcolor{cfTerra4}\textbf{+0.29} & \cellcolor{cfTerra3}\textbf{+0.23} & \cellcolor{cfTerra2}\textbf{+0.08} & \cellcolor{cfTerra4}\textbf{+0.53} & \cellcolor{cfTerra4}\textbf{+0.34} & \cellcolor{cfTerra3}\textbf{+0.22} \\
 CheXagent-2-3B & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfTerra2}+0.03 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfTerra2}+0.04 & \cellcolor{cfTerra1}+0.00 \\
-Qwen2.5-VL-72B & \cellcolor{cfTerra4}\textbf{+0.66} & \cellcolor{cfTerra4}\textbf{+0.44} & \cellcolor{cfTerra4}\textbf{+0.95} & \cellcolor{cfTerra4}\textbf{+0.89} & \cellcolor{cfTerra4}\textbf{+0.62} & \cellcolor{cfTerra4}\textbf{+0.40} \\
 Lingshu 7B & \cellcolor{cfTerra4}\textbf{+0.39} & \cellcolor{cfTerra4}\textbf{+0.74} & \cellcolor{cfTerra4}\textbf{+0.70} & \cellcolor{cfTerra4}\textbf{+0.76} & \cellcolor{cfTerra4}\textbf{+0.64} & \cellcolor{cfTerra4}\textbf{+0.85} \\
-Qwen3-VL-4B & \cellcolor{cfTerra4}\textbf{+0.46} & \cellcolor{cfTerra3}\textbf{+0.13} & \cellcolor{cfTerra4}\textbf{+0.33} & \cellcolor{cfTerra4}\textbf{+0.71} & \cellcolor{cfTerra4}\textbf{+0.34} & \cellcolor{cfTerra2}\textbf{+0.07} \\
+Qwen2.5-VL-72B & \cellcolor{cfTerra4}\textbf{+0.66} & \cellcolor{cfTerra4}\textbf{+0.44} & \cellcolor{cfTerra4}\textbf{+0.95} & \cellcolor{cfTerra4}\textbf{+0.89} & \cellcolor{cfTerra4}\textbf{+0.62} & \cellcolor{cfTerra4}\textbf{+0.40} \\
 Qwen3-VL-32B & \cellcolor{cfTerra3}\textbf{+0.13} & \cellcolor{cfTerra3}\textbf{+0.12} & \cellcolor{cfTerra3}\textbf{+0.11} & \cellcolor{cfTerra3}\textbf{+0.23} & \cellcolor{cfTerra3}\textbf{+0.24} & \cellcolor{cfTerra2}\textbf{+0.07} \\
 InternVL3.5-38B & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.01} \\
+Qwen3-VL-4B & \cellcolor{cfTerra4}\textbf{+0.46} & \cellcolor{cfTerra3}\textbf{+0.13} & \cellcolor{cfTerra4}\textbf{+0.33} & \cellcolor{cfTerra4}\textbf{+0.71} & \cellcolor{cfTerra4}\textbf{+0.34} & \cellcolor{cfTerra2}\textbf{+0.07} \\
+InternVL3.5-14B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}\textbf{+0.00} \\
 Gemma 3 12B & \cellcolor{cfTerra3}\textbf{+0.19} & \cellcolor{cfTerra4}\textbf{+0.76} & \cellcolor{cfTerra4}\textbf{+0.48} & \cellcolor{cfTerra4}\textbf{+0.45} & \cellcolor{cfTerra3}\textbf{+0.18} & \cellcolor{cfTerra4}\textbf{+0.61} \\
+Gemma 3 27B & \cellcolor{cfTerra3}\textbf{+0.24} & \cellcolor{cfTerra4}\textbf{+0.36} & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra4}\textbf{+0.28} & \cellcolor{cfTerra3}\textbf{+0.15} & \cellcolor{cfTerra4}\textbf{+0.75} \\
 MedGemma 4B & \cellcolor{cfTerra4}\textbf{+0.35} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra4}\textbf{+0.43} & \cellcolor{cfTerra3}\textbf{+0.19} & \cellcolor{cfTerra3}\textbf{+0.20} & \cellcolor{cfTerra3}\textbf{+0.14} \\
-InternVL3.5-14B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ \\
 Qwen2.5-VL-32B & \cellcolor{cfTerra4}\textbf{+0.44} & \cellcolor{cfTerra3}\textbf{+0.12} & \cellcolor{cfTerra4}\textbf{+0.27} & \cellcolor{cfTerra4}\textbf{+0.83} & \cellcolor{cfTerra4}\textbf{+0.41} & \cellcolor{cfTerra3}\textbf{+0.19} \\
 InternVL3.5-8B & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra2}\textbf{+0.04} & \cellcolor{cfTerra1}\textbf{+0.02} \\
-HuatuoGPT-Vision-7B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ \\
+HuatuoGPT-Vision-7B & \cellcolor{cfTerra1}\textbf{+0.02} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra2}\textbf{+0.03} & \cellcolor{cfTerra1}\textbf{+0.00} \\
 LLaVA-Med 1.5 7B & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfTerra1}+0.00 & \cellcolor{cfSlate1}-0.01 \\
 CheXagent-8B & \cellcolor{cfSlate1}-0.00 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate1}-0.01 & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate3}-0.13 & \cellcolor{cfSlate2}-0.03 \\
 Qwen2.5-VL-3B & \cellcolor{cfTerra4}\textbf{+0.46} & \cellcolor{cfTerra4}\textbf{+0.42} & \cellcolor{cfTerra4}\textbf{+0.53} & \cellcolor{cfTerra4}\textbf{+0.68} & \cellcolor{cfTerra4}\textbf{+0.61} & \cellcolor{cfTerra4}\textbf{+0.39} \\
 Qwen2.5-VL-7B & \cellcolor{cfTerra4}\textbf{+0.48} & \cellcolor{cfTerra4}\textbf{+0.75} & \cellcolor{cfTerra4}\textbf{+0.61} & \cellcolor{cfTerra4}\textbf{+0.87} & \cellcolor{cfTerra4}\textbf{+0.51} & \cellcolor{cfTerra4}\textbf{+0.81} \\
 Qwen3-VL-8B & \cellcolor{cfTerra4}\textbf{+0.42} & \cellcolor{cfTerra4}\textbf{+0.51} & \cellcolor{cfTerra4}\textbf{+0.74} & \cellcolor{cfTerra4}\textbf{+0.79} & \cellcolor{cfTerra4}\textbf{+0.59} & \cellcolor{cfTerra4}\textbf{+0.43} \\
-Gemma 3 27B & \cellcolor{cfTerra3}\textbf{+0.24} & \cellcolor{cfTerra4}\textbf{+0.36} & \cellcolor{cfTerra2}\textbf{+0.09} & \cellcolor{cfTerra4}\textbf{+0.28} & \cellcolor{cfTerra3}\textbf{+0.15} & \cellcolor{cfTerra4}\textbf{+0.75} \\
 Gemma 3 4B & \cellcolor{cfTerra3}\textbf{+0.16} & \cellcolor{cfTerra4}\textbf{+0.54} & \cellcolor{cfTerra3}\textbf{+0.24} & \cellcolor{cfTerra4}\textbf{+0.34} & \cellcolor{cfTerra4}\textbf{+0.44} & \cellcolor{cfSlate4}-0.27 \\
 LLaVA-1.5-7B & \cellcolor{cfTerra2}\textbf{+0.06} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}\textbf{+0.01} & \cellcolor{cfTerra2}\textbf{+0.07} & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfTerra1}\textbf{+0.00} \\
 MedGemma 27B & \cellcolor{cfTerra4}\textbf{+0.33} & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra2}\textbf{+0.08} & \cellcolor{cfTerra3}\textbf{+0.18} & \cellcolor{cfTerra3}\textbf{+0.21} & \cellcolor{cfSlate2}-0.04 \\
-LLaVA-1.5-13B & \cellcolor{cfTerra2}\textbf{+0.05} & \cellcolor{cfTerra1}+0.00$^{\ddagger}$ & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra2}\textbf{+0.08} & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfSlate2}-0.03 \\
+LLaVA-1.5-13B & \cellcolor{cfTerra2}\textbf{+0.05} & \cellcolor{cfTerra1}\textbf{+0.00} & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfTerra2}\textbf{+0.08} & \cellcolor{cfTerra1}+0.02 & \cellcolor{cfSlate2}-0.03 \\
 Llama 3.2 Vision 11B & \cellcolor{cfSlate2}-0.03 & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfTerra2}+0.02 & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfTerra1}\textbf{+0.01} \\
 LLaVA-Rad-7B & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfTerra1}+0.01 & \cellcolor{cfSlate2}-0.02 & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate1}-0.00 \\
 \midrule
-\textbf{Owned} & 21 & 19 & 19 & 20 & 18 & 16 \\
+\textbf{Owned} & 21 & 21 & 19 & 20 & 18 & 18 \\
 \bottomrule
 \end{tabular}}
 \end{table}

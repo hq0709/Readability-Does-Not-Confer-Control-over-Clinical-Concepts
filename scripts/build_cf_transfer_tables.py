@@ -141,7 +141,9 @@ load = load_blocks
 
 
 def owned(v):
-    return bool(v.get("steering_reference") and v.get("verdict") == "fixed_family_advantage")
+    """The one ownership rule, defined once in cf_inclusion and mirrored by cftransfer.manifest. Three
+    scripts carried their own copy of it, which is how a figure and a table come to disagree."""
+    return ci.owned(v)
 
 
 def mean(xs):
@@ -162,10 +164,10 @@ def block_stats(b):
     cells of included blocks only; None where the rule excludes the block."""
     cal, core = b["cal"], b["core"]
     S = mean(v.get("selectivity") for v in cal.values()) if b["probe"] else None
-    n_read = sum(bool(v.get("readable")) for v in cal.values()) if b["probe"] else None
+    n_read = sum(ci.readable(v) for v in cal.values()) if b["probe"] else None
     if b["included"]:
         A = mean(v.get("answer_auroc") for v in cal.values() if "answer_auroc" in v)
-        n_ans = sum(bool(v.get("answer_capable")) for v in cal.values())
+        n_ans = sum(ci.answer_capable(v) for v in cal.values())
         O = mean(v.get("O_q") for v in core.values()); n_own = sum(owned(v) for v in core.values()); n_cells = len(core)
     else:
         A = n_ans = O = n_own = None; n_cells = 0
@@ -434,7 +436,10 @@ def ownership_panel(blocks, ds, label, order):
             if owned(v):
                 txt = r"\textbf{" + txt + "}"; n_own[c] += 1
             elif v.get("steering_reference"):
-                txt += r"$^{\dagger}$" if v.get("verdict") == "stronger_competitor" else r"$^{\ddagger}$"
+                # a cell that clears the reference and is not owned has a competitor at least as strong;
+                # the bound rule's third outcome, unresolved, has no counterpart once the comparison is
+                # read from the estimates, so there is no second marker to print
+                txt += r"$^{\dagger}$"
             cells.append(shade_own(v["O_q"]) + txt)
         L.append(f"{NAMES[m]} & " + " & ".join(cells) + r" \\")
     L += [r"\midrule", r"\textbf{Owned} & " + " & ".join(str(n_own[c]) for c in concepts) + r" \\"]
@@ -452,7 +457,7 @@ def table_ownership(blocks, order):
     for ds, label in DATASETS:
         L += [r"\begin{table}[htbp]", r"\centering", r"\setlength{\tabcolsep}{4pt}",
          (r"\caption{\textbf{Ownership of every concept, " + CAP.get(ds, label) + r".} "
-          + (r"$O_q$ at $\alpha=+0.25$: bold is owned, $\dagger$ a stronger competitor, $\ddagger$ unresolved; the last row counts owned cells. Shading darkens with $|O_q|$ (terracotta positive, blue negative)." if ds == "nih" else r"As Table~\ref{tab:cf-own-nih}.") + "}"),
+          + (r"$O_q$ at $\alpha=+0.25$: bold is owned and $\dagger$ marks a stronger competitor among the cells that clear the reference; the last row counts owned cells. Shading darkens with $|O_q|$ (terracotta positive, blue negative)." if ds == "nih" else r"As Table~\ref{tab:cf-own-nih}.") + "}"),
               r"\label{tab:cf-own-" + ds + "}",
               r"\fitwidth{%", r"\begin{tabular}{lrrrrrr}"]
         L += ownership_panel(blocks, ds, label, order)

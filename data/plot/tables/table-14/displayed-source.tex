@@ -1,27 +1,27 @@
-\begin{table}[h]
+\begin{table}[htbp]
 \centering
-\scriptsize
 \setlength{\tabcolsep}{4pt}
-\caption{\textbf{Same write, different reader: paired differences.} For every pair of checkpoints that share a vision tower, the difference in ownership $\Delta O_q=O_q(\text{larger})-O_q(\text{smaller})$ on the same 600 test rows, with a paired patient-bootstrap 95\% interval. The last two columns divide $|\Delta O_q|$ by the two blocks' mean refit standard deviation.}
+\caption{\textbf{Same write, different reader: paired differences.} $\Delta O_q=O_q(\text{larger})-O_q(\text{smaller})$ per shared-tower pair on the same 600 test rows; the last two columns divide $|\Delta O_q|$ by the two blocks' mean refit standard deviation.}
 \label{tab:cf-pairs}
-\begin{tabular}{llcrrrrr}
+\fitwidth{%
+\begin{tabular}{llcrrrr}
 \toprule
-\multirow{2}{*}{Pair} & \multirow{2}{*}{Dataset} & \multirow{2}{*}{relation} & \multicolumn{1}{c}{$\Delta O_q$ CI} & \multicolumn{2}{c}{$|\Delta O_q|$} & \multicolumn{2}{c}{ratio to refit SD}\\
-\cmidrule(lr){5-6}\cmidrule(lr){7-8}
-&  &  & \multicolumn{1}{c}{$\not\ni 0$} & \multicolumn{1}{c}{median} & \multicolumn{1}{c}{max} & \multicolumn{1}{c}{median} & \multicolumn{1}{c}{max}\\
+\multirow{2}{*}{Pair} & \multirow{2}{*}{Dataset} & \multirow{2}{*}{relation} & \multicolumn{2}{c}{$|\Delta O_q|$} & \multicolumn{2}{c}{ratio to refit SD}\\
+\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+&  &  & \multicolumn{1}{c}{median} & \multicolumn{1}{c}{max} & \multicolumn{1}{c}{median} & \multicolumn{1}{c}{max}\\
 \midrule
-Gemma 3 4B $\to$ Gemma 3 12B & NIH ChestX-ray14 & bit-identical & 5/6 & 0.33 & 0.83 & 2.7 & 6.9 \\
-Gemma 3 4B $\to$ Gemma 3 12B & CheXpert Plus & bit-identical & 6/6 & 0.29 & 0.83 & 2.1 & 5.9 \\
-Gemma 3 4B $\to$ Gemma 3 12B & COCO & bit-identical & 5/6 & 0.23 & 0.87 & 1.6 & 6.0 \\
-Gemma 3 12B $\to$ Gemma 3 27B & NIH ChestX-ray14 & bf16-equal & 6/6 & 0.37 & 0.79 & 3.7 & 8.0 \\
-Gemma 3 12B $\to$ Gemma 3 27B & CheXpert Plus & bf16-equal & 6/6 & 0.35 & 0.81 & 1.4 & 3.3 \\
-Gemma 3 12B $\to$ Gemma 3 27B & COCO & bf16-equal & 5/6 & 0.15 & 0.40 & 1.7 & 4.3 \\
-Gemma 3 4B $\to$ Gemma 3 27B & NIH ChestX-ray14 & bf16-equal & 5/6 & 0.07 & 0.24 & 1.8 & 6.0 \\
-Gemma 3 4B $\to$ Gemma 3 27B & CheXpert Plus & bf16-equal & 6/6 & 0.17 & 0.65 & 4.6 & 17.3 \\
-Gemma 3 4B $\to$ Gemma 3 27B & COCO & bf16-equal & 6/6 & 0.16 & 1.02 & 1.4 & 8.8 \\
-MedGemma 4B $\to$ MedGemma 27B & NIH ChestX-ray14 & bf16-equal & 5/6 & 0.09 & 0.30 & 1.5 & 5.0 \\
-MedGemma 4B $\to$ MedGemma 27B & CheXpert Plus & bf16-equal & 5/6 & 0.19 & 0.54 & 1.8 & 5.0 \\
-MedGemma 4B $\to$ MedGemma 27B & COCO & bf16-equal & 3/6 & 0.05 & 0.35 & 0.6 & 4.6 \\
+Gemma 3 4B $\to$ Gemma 3 12B & NIH ChestX-ray14 & bit-identical & 0.33 & 0.83 & 2.7 & 6.9 \\
+Gemma 3 4B $\to$ Gemma 3 12B & CheXpert Plus & bit-identical & 0.29 & 0.83 & 2.1 & 5.9 \\
+Gemma 3 4B $\to$ Gemma 3 12B & COCO & bit-identical & 0.23 & 0.87 & 1.6 & 6.0 \\
+Gemma 3 12B $\to$ Gemma 3 27B & NIH ChestX-ray14 & bf16-equal & 0.37 & 0.79 & 3.7 & 8.0 \\
+Gemma 3 12B $\to$ Gemma 3 27B & CheXpert Plus & bf16-equal & 0.35 & 0.81 & 1.4 & 3.3 \\
+Gemma 3 12B $\to$ Gemma 3 27B & COCO & bf16-equal & 0.15 & 0.40 & 1.7 & 4.3 \\
+Gemma 3 4B $\to$ Gemma 3 27B & NIH ChestX-ray14 & bf16-equal & 0.07 & 0.24 & 1.8 & 6.0 \\
+Gemma 3 4B $\to$ Gemma 3 27B & CheXpert Plus & bf16-equal & 0.17 & 0.65 & 4.6 & 17.3 \\
+Gemma 3 4B $\to$ Gemma 3 27B & COCO & bf16-equal & 0.16 & 1.02 & 1.4 & 8.8 \\
+MedGemma 4B $\to$ MedGemma 27B & NIH ChestX-ray14 & bf16-equal & 0.09 & 0.30 & 1.5 & 5.0 \\
+MedGemma 4B $\to$ MedGemma 27B & CheXpert Plus & bf16-equal & 0.19 & 0.54 & 1.8 & 5.0 \\
+MedGemma 4B $\to$ MedGemma 27B & COCO & bf16-equal & 0.05 & 0.35 & 0.6 & 4.6 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}

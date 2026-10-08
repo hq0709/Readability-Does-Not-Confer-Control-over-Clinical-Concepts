@@ -1,7 +1,7 @@
 cells,steering_reference,advantage,stronger_competitor,unresolved,total
-"Chest, all cells",met,38,9,9,56
-"Chest, all cells",not met,24,187,33,244
-"Chest, readable and answerable",met,28,5,5,38
-"Chest, readable and answerable",not met,13,74,16,103
-"COCO, all cells",met,113,0,4,117
-"COCO, all cells",not met,10,17,6,33
+"Chest, all cells",met,44,12,0,56
+"Chest, all cells",not met,37,207,0,244
+"Chest, readable and answerable",met,40,10,0,50
+"Chest, readable and answerable",not met,28,160,0,188
+"COCO, all cells",met,117,0,0,117
+"COCO, all cells",not met,12,21,0,33

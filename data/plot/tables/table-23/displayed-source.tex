@@ -1,12 +1,12 @@
 \begin{table}[htbp]
 \centering
-\scriptsize
 \setlength{\tabcolsep}{4pt}
 \setlength{\abovecaptionskip}{2pt}
 \setlength{\belowcaptionskip}{0pt}
 \renewcommand{\arraystretch}{0.95}
-\caption{\textbf{Small and fine-grained objects, and the difficulty-matched comparison.} Top and middle: the six fine-grained categories graded like the six easy objects, against the easy objects of every COCO block and of the 6 blocks the fine-grained cells come from. Bottom: chest cells matched to natural-image cells on difficulty, then the same cells stratified on clean-answer AUROC.}
+\caption{\textbf{Small and fine-grained objects, and difficulty matching.} Top and middle: six fine-grained COCO categories graded like the six easy objects, against the easy objects of every COCO block and of the 6 blocks with fine-grained cells. Bottom: chest cells matched to natural-image cells on difficulty, and the same cells stratified on clean-answer AUROC.}
 \label{tab:cf-fgobj}
+\fitwidth{%
 \begin{tabular}{lrrrrrr}
 \toprule
 \multirow{2}{*}{Checkpoint} & \multicolumn{2}{c}{owned of six} & \multicolumn{2}{c}{median answer AUROC} & \multicolumn{2}{c}{median selectivity}\\
@@ -26,37 +26,37 @@ LLaVA-1.5-7B & 3 & 5 & 0.956 & 0.979 & 0.266 & 0.285 \\
 \multicolumn{7}{l}{\textit{The four pools of cells}} \\
 Cells & blocks & owned & rate & median answer AUROC & median selectivity & readable \\
 \midrule
-chest findings & 50 & 38/300 & 0.127 & 0.695 & 0.137 & 178/300 \\
-easy objects, every COCO block & 25 & 113/150 & 0.753 & 0.977 & 0.064 & 90/150 \\
+chest findings & 50 & 44/300 & 0.147 & 0.695 & 0.137 & 178/300 \\
+easy objects, every COCO block & 25 & 117/150 & 0.780 & 0.977 & 0.064 & 90/150 \\
 easy objects, these blocks & 6 & 34/36 & 0.944 & 0.980 & 0.065 & 24/36 \\
 fine-grained objects, these blocks & 6 & 30/36 & 0.833 & 0.963 & 0.058 & 23/36 \\
 \midrule
 \multicolumn{7}{l}{\textit{Chest cells matched to natural-image cells on difficulty, under both estimators}} \\
 Matching & chest cells & partners & chest rate & natural rate & difference & 95\% interval \\
 \midrule
-probe selectivity alone & 300/300 & 186/186 & 0.127 & 0.769 &  &  \\
-\quad pooled &  &  &  &  & -0.642 & [-0.763, -0.512] \\
-\quad matched &  &  &  &  & -0.539 & [-0.678, -0.359] \\
-clean-answer AUROC alone & 300/300 & 186/186 & 0.127 & 0.769 &  &  \\
-\quad pooled &  &  &  &  & -0.642 & [-0.749, -0.505] \\
-\quad matched &  &  &  &  & -0.066 & [-0.304, -0.004] \\
-both variables & 212/300 & 101/186 & 0.137 & 0.624 &  &  \\
-\quad pooled &  &  &  &  & -0.487 & [-0.653, -0.201] \\
-\quad matched &  &  &  &  & -0.024 & [-0.198, 0.076] \\
-both variables, easy partners only & 211/300 & 79/150 & 0.137 & 0.570 &  &  \\
-\quad pooled &  &  &  &  & -0.432 & [-0.625, -0.150] \\
-\quad matched &  &  &  &  & -0.008 & [-0.198, 0.085] \\
+probe selectivity alone & 300/300 & 186/186 & 0.147 & 0.790 &  &  \\
+\quad pooled &  &  &  &  & -0.644 & [-0.759, -0.517] \\
+\quad matched &  &  &  &  & -0.552 & [-0.693, -0.386] \\
+clean-answer AUROC alone & 300/300 & 186/186 & 0.147 & 0.790 &  &  \\
+\quad pooled &  &  &  &  & -0.644 & [-0.747, -0.512] \\
+\quad matched &  &  &  &  & -0.049 & [-0.275, 0.013] \\
+both variables & 212/300 & 101/186 & 0.160 & 0.644 &  &  \\
+\quad pooled &  &  &  &  & -0.483 & [-0.633, -0.206] \\
+\quad matched &  &  &  &  & -0.007 & [-0.171, 0.098] \\
+both variables, easy partners only & 211/300 & 79/150 & 0.161 & 0.595 &  &  \\
+\quad pooled &  &  &  &  & -0.434 & [-0.614, -0.162] \\
+\quad matched &  &  &  &  & 0.006 & [-0.169, 0.107] \\
 \midrule
 \multicolumn{7}{l}{\textit{Chest cells and natural-image cells stratified on clean-answer AUROC, owned of cells}} \\
 Cells & $<$ 0.50 & 0.50--0.70 & 0.70--0.80 & 0.80--0.90 & $\geq$ 0.90 & all cells \\
 \midrule
-NIH ChestX-ray14 & 0/7 & 6/80 & 3/43 & 4/19 & 0/1 & 13/150 \\
-CheXpert Plus & 0/13 & 6/52 & 2/20 & 6/29 & 11/36 & 25/150 \\
-\textit{chest findings} & 0/20 & 12/132 & 5/63 & 10/48 & 11/37 & 38/300 \\
-easy objects, every COCO block & 0/6 & 0/6 & 0/7 & 1/4 & 112/127 & 113/150 \\
+NIH ChestX-ray14 & 0/7 & 8/80 & 4/43 & 4/19 & 0/1 & 16/150 \\
+CheXpert Plus & 0/13 & 7/52 & 2/20 & 7/29 & 12/36 & 28/150 \\
+\textit{chest findings} & 0/20 & 15/132 & 6/63 & 11/48 & 12/37 & 44/300 \\
+easy objects, every COCO block & 0/6 & 0/6 & 0/7 & 1/4 & 116/127 & 117/150 \\
 fine-grained objects, these blocks & 0/0 & 0/0 & 0/0 & 1/1 & 29/35 & 30/36 \\
-\textit{natural-image objects} & 0/6 & 0/6 & 0/7 & 2/5 & 141/162 & 143/186 \\
-\multicolumn{7}{l}{\quad chest minus natural-image in the $\geq$ 0.90 bin: -0.573, 95\% interval [-0.763, -0.388]} \\
+\textit{natural-image objects} & 0/6 & 0/6 & 0/7 & 2/5 & 145/162 & 147/186 \\
+\multicolumn{7}{l}{\quad chest minus natural-image in the $\geq$ 0.90 bin: -0.571, 95\% interval [-0.763, -0.395]} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}

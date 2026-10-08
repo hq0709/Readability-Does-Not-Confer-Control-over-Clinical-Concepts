@@ -5,30 +5,33 @@ Lingshu 32B,coco,0.03,+0.28
 CheXagent-2-3B,nih,0.13,+0.00
 CheXagent-2-3B,chexpert,0.21,+0.01
 CheXagent-2-3B,coco,0.13,+0.03
-Qwen2.5-VL-72B,nih,0.07,-0.03
-Qwen2.5-VL-72B,chexpert,0.20,-0.09
-Qwen2.5-VL-72B,coco,0.01,+0.66
 Lingshu 7B,nih,0.08,+0.02
 Lingshu 7B,chexpert,0.21,+0.04
 Lingshu 7B,coco,0.02,+0.68
-Qwen3-VL-4B,nih,0.08,-0.11
-Qwen3-VL-4B,chexpert,0.20,-0.01
-Qwen3-VL-4B,coco,0.04,+0.34
+Qwen2.5-VL-72B,nih,0.07,-0.03
+Qwen2.5-VL-72B,chexpert,0.20,-0.09
+Qwen2.5-VL-72B,coco,0.01,+0.66
 Qwen3-VL-32B,nih,0.10,-0.02
 Qwen3-VL-32B,chexpert,0.17,-0.02
 Qwen3-VL-32B,coco,0.05,+0.15
 InternVL3.5-38B,nih,0.10,-0.00
 InternVL3.5-38B,chexpert,0.17,-0.00
 InternVL3.5-38B,coco,0.08,+0.01
-Gemma 3 12B,nih,0.07,-0.37
-Gemma 3 12B,chexpert,0.18,-0.38
-Gemma 3 12B,coco,0.07,+0.44
-MedGemma 4B,nih,0.12,-0.13
-MedGemma 4B,chexpert,0.21,-0.16
-MedGemma 4B,coco,0.06,+0.23
+Qwen3-VL-4B,nih,0.08,-0.11
+Qwen3-VL-4B,chexpert,0.20,-0.01
+Qwen3-VL-4B,coco,0.04,+0.34
 InternVL3.5-14B,nih,0.07,-0.00
 InternVL3.5-14B,chexpert,0.16,+0.00
 InternVL3.5-14B,coco,0.12,+0.02
+Gemma 3 12B,nih,0.07,-0.37
+Gemma 3 12B,chexpert,0.18,-0.38
+Gemma 3 12B,coco,0.07,+0.44
+Gemma 3 27B,nih,0.07,-0.03
+Gemma 3 27B,chexpert,0.18,-0.01
+Gemma 3 27B,coco,0.07,+0.31
+MedGemma 4B,nih,0.12,-0.13
+MedGemma 4B,chexpert,0.21,-0.16
+MedGemma 4B,coco,0.06,+0.23
 Qwen2.5-VL-32B,nih,0.09,-0.06
 Qwen2.5-VL-32B,chexpert,0.16,-0.11
 Qwen2.5-VL-32B,coco,0.02,+0.38
@@ -53,9 +56,6 @@ Qwen2.5-VL-7B,coco,0.02,+0.67
 Qwen3-VL-8B,nih,0.10,-0.01
 Qwen3-VL-8B,chexpert,0.17,-0.04
 Qwen3-VL-8B,coco,0.04,+0.58
-Gemma 3 27B,nih,0.07,-0.03
-Gemma 3 27B,chexpert,0.18,-0.01
-Gemma 3 27B,coco,0.07,+0.31
 Gemma 3 4B,nih,0.07,-0.11
 Gemma 3 4B,chexpert,0.18,-0.27
 Gemma 3 4B,coco,0.07,+0.24

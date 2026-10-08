@@ -95,10 +95,16 @@ def towerswap(wb: dict) -> dict:
                    "sign_flips": sum((g[q]["O_q"] > 0) != (core[q]["O_q"] > 0)
                                      and max(abs(g[q]["O_q"]), abs(core[q]["O_q"])) >= ci.EFFECT_FLOOR
                                      for q in core if q in g),
-                   "lost_to_competitor": sum(ci.owned(core[q]) and g[q]["verdict"] == "stronger_competitor"
+                   # owned = reference met and advantage positive, so a cell that loses ownership on the
+                   # smaller cohort lost one or the other. The bound rule had a third outcome, unresolved,
+                   # and the stored verdict still names it; counting that field would count a category the
+                   # paper no longer has.
+                   "lost_to_competitor": sum(ci.owned(core[q]) and not ci.owned(g[q])
+                                             and bool(g[q].get("steering_reference"))
                                              for q in core if q in g),
-                   "lost_to_resolution": sum(ci.owned(core[q]) and not g[q]["owned"]
-                                             and g[q]["verdict"] != "stronger_competitor" for q in core if q in g)}
+                   "lost_to_reference": sum(ci.owned(core[q]) and not ci.owned(g[q])
+                                            and not g[q].get("steering_reference")
+                                            for q in core if q in g)}
         blocks.append({
             "block": f"{k[0]}/{k[1]}", "model": k[0], "dataset": k[1], "reader": host, "partner": partner,
             "n_rows": t["n_rows"], "alpha": t["alpha"], "template_id": t["template_id"], "draws": t["draws"],
@@ -138,7 +144,7 @@ def towerswap(wb: dict) -> dict:
               "max_abs_dO": max((x["max_abs_dO"] for x in nv), default=None),
               "sign_flips": sum(x["sign_flips"] for x in nv),
               "lost_to_competitor": sum(x["lost_to_competitor"] for x in nv),
-              "lost_to_resolution": sum(x["lost_to_resolution"] for x in nv)}
+              "lost_to_reference": sum(x["lost_to_reference"] for x in nv)}
     disagree = [f"{ds} {t}/{r}" for ds, d in per_ds.items() for rr in d["combinations"] if not rr["agrees"]
                 for t, r in [(rr["tower"], rr["reader"])]]
     rec = [b["receipt"] for b in blocks]

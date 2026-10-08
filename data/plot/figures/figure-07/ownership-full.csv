@@ -37,14 +37,14 @@ q3-8,nih,Mass,-0.10702607841341626,False,8
 q3-8,nih,Nodule,0.034790788601840775,False,8
 q3-32,nih,Effusion,-0.13970853680586406,False,32
 q3-32,nih,Atelectasis,-0.03903401269026012,False,32
-q3-32,nih,Pneumothorax,0.003269124885175577,False,32
+q3-32,nih,Pneumothorax,0.003269124885175577,True,32
 q3-32,nih,Cardiomegaly,-0.03883548295913691,False,32
 q3-32,nih,Mass,-0.10566116059402475,False,32
 q3-32,nih,Nodule,0.17087651463803546,True,32
 lingshu-7,chexpert,Effusion,0.09688193357271066,True,7
 lingshu-7,chexpert,Atelectasis,-0.08836358773235459,False,7
 lingshu-7,chexpert,Pneumothorax,0.09170520691583739,True,7
-lingshu-7,chexpert,Cardiomegaly,0.009380086600536963,False,7
+lingshu-7,chexpert,Cardiomegaly,0.009380086600536963,True,7
 lingshu-7,chexpert,Consolidation,-0.05387918286630508,False,7
 lingshu-7,chexpert,Edema,0.21142400595594246,True,7
 lingshu-32,chexpert,Effusion,0.027253011245166853,True,32

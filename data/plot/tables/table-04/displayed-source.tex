@@ -1,9 +1,9 @@
 \begin{table}[h]
 \centering
-\scriptsize
 \setlength{\tabcolsep}{4pt}
 \caption{\textbf{Label counts per cohort and concept.} Positive / negative / unknown rows of the training, calibration, and test cohorts of the fixed manifests. Unknown means the CheXpert labeler was uncertain or blank.}
 \label{tab:cf-prevalence}
+\fitwidth{%
 \begin{tabular}{llrrrrrrrrr}
 \toprule
 Dataset & Concept & \multicolumn{3}{c}{train (pos / neg / unk)} & \multicolumn{3}{c}{calibration (pos / neg / unk)} & \multicolumn{3}{c}{test (pos / neg / unk)} \\
@@ -29,5 +29,5 @@ COCO & person & 10877 & 9123 & 0 & 228 & 172 & 0 & 321 & 279 & 0 \\
  & bottle & 1455 & 18545 & 0 & 34 & 366 & 0 & 47 & 553 & 0 \\
  & bicycle & 567 & 19433 & 0 & 9 & 391 & 0 & 14 & 586 & 0 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}

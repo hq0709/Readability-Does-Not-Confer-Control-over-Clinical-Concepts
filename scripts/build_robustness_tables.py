@@ -264,7 +264,7 @@ SHORT = {"nih": "NIH", "chexpert": "CheXpert", "coco": "COCO"}
 
 
 def _owned(v) -> bool:
-    return bool(v.get("steering_reference") and v.get("verdict") == "fixed_family_advantage")
+    return bool(v.get("steering_reference") and (v.get("O_q") or 0) > 0)
 
 
 def _blocks_txt(b: dict) -> str:
@@ -320,7 +320,7 @@ def constructions():
             b4[ds] += 1
             for q, c in e["per_question"].items():
                 add(p4["six"][ds], _owned(core[q]), core[q]["O_q"])
-                eo = c["W_qq"] > 0 and c["W_qq"] > c.get("random_p95", 0) and c["W_qq"] > c.get("abs_sham", 0) and c.get("verdict") == "fixed_family_advantage"
+                eo = c["W_qq"] > 0 and c["W_qq"] > c.get("random_p95", 0) and c["W_qq"] > c.get("abs_sham", 0) and (c.get("O_q") or 0) > 0
                 add(p4["ext"][ds], eo, c["O_q"])
     A = _r2()["altdird"]["per_dataset"]
     b2 = {ds: A[ds]["blocks"] for ds in DSS}

@@ -4,6 +4,7 @@
 \usepackage{newtxtext,newtxmath}
 \usepackage{microtype}
 \usepackage{graphicx}
+\usepackage[export]{adjustbox}  % max width: shrink a wide table to the line, never magnify a narrow one, so every table renders at the same font size
 \usepackage{booktabs}
 \usepackage{multirow}   % header labels that span both rows of a two-row header, so they centre vertically
 \usepackage{float}
@@ -70,6 +71,5 @@ Lei Xing\aff{2,\dag}}
 \input{sections/app_seed_protocol}
 \input{sections/app_seed_results}
 \input{sections/app_prompts}
-\input{sections/app_bounds}
 \input{sections/app_repro}
 \end{document}

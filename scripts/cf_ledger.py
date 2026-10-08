@@ -2,7 +2,7 @@
 
 One row per analysis. Each row carries the cohort and row count it scores, the reference its steering test applies
 (the 119-direction random family's 95th percentile and the sham, a smaller random family, the sham alone, or none),
-the inferential rule that decides its verdict (simultaneous max-T bounds on the fixed contrasts, or a percentile
+the rule that decides its verdict (the own write against each competitor on the same rows, or the same rule on the margin
 interval), the construction of the sham it compares against (a coordinate permutation of the direction under test,
 or the seed-0 sham of the logistic normal), and the number of scored cells.
 
@@ -30,8 +30,9 @@ R_SMALL = "18 random, maximum; sham"
 R_DOSE = "20 random, 95th percentile; sham"
 R_SHAM = "sham alone"
 R_NONE = "none"
-RULE_MAXT = "simultaneous max-$T$, {n} contrasts"
-RULE_PCT = "percentile interval on $O^m_q$"
+# the grade compares the own write with each competitor on the same rows; there is no interval in it
+RULE_MAXT = "own write leads all {n} comparisons"
+RULE_PCT = "the same rule on $O^m_q$"
 RULE_NONE = "none"
 SHAM_OWN = "the direction written"
 SHAM_SEED0 = "the seed-0 normal"  # the permutation of the seed-0 logistic normal, not of the direction under test

@@ -33,8 +33,27 @@ def probe_graded(run: dict) -> bool:
     return PROBE_MODULE in set(run.get("completed_modules") or [])
 
 
+MIN_SUPPORT = 10
+
+
+def readable(cal: dict) -> bool:
+    """Mirrors cftransfer.manifest.readable. The flag stored in summary.json was written when the grade was
+    a one-sided bound, so every consumer that reads it gets the old answer silently; this recomputes it."""
+    return bool((cal.get("n_pos") or 0) >= MIN_SUPPORT and (cal.get("n_neg") or 0) >= MIN_SUPPORT
+                and (cal.get("selectivity") or 0) > 0)
+
+
+def answer_capable(cal: dict) -> bool:
+    """Mirrors cftransfer.manifest.answer_capable. `auroc_real` is the probe's; the answer's is
+    `answer_auroc`."""
+    return bool((cal.get("n_pos") or 0) >= MIN_SUPPORT and (cal.get("n_neg") or 0) >= MIN_SUPPORT
+                and (cal.get("answer_auroc") or 0) > 0.5)
+
+
 def owned(v: dict) -> bool:
-    return bool(v.get("steering_reference") and v.get("verdict") == "fixed_family_advantage")
+    """Mirrors cftransfer.manifest.owned: the write clears the reference and beats every competitor,
+    read from the estimates rather than from a bound."""
+    return bool(v.get("steering_reference") and (v.get("O_q") or 0) > 0)
 
 
 def _json(p: Path) -> dict:

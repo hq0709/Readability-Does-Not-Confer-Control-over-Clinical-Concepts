@@ -5,6 +5,7 @@ The selected inputs are the same packaged statistics read by plot_paper_figures.
 """
 
 from __future__ import annotations
+import cf_inclusion as ci  # noqa: E402
 
 import argparse
 import csv
@@ -72,7 +73,7 @@ def ownership_rows(included: dict, pairs: dict) -> None:
         "checkpoint_key": mk, "dataset": ds, "concept": c,
         "ownership": included[(mk, ds)]["summary"]["core"]["per_question"][c]["O_q"],
         "owned": bool(included[(mk, ds)]["summary"]["core"]["per_question"][c].get("steering_reference")
-                      and included[(mk, ds)]["summary"]["core"]["per_question"][c].get("verdict") == "fixed_family_advantage"),
+                      and (included[(mk, ds)]["summary"]["core"]["per_question"][c].get("O_q") or 0) > 0),
     }
     reader = [{**common(mk, ds, c), "ceiling": (mk, ds, c) in ceiling}
               for ds in DATASETS for mk in READERS
@@ -91,21 +92,20 @@ def ownership_rows(included: dict, pairs: dict) -> None:
 def overview(all_blocks: dict, included: dict, runs: Path) -> None:
     points, counts, ranks = [], [], []
     for ds in DATASETS:
-        read = [bool(v.get("readable")) for (mk, d), block in all_blocks.items()
+        read = [ci.readable(v) for (mk, d), block in all_blocks.items()
                 if d == ds and "CALIBRATION" in block["run"].get("completed_modules", [])
                 for v in block["summary"].get("calibration", {}).values() if isinstance(v, dict)]
-        ans = [bool(block["summary"].get("calibration", {}).get(c, {}).get("answer_capable"))
+        ans = [ci.answer_capable(block["summary"].get("calibration", {}).get(c, {}))
                for (mk, d), block in included.items() if d == ds
                for c in block["summary"]["core"]["per_question"]]
-        own = [bool(v.get("steering_reference") and v.get("verdict") == "fixed_family_advantage")
+        own = [ci.owned(v)
                for (mk, d), block in included.items() if d == ds
                for v in block["summary"]["core"]["per_question"].values()]
         for grade, flags in (("readable", read), ("answerable", ans), ("owned", own)):
+            # a count over the whole grid, not an estimate of one: there is no interval to attach
             flags = np.asarray(flags, dtype=float)
-            draws = np.random.default_rng(0).choice(flags, size=(2000, len(flags)), replace=True).mean(axis=1)
             counts.append({"dataset": ds, "grade": grade, "numerator": int(flags.sum()),
-                           "denominator": len(flags), "fraction": float(flags.mean()),
-                           "ci_low": float(np.percentile(draws, 2.5)), "ci_high": float(np.percentile(draws, 97.5))})
+                           "denominator": len(flags), "fraction": float(flags.mean())})
         for (mk, d), block in included.items():
             if d != ds:
                 continue
@@ -122,7 +122,7 @@ def overview(all_blocks: dict, included: dict, runs: Path) -> None:
     displayed = read_json(ROOT / "figures" / "fig2_counts.json")
     assert all([r["numerator"], r["denominator"]] == displayed[r["dataset"]][r["grade"]] for r in counts)
     write_csv(OUT / "figure-02" / "panel-a-bars-full.csv",
-              ["dataset", "grade", "numerator", "denominator", "fraction", "ci_low", "ci_high"], counts)
+              ["dataset", "grade", "numerator", "denominator", "fraction"], counts)
     write_csv(OUT / "figure-02" / "panel-b-points-full.csv", ["checkpoint_key", "dataset", "read", "ownership"], points)
     write_csv(OUT / "figure-02" / "panel-d-ranks.csv", ["checkpoint_key", "dataset", "concept", "rank"], ranks)
     curves = read_json(runs / "figures" / "dose_curves.json")
@@ -171,8 +171,7 @@ def matrices(included: dict) -> None:
     for mk, ds in MATRIX_PICKS:
         summary = included[(mk, ds)]["summary"]
         concepts, matrix = concepts_and_matrix(summary)
-        owned = {c for c, v in summary["core"]["per_question"].items()
-                 if v.get("steering_reference") and v.get("verdict") == "fixed_family_advantage"}
+        owned = {c for c, v in summary["core"]["per_question"].items() if ci.owned(v)}
         selected += [{**row, "owned_diagonal": row["question"] == row["written_direction"] and row["question"] in owned}
                      for row in matrix_rows(ds, concepts, matrix, checkpoint_key=mk)]
     assert len(selected) == 216

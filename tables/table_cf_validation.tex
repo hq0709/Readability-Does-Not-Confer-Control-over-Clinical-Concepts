@@ -1,14 +1,12 @@
 \begin{table}[htbp]
 \centering
-\setlength{\tabcolsep}{8pt}
-\caption{\textbf{The answer direction against the label direction.} Per block, medians over the six questions of the AUROCs of $a_q$ and $\hat w_q$ against the label and against the clean answer, the Pearson correlation, and the raw and whitened cosines between $a_q$ and $\hat w_q$.}
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{The answer direction and column selectivity.} Top: per block, medians over the six questions of the AUROCs, the Pearson correlation, and the raw and whitened cosines between $a_q$ and $\hat w_q$. Bottom: column selectivity $\kappa_d=W_{d,d}/\sum_q|W_{q,d}|$ per dataset, and ownership on the rows whose label for $q$ is known.}
 \label{tab:cf-validation}
-\resizebox{\linewidth}{!}{%
+\fitwidth{%
 \begin{tabular}{llrrrrrrr}
 \toprule
-\multirow{3}{*}{Checkpoint} & \multirow{3}{*}{Dataset} & \multicolumn{4}{c}{AUROC} & \multirow{3}{*}{Pearson} & \multicolumn{2}{c}{\multirow{2}{*}{cosine}}\\
-\cmidrule(lr){3-6}
-&  & \multicolumn{2}{c}{label} & \multicolumn{2}{c}{clean answer} &  & & \\
+\multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{2}{c}{AUROC, label} & \multicolumn{2}{c}{AUROC, clean answer} & \multirow{2}{*}{Pearson} & \multicolumn{2}{c}{cosine}\\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){8-9}
 &  & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{$\hat w_q$} & \multicolumn{1}{c}{$a_q$} & \multicolumn{1}{c}{$\hat w_q$} &  & \multicolumn{1}{c}{raw} & \multicolumn{1}{c}{$\Sigma$}\\
 \midrule
@@ -21,6 +19,15 @@ Lingshu 32B & COCO & 0.94 & 0.97 & 0.93 & 0.92 & 0.75 & 0.54 & 0.73 \\
 Gemma 3 12B & NIH ChestX-ray14 & 0.59 & 0.65 & 0.72 & 0.61 & 0.31 & 0.18 & 0.33 \\
 Gemma 3 12B & CheXpert Plus & 0.61 & 0.78 & 0.73 & 0.56 & 0.13 & 0.17 & 0.10 \\
 Gemma 3 12B & COCO & 0.93 & 0.96 & 0.80 & 0.76 & 0.81 & 0.59 & 0.79 \\
+\midrule
+\multicolumn{9}{p{1.314\linewidth}}{\textit{Alignment against ownership over the 54 answer-direction cells: Spearman correlation between $\cos_\Sigma(a_q,\hat w_q)$ and the label direction's $O_q$ $\rho=0.75$ ($p=8\times10^{-11}$); with the label direction's owned indicator $\rho=0.74$ ($p=1\times10^{-10}$); median $\cos_\Sigma$ 0.80 in owned against 0.34 in not-owned cells; within the chest sets alone $\rho=0.59$ ($p=2\times10^{-4}$, 36 cells).}} \\
+\midrule
+\multicolumn{9}{l}{\textit{Column selectivity and known-label ownership, per dataset}} \\
+Dataset & blocks & cells & med.\ $\kappa_d$ & $\kappa_d\geq0.5$ & known rows & sign kept & owned kept & \\
+\midrule
+NIH ChestX-ray14 & 25 & 150 & 0.12 & 2/150 & 600 & 150/150 & 13/13 & \\
+CheXpert Plus & 25 & 150 & 0.12 & 2/150 & 165 & 143/150 & 25/25 & \\
+COCO & 25 & 150 & 0.57 & 92/150 & 600 & 150/150 & 113/113 & \\
 \bottomrule
 \end{tabular}}
 \end{table}

@@ -161,7 +161,7 @@ def framework():
         ax.plot(0.32, yy, marker="s", ms=5, color=col, mec="white", ls="none", zorder=3)
         ax.text(0.45, yy, name, fontsize=7.4, color=INK, va="center")
         ax.text(2.55, yy, stat, fontsize=7.4, color=MUTED, va="center")
-    ax.text(0.24, bot_y + 0.09, "owned: $O_q = W_{q,q}-\\max_{d\\neq q}W_{q,d} > 0$ (simultaneous max-$T$ bounds), "
+    ax.text(0.24, bot_y + 0.09, "owned: $O_q = W_{q,q}-\\max_{d\\neq q}W_{q,d} > 0$, "
             "$W_{q,q} >$ random p95 and $|\\mathrm{sham}|$", fontsize=7.0, color=INK, va="bottom")
     arrow(ax, (6.25, top_y), (6.25, bot_y + hb + 0.02), color=CHARCOAL, lw=1.2)
     arrow(ax, (2.1, top_y), (2.1, bot_y + hb + 0.02), color=CHARCOAL, lw=1.2)

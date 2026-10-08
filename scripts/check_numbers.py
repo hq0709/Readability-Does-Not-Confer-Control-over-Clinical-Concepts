@@ -279,8 +279,10 @@ def main():
     expect("cfPrecisionGradeBlocks = rows", M["cfPrecisionGradeBlocks"], len(pr))
     expect("cfPrecisionGradeCells = 6 x rows x 2 settings", M["cfPrecisionGradeCells"], 12 * len(pr))
     expect("cfPrecisionMaxDW = largest max|dW| in the table", M["cfPrecisionMaxDW"], f"{max(float(r[i]) for r in pr for i in (0, 2)):.3f}")
+    # cfPrecisionPointVerdictChanges is not required: Section 5.7 already states the grade changes under
+    # fp32 and batch-size-one rescoring, and the point-verdict variant repeats it in the appendix.
     expect("precision macros present in the Appendix A.7 numerics paragraph",
-           [k for k in ("cfPrecisionVerdictChanges", "cfPrecisionRefChanges", "cfPrecisionPointVerdictChanges",
+           [k for k in ("cfPrecisionVerdictChanges", "cfPrecisionRefChanges",
                         "cfPrecisionGradeCells") if f"\\{k}" not in numerics_prose], [])
     # Table cf-geometry vs the Appendix A.7 geometry macros
     gt = (ROOT / "tables" / "table_cf_geometry.tex").read_text()
@@ -311,8 +313,18 @@ def main():
     mass = (ROOT / "tables" / "table_seed_mass.tex").read_text()
     for reg in ("table_encoding_mass.tex", "table_mass_confirmation.tex"):
         body = (ROOT / "tables" / reg).read_text().split(r"\midrule", 1)[1].split(r"\bottomrule", 1)[0]
+        # The merged table drops the interval column of the discovery panel and the lower-bound column of
+        # the confirmation panel, so the registered row is no longer a substring of it. Compare the cells
+        # that survive, which is what the check is for: the numbers must still be the registered ones.
         for ln in (x.strip().rstrip("\\").strip() for x in body.strip().splitlines() if x.strip()):
-            expect(f"seed-mass row {ln.split(' & ')[0]}", ln in mass, True)
+            label = ln.split(" & ")[0].strip()
+            row = next((m for m in mass.splitlines() if m.strip().startswith(label + " &")), "")
+            # the merged table drops the interval column of one panel and the lower-bound column of the
+            # other, so its numbers are a subsequence of the registered row's: every number it prints must
+            # be the registered one, in the registered order.
+            want, got = re.findall(r"-?\d+\.\d+", ln), re.findall(r"-?\d+\.\d+", row)
+            it = iter(want)
+            expect(f"seed-mass row {label}", bool(row) and all(g in it for g in got), True)
     a1 = ROOT / "figures" / "figA1_own_share.json"
     if a1.exists():
         s = json.loads(a1.read_text())
@@ -366,7 +378,9 @@ def main():
                    (M[f"cfSwap{F}{D}{qk}Min"], M[f"cfSwap{F}{D}{qk}Max"]),
                    (min(r[qi] for r in rows_), max(r[qi] for r in rows_)))
     swap_prose = (ROOT / "sections" / "app_campaign.tex").read_text()
-    for name, key in (("cfSwapTensors", "n_tensors_replaced"), ("cfSwapTowerTensors", "n_tower_tensors"),
+    # the tower-tensor count is an implementation detail the appendix no longer quotes; the two counts it
+    # does quote are still required
+    for name, key in (("cfSwapTensors", "n_tensors_replaced"),
                       ("cfSwapOutside", "n_tensors_outside_tower")):
         expect(f"{name} in the Appendix A.10 crossed-tower paragraph", f"\\{name}" in swap_prose, True)
 
@@ -671,9 +685,9 @@ def main():
 
     # the attribute comparison read three ways, in the bottom panel of Table cf-attr
     am = {m.group(1): m.groups() for m in re.finditer(
-        r"^(every cell|answer-capable cells only|answerability-matched pairs) & (cell|pair) & (\d+) & (\d+) & (\d+) & (\d+) & "
+        r"^(every cell|answerable cells only|answerability-matched pairs) & (cell|pair) & (\d+) & (\d+) & (\d+) & (\d+) & "
         r"(-?[\d.]+) \\\\$", (ROOT / "tables" / "table_cf_attr.tex").read_text(), flags=re.M)}
-    for lab, K in (("every cell", "All"), ("answer-capable cells only", "Cap"), ("answerability-matched pairs", "Pair")):
+    for lab, K in (("every cell", "All"), ("answerable cells only", "Cap"), ("answerability-matched pairs", "Pair")):
         row = am[lab]
         expect(f"cfAttr{K} attribute/clinical cells and owned",
                (M[f"cfAttr{K}AttrN"], M[f"cfAttr{K}AttrOwned"], M[f"cfAttr{K}ClinN"], M[f"cfAttr{K}ClinOwned"]),
@@ -688,11 +702,16 @@ def main():
     # below the reference. The decomposition is stated once, in the results; the abstract carries the two counts that
     # open it, and the introduction no longer restates either.
     print("abstract and results decomposition (macros, in order):")
-    order = ["cfChestCellsN", "cfChestRefMet", "cfChestOwned", "cfChestRefStrong", "cfChestRefUnres",
-             "cfChestBelowStrong", "cfChestCompetitor"]
+    # the order Section 5.1 states them in: the cells that fail the reference and the competitor verdicts
+    # they carry, then, among the cells that clear it, the owned and the stronger-competitor counts
+    order = ["cfChestRefBelow", "cfChestCellsN", "cfChestBelowStrong", "cfChestCompetitor",
+             "cfChestOwned", "cfChestRefMet", "cfChestRefStrong"]
     src = (ROOT / "sections" / "0_abstract.tex").read_text()
-    expect("0_abstract: reference count and owned count present",
-           [m for m in ("cfChestRefMet", "cfChestOwned") if not re.search(rf"\\{m}(?![A-Za-z])", src)], [])
+    # The abstract carries the three rates and the natural-image contrast, not the cell-level decomposition,
+    # which Section 5.1 states in full. What matters is that whatever it does quote comes from the macros:
+    expect("0_abstract: the three rates come from macros",
+           [m for m in ("cfChestReadablePct", "cfChestAnswerablePct", "cfChestOwnedPct", "cfCocoOwnedPct")
+            if not re.search(rf"\\{m}(?![A-Za-z])", src)], [])
     intro = (ROOT / "sections" / "1_introduction.tex").read_text()
     expect("1_introduction: the decomposition is not restated before the method",
            [m for m in ("cfChestRefMet", "cfChestRefStrong", "cfChestRefUnres", "cfChestBelowStrong")
@@ -717,10 +736,11 @@ def main():
     expect("ledger: analyses with the seed-0 sham", sum("the seed-0 normal" in ln for ln in lrows), int(M["cfLedgerSeedSham"]))
     expect("ledger: cells graded against the seed-0 sham",
            sum(c for c, ln in zip(cells, lrows) if "the seed-0 normal" in ln), int(str(M["cfLedgerSeedShamCells"]).replace("{,}", "")))
-    expect("ledger: analyses decided by a percentile interval",
-           sum("percentile interval on" in ln for ln in lrows), int(M["cfLedgerPercentile"]))
-    expect("ledger: analyses decided by simultaneous bounds",
-           sum("simultaneous max-$T$," in ln for ln in lrows), int(M["cfLedgerMaxT"]))
+    # the rule column says what the grade compares, now that no grade is decided by an interval
+    expect("ledger: analyses graded on the margin scale",
+           sum("the same rule on" in ln for ln in lrows), int(M["cfLedgerPercentile"]))
+    expect("ledger: analyses graded by the own write against every competitor",
+           sum("own write leads all" in ln for ln in lrows), int(M["cfLedgerMaxT"]))
     expect("ledger: analyses with a permutation sham",
            sum("the direction written" in ln for ln in lrows), int(M["cfLedgerOwnSham"]))
     expect("ledger: the held-out-template split",
@@ -740,12 +760,13 @@ def main():
         # line: a leading number there is a table value, not a line label.
         flat = re.sub(r"\s+", " ", txt)
         print("rendered PDF vs macros:")
+        # Phrases as Section 5.1 actually writes them. They had drifted from the prose -- the sentence
+        # reads "(85%; median selectivity 0.14)" and the template looked for "(85%)" -- so the check was
+        # failing on wording while the numbers agreed, which is the opposite of what it is for.
         for phrase in (
-                       f"readable in {M['cfChestReadable']} of {M['cfChestReadableN']} cells ({M['cfChestReadablePct']}%)",
-                       f"{M['cfChestAnswerable']} of {M['cfChestAnswerableN']} cells ({M['cfChestAnswerablePct']}%)",
-                       f"Yet only {M['cfChestOwned']} cells ({M['cfChestOwnedPct']}%) are owned",
-                       f"In {M['cfChestCompetitor']} cells ({M['cfChestCompetitorPct']}%), the verdict",
-                       f"owns {M['cfCocoOwnedPct']}% of cells on COCO",
+                       f"readable in {M['cfChestReadable']} of {M['cfChestReadableN']} cells ({M['cfChestReadablePct']}%;",
+                       f"and {M['cfChestAnswerable']} ({M['cfChestAnswerablePct']}%) are answerable",
+                       f"only {M['cfChestOwned']} cells ({M['cfChestOwnedPct']}%) are owned",
                        f"{M['cfCocoOwned']} of {M['cfCocoOwnedN']} cells ({M['cfCocoOwnedPct']}%)",
                        ):
             found = phrase in flat or phrase.replace("–", "-") in flat
@@ -754,12 +775,12 @@ def main():
         # sequence inside a bounded window instead of as a fixed string.
         for name, nums in (("abstract readable / answerable / owned",
                             (M["cfChestReadablePct"], M["cfChestAnswerablePct"], M["cfChestOwnedPct"])),
-                           ("chest decomposition", (M["cfChestAnswerableN"], M["cfChestRefMet"], M["cfChestRefMet"], M["cfChestOwned"],
-                                                    M["cfChestRefStrong"], M["cfChestRefUnres"])),
+                           # one clause each: the sentence puts a full clause with three more numbers between the two halves
+                           ("cells below the reference", (M["cfChestRefBelow"], M["cfChestCellsN"])),
+                           ("cells that clear it", (M["cfChestOwned"], M["cfChestRefMet"], M["cfChestRefStrong"])),
                            ("below-reference share", (M["cfChestBelowStrong"], M["cfChestCompetitor"], M["cfChestBelowStrongPct"])),
-                           ("readable-and-answerable decomposition", (M["cfReadAns"], M["cfReadAnsRefMet"], M["cfReadAnsOwned"],
-                                                                      M["cfReadAnsRefStrong"], M["cfReadAnsRefUnres"],
-                                                                      M["cfReadAnsCompetitor"], M["cfReadAnsBelowStrong"], M["cfReadAnsRefBelow"]))):
+                           ("readable and answerable against the rest", (M["cfReadAnsOwned"], M["cfReadAns"], M["cfReadAnsOwnedPct"],
+                                                                         M["cfRestOwned"], M["cfRestN"], M["cfRestOwnedPct"]))):
             pat = r"[^0-9]{0,90}".join(rf"\b{re.escape(str(n))}\b" for n in nums)
             expect(f"prose: {name} {nums}", bool(re.search(pat, flat)), True)
     print("ALL CONSISTENT" if bad == 0 else f"{bad} DISAGREEMENT(S)")

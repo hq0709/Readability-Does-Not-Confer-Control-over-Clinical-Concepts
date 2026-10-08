@@ -1,9 +1,9 @@
 \begin{table}[htbp]
 \centering
-\scriptsize
 \setlength{\tabcolsep}{4pt}
-\caption{\textbf{Crossing the tower and the reader.} The vision tower of one checkpoint runs behind the other's connector and language model; G is Gemma~3 4B, M is MedGemma 4B, and each column of the top two panels is tower/reader. The bottom panel holds one factor, changes the other, and gives the mean absolute paired change over the six questions.}
+\caption{\textbf{Crossing the tower and the reader.} Each column of the top two panels is tower/reader, with G for Gemma~3 4B and M for MedGemma 4B. The bottom panel changes one factor at a time and gives the mean absolute paired change over the six questions.}
 \label{tab:cf-towerswap}
+\fitwidth{%
 \begin{tabular}{llcccccc}
 \toprule
 \multirow{2}{*}{Host checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{2}{c}{native} & \multicolumn{2}{c}{swapped} & \multirow{2}{*}{concepts} & \multirow{2}{*}{crossover}\\
@@ -24,9 +24,10 @@ all four & NIH ChestX-ray14 & 0 & 0 & 0 & 0 & 6 & 0/24 \\
 all four & CheXpert Plus & 0 & 0 & 0 & 0 & 6 & 0/24 \\
 all four & COCO & 5 & 5 & 0 & 4 & 6 & 14/24 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}\par
 \vspace{4pt}
 \setlength{\tabcolsep}{2.5pt}
+\fitwidth{%
 \begin{tabular}{llccc}
 \toprule
 \multicolumn{5}{l}{\textit{Crossover: the effect of replacing one factor with the other held fixed}} \\
@@ -61,5 +62,5 @@ MedGemma 4B, NIH & reader, own tower & 0.240 [0.221, 0.259] (5) & 0.210 [0.192, 
  & \quad mean reader effect & 0.186 [0.170, 0.207] & 0.184 [0.169, 0.203] & 0.356 [0.339, 0.376] \\
  & \quad mean tower effect & 0.162 [0.140, 0.182] & 0.163 [0.149, 0.185] & 0.316 [0.299, 0.338] \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
