@@ -4,7 +4,7 @@ Changes against the original, per review:
   (a) y axis in counts (0-150) instead of fractions; bar labels show the count only; axis stops at 150.
       The grade is read from the measurement now, so the bars carry no interval.
   (b) y axis extended to 1.0; the two in-plot cluster notes are removed (the legend identifies the datasets).
-  (c) y axis clipped to [-0.2, 0.2]; in-plot notes removed; the main dose (0.25) is a dotted line + bold tick.
+  (c) y axis clipped to [-0.2, 0.2]; in-plot notes removed; the primary steering strength (0.25) is a dotted line + bold tick.
   (d) three in-plot sentences replaced by rank-1 markers and a small 'ranked 1st' key; plain rank tick labels.
 Style: rebuild/scripts/style.py (house fonts and palette + Nature-style axes). QA: rebuild/scripts/qa.py.
 Numbers are read from the CSVs unchanged; nothing is recomputed beyond scaling (a) fractions by 150.
@@ -67,18 +67,18 @@ def panel_b(ax):
 def panel_c(ax):
     df = pd.read_csv(DATA / "panel-c-plotted-summary.csv")
     zero_line(ax)
-    # the paper's main write dose; every other panel and table is graded here
+    # the paper's primary steering strength; every other panel and table is graded here
     ax.axvline(0.25, color=fs.CHARCOAL, lw=0.7, ls=":", zorder=1)
     for ds in ("nih", "coco"):
         d = df[df.dataset == ds].sort_values("alpha")
         ax.fill_between(d.alpha, d.q25, d.q75, color=COL[ds], alpha=0.18, lw=0, zorder=2)
         ax.plot(d.alpha, d["median"], marker=MK[ds], color=COL[ds], lw=1.5, ms=5, mec="white", zorder=4)
     ax.set_xticks([-0.5, -0.25, 0, 0.25, 0.5]); ax.set_xlim(-0.55, 0.55)
-    ax.get_xticklabels()[3].set_fontweight("bold")      # 0.25: the dose marked by the dotted line
+    ax.get_xticklabels()[3].set_fontweight("bold")      # 0.25: the strength marked by the dotted line
     ax.set_ylim(-0.2, 0.2); ax.set_yticks([-0.2, -0.1, 0, 0.1, 0.2])
-    ax.set_xlabel(r"write dose $\alpha$ (fraction of token norm)")
+    ax.set_xlabel(r"steering strength $\alpha$ (fraction of token norm)")
     ax.set_ylabel("ownership $O$ (median over models)")
-    fs.panel_title(ax, "c", "ownership vs. write dose")
+    fs.panel_title(ax, "c", "ownership vs. steering strength")
 
 
 def panel_d(ax):
