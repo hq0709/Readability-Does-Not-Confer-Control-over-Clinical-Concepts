@@ -44,7 +44,7 @@
 \renewcommand{\dbltopfraction}{0.92}
 \renewcommand{\dblfloatpagefraction}{0.85}
 \setcounter{topnumber}{3}
-\setcounter{dbltopnumber}{3}
+\setcounter{dbltopnumber}{1}
 \setcounter{totalnumber}{4}
 
 \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
@@ -488,7 +488,7 @@ Tables~\ref{tab:cf-own-nih}--\ref{tab:cf-own-coco} report the ownership contrast
 
 \paragraph{NIH ChestX-ray14.} \cfNihOwned{} of the \cfNihCells{} cells are owned, a stronger competitor is identified in \cfNihCompetitor{}, and the contrast is positive in \cfGeoOwnWinsNihPct\% of cells. The owned cells concentrate in a few rows. Qwen2.5-VL-72B owns Atelectasis ($O_q=\cfOQwenSeventyTwoAtel$), Cardiomegaly, and Mass. In Gemma~3 12B, by contrast, the competing directions win most answers, down to $O_{\mathrm{Effusion}}=\cfOGemmaTwelveEff$.
 
-\begin{table*}[tp]
+\begin{table*}[t]
 \centering
 \setlength{\tabcolsep}{3pt}
 \caption{\textbf{Ownership of every concept, NIH ChestX-ray14.} Each cell is $O_q$ at $\alpha=+0.25$, shaded darker as $|O_q|$ grows (terracotta positive, blue negative); bold marks an owned cell, and $\dagger$ a stronger competitor among the cells that clear the reference. The last row counts owned cells.}
@@ -530,7 +530,7 @@ LLaVA-Rad-7B & \cellcolor{cfSlate1}-0.02 & \cellcolor{cfSlate1}-0.01 & \cellcolo
 \end{tabular}}
 \end{table*}
 
-\begin{table*}[tp]
+\begin{table*}[t]
 \centering
 \setlength{\tabcolsep}{3pt}
 \caption{\textbf{Ownership of every concept, CheXpert Plus.} Cells, marks, and shading as in Table~\ref{tab:cf-own-nih}.}
@@ -572,9 +572,9 @@ LLaVA-Rad-7B & \cellcolor{cfSlate2}-0.04 & \cellcolor{cfSlate1}-0.01 & \cellcolo
 \end{tabular}}
 \end{table*}
 
-\begin{table*}[tp]
+\begin{table}[t]
 \centering
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{1.5pt}
 \caption{\textbf{Ownership of every concept, COCO.} Cells, marks, and shading as in Table~\ref{tab:cf-own-nih}.}
 \label{tab:cf-own-coco}
 \fitwidth{%
@@ -612,7 +612,7 @@ LLaVA-Rad-7B & \cellcolor{cfSlate2}-0.06 & \cellcolor{cfTerra1}+0.01 & \cellcolo
 \textbf{Owned} & 21 & 21 & 19 & 20 & 18 & 18 \\
 \bottomrule
 \end{tabular}}
-\end{table*}
+\end{table}
 
 
 % No \FloatBarrier here. The three ownership tables are 59% of the text height each, and a

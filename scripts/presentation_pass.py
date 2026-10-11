@@ -31,6 +31,15 @@ LIVE = """table_cf_altdir table_cf_ansdir table_cf_attr table_cf_geometry table_
  table_cf_own table_cf_pairs table_cf_refit table_cf_seed table_cf_semend table_cf_validation
  table_seed_mass""".split()
 BODY = {"table_cf_main"}
+# Tables that must not take a float page of their own. Each ownership table is 39% of the text
+# height, so two of them plus captions fill 87% -- over the 85% a double-column float page needs,
+# which is how all three ended up on pages with no prose. [t] keeps them at the top of a text page.
+TOP_ONLY = {"table_cf_own"}
+# (file, 1-based index of the table environment inside it) that is set in one column instead of two.
+# The COCO ownership table is 234 pt wide at 8 pt against a 219 pt column; 1.5 pt of column separation
+# brings it to 213 pt, so it fits one column at the same type size as every other table and can sit
+# beside the prose rather than spanning the page.
+SINGLE_COLUMN = {("table_cf_own", 3): "1.5pt"}
 
 
 def braced(s: str, i: int) -> tuple[str, int]:
@@ -61,9 +70,31 @@ def ncols(spec: str) -> int:
     return n
 
 
+def single_column(name: str, s: str) -> str:
+    """Put the designated table environments back into one column, with their own column separation.
+
+    A one-column table sits beside the prose instead of spanning the page, which is the only way a
+    table interleaves with the text rather than displacing it. It is worth doing only when the table
+    fits the column at the shared type size; shrinking the type to force a fit would undo \\cftabsize.
+    """
+    starts = [m.start() for m in re.finditer(r"\\begin\{table\*\}", s)]
+    for (f, idx), colsep in sorted(SINGLE_COLUMN.items(), reverse=True):
+        if f != name or idx > len(starts):
+            continue
+        a = starts[idx - 1]
+        b = s.index("\\end{table*}", a) + len("\\end{table*}")
+        block = s[a:b]
+        block = block.replace("\\begin{table*}", "\\begin{table}", 1)
+        block = block.replace("\\end{table*}", "\\end{table}")
+        block = re.sub(r"\\setlength\{\\tabcolsep\}\{[0-9.]+pt\}",
+                       "\\\\setlength{\\\\tabcolsep}{" + colsep + "}", block)
+        s = s[:a] + block + s[b:]
+    return s
+
+
 def shell(name: str) -> None:
     p = T / f"{name}.tex"; s = p.read_text()
-    where = "[t]" if name in BODY else "[tp]"
+    where = "[t]" if name in BODY or name in TOP_ONLY else "[tp]"
     s = re.sub(r"\\begin\{table\*?\}(\[[^\]]*\])?", "\\\\begin{table*}" + where, s)
     s = s.replace("\\end{table}", "\\end{table*}")
     s = re.sub(r"\\setlength\{\\tabcolsep\}\{[0-9.]+pt\}", r"\\setlength{\\tabcolsep}{3pt}", s)
@@ -73,7 +104,11 @@ def shell(name: str) -> None:
                 r"\adjustbox{max width=\linewidth}{%"):
         s = s.replace(raw, "\\fitwidth{%")
     # the size goes inside \fitwidth, which is a group, so it reaches the tabular and not the caption
+    # the pass runs more than once over the same file, so collapse any size already inserted
+    # before inserting it: a plain replace is not idempotent and stacked a copy per run.
+    s = re.sub(r"(?:\\cftabsize\n)+", "", s)
     s = s.replace("\\fitwidth{%\n", "\\fitwidth{%\n\\cftabsize\n")
+    s = single_column(name, s)        # last: it sets its own column separation
     p.write_text(s)
 
 
