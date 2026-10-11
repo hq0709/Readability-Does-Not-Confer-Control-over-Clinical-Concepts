@@ -1,10 +1,19 @@
 \PassOptionsToPackage{table}{xcolor}
-\documentclass{article}
-\usepackage{preprint}
-\usepackage{newtxtext,newtxmath}
+\documentclass[11pt]{article}
+
+% ACL Rolling Review. "review" anonymises, numbers the lines and the pages;
+% switch to "preprint" for a named arXiv posting and to "final" for camera-ready.
+\usepackage[review]{acl}
+
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage{microtype}
+\usepackage{inconsolata}
+
 \usepackage{graphicx}
-\usepackage[export]{adjustbox}  % max width: shrink a wide table to the line, never magnify a narrow one, so every table renders at the same font size
+\usepackage[export]{adjustbox}  % max width: shrink a wide table to the line, never magnify a narrow one
 \usepackage{booktabs}
 \usepackage{multirow}   % header labels that span both rows of a two-row header, so they centre vertically
 \usepackage{float}
@@ -16,38 +25,36 @@
 \usepackage{amssymb}
 \usepackage{xcolor}
 \usepackage{url}
-\usepackage{hyperref}
-\hypersetup{hidelinks}
+
 \input{math_commands}
 \input{tables/cf_colors}
 \input{tables/cf_numbers}
+
+\emergencystretch=1em  % absorbs the last 0.6pt overfull line in a bibliography entry
+
 \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{5pt}
 \setlength{\belowcaptionskip}{0pt}
 
 \title{Readability Does Not Confer Control over Clinical Concepts}
 
-\authorline{%
-Hanqi Jiang\aff{1,2,*} \quad
-Weihang You\aff{1,*} \quad
-Qingchan Zhu\aff{1} \quad
-Junhao Chen\aff{1} \quad
-Yi Pan\aff{1}\\
-Tiance Wang\aff{4} \quad
-Zhengliang Liu\aff{1} \quad
-Geng Yuan\aff{1} \quad
-Wei Liu\aff{3} \quad
-Lei Xing\aff{2,\dag}}
-
-\affiliations{%
-\aff{1}School of Computing, University of Georgia\\
-\aff{2}School of Medicine, Stanford University\\
-\aff{3}Department of Radiation Oncology, Mayo Clinic\\
-\aff{4}School of Computing and Data Science, The University of Hong Kong}
-
-\titlenotes{%
-\aff{*}Equal contribution.\\
-\aff{\dag}Corresponding author: \texttt{lei@stanford.edu}.}
+\author{%
+  Hanqi Jiang\thanks{\ Equal contribution.}$^{1,2}$ \quad
+  Weihang You\footnotemark[1]$^{1}$ \quad
+  Qingchan Zhu$^{1}$ \quad
+  Junhao Chen$^{1}$ \quad
+  Yi Pan$^{1}$ \\
+  \textbf{Tiance Wang}$^{4}$ \quad
+  Zhengliang Liu$^{1}$ \quad
+  Geng Yuan$^{1}$ \quad
+  Wei Liu$^{3}$ \quad
+  Lei Xing$^{2}$\thanks{\ Corresponding author.} \\
+  $^{1}$School of Computing, University of Georgia \\
+  $^{2}$School of Medicine, Stanford University \\
+  $^{3}$Department of Radiation Oncology, Mayo Clinic \\
+  $^{4}$School of Computing and Data Science, The University of Hong Kong \\
+  \texttt{lei@stanford.edu}
+}
 
 \begin{document}
 \maketitle
@@ -63,11 +70,13 @@ Lei Xing\aff{2,\dag}}
 \input{sections/5_results}
 \input{sections/6_implications}
 \input{sections/7_conclusion}
-\input{sections/8_statements}
-\bibliography{refs}
-\bibliographystyle{plainnat}
 
-\clearpage
+% ARR requires an unnumbered Limitations section; it precedes the statements and the bibliography.
+\input{sections/8_limitations}
+\input{sections/9_statements}
+
+\bibliography{refs}
+
 \appendix
 \input{sections/app_campaign}
 \input{sections/app_seed_protocol}

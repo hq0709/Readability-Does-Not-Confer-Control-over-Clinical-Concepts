@@ -12,8 +12,10 @@ The write is Equation~\ref{eq:intervention} along the lifted normal of Equation~
 \paragraph{Original-cell decision rule.}
 With $\Delta_c(\alpha)$ the target direction's paired mean change at steering strength $\alpha$, the primary effect and the steering strength that attains it are
 \begin{equation}
-\Delta^\star_c=\max_{\alpha\in\mathcal A}\operatorname{sign}(\alpha)\,\Delta_c(\alpha),\qquad
-\alpha^\star=\operatorname*{arg\,max}_{\alpha\in\mathcal A}\operatorname{sign}(\alpha)\,\Delta_c(\alpha).
+\begin{aligned}
+\Delta^\star_c&=\max_{\alpha\in\mathcal A}\operatorname{sign}(\alpha)\,\Delta_c(\alpha),\\
+\alpha^\star&=\operatorname*{arg\,max}_{\alpha\in\mathcal A}\operatorname{sign}(\alpha)\,\Delta_c(\alpha).
+\end{aligned}
 \label{eq:seed-rule}
 \end{equation}
 A cell clears the generic gate when $\Delta^\star_c$ exceeds both the 95th percentile of the 20 random directions' changes at $\alpha^\star$, each multiplied by $\operatorname{sign}(\alpha^\star)$, and the largest absolute sham effect over $\mathcal A$. The random directions are evaluated at $\alpha^\star$ alone, so the gate is a registered reference without cross-steering strength correction.

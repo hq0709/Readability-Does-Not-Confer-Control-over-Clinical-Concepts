@@ -1,0 +1,11 @@
+\section*{Limitations}
+What the paper measures bounds what it reports. The write test needs activation access, so it grades
+open-weight checkpoints: the \cfCheckpoints{} here span \cfFamiliesWord{} families and 3B to 72B, and no
+API-served model is in the campaign. Chest radiography is the only medical modality; COCO is the
+natural-image control, and the gap between them is measured on these two pools, not on CT, pathology, or
+dermatology. The write is one form, a rank-one additive edit at the consumed visual block over a steering
+strength grid. Edits of a different form -- attention-head writes, weight edits, prompt-level
+interventions -- are not graded here, and the paper's claim is about this write at this site. Answers are
+binary and read at a single answer position, so the grades describe yes/no questions rather than generated
+report text. Labels come from the reports, with a radiologist-consensus re-grade of six directions on
+\cfValidRows{} films as the check on that label source (Appendix~\ref{app:campaign}).

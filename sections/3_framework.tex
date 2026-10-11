@@ -25,7 +25,10 @@ It is the direction in the consumed representation along which the probe's evide
 
 Two families of controls bracket the label direction. For reading, 20 control probes are fitted to random labels drawn within recurring image types (view, sex, and age decade on chest sets; aspect and area buckets on COCO), so that they have the capacity and the nuisance structure of the concept probe. With $y$ the concept labels and $r$ the probe's scores on the calibration rows, and $y^{\mathrm{ctrl}}_k$ and $r^{\mathrm{ctrl}}_k$ the random labels and scores of control probe $k$, the probe's selectivity is
 \begin{equation}
-S=\operatorname{AUROC}(y,r)-\tfrac{1}{20}\textstyle\sum_{k=1}^{20}\operatorname{AUROC}(y^{\mathrm{ctrl}}_k,r^{\mathrm{ctrl}}_k),
+\begin{aligned}
+S={}&\operatorname{AUROC}(y,r)\\
+&-\tfrac{1}{20}\textstyle\sum_{k=1}^{20}\operatorname{AUROC}(y^{\mathrm{ctrl}}_k,r^{\mathrm{ctrl}}_k),
+\end{aligned}
 \label{eq:selectivity}
 \end{equation}
 which is positive when the probe reads its concept better than a probe of equal capacity reads an arbitrary label with the same nuisance structure. For writing, the \emph{reference family} contains 119 random unit directions, a coordinate-permutation sham of $\hat\wvec_c$ (same coordinates, scrambled arrangement), and the five label directions of the other clinical concepts, all written at the same steering strength to the same images.

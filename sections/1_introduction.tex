@@ -9,12 +9,12 @@ We turn this comparison into an evaluation (Section~\ref{sec:framework}, Figure~
 
 On chest radiographs most readable and answerable concepts are not owned, while most COCO objects are, and the gap persists among concepts the model answers well (Section~\ref{sec:results}). Since the same write succeeds on natural images, the remaining results locate the deficit. Checkpoints that share a vision tower write identical vectors into identical representations yet own different concepts, so the model that reads the representation decides ownership. Non-clinical attributes of the same radiographs (projection, sex, and age) are owned no more often than findings, so the deficit does not depend on the concept being clinical. The reader responds to a different direction: a direction fitted to the model's own answers is owned in \cfAnsChestOwnedA{} of \cfAnsChestN{} chest checkpoint--concept cells where the label direction is owned in \cfAnsChestOwnedLabel{}, and on chest radiographs it is nearly orthogonal to the probe direction.
 
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/fig1_framework.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig1_framework.pdf}}
     \caption{\textbf{Reading and writing a concept at the selected vision layer.} (a) The probe reads the concept from the consumed visual tokens, and its lifted normal is written back to them at steering strength $\alpha=+0.25$, a quarter of each token's norm. (b) Left: the three comparisons that decide ownership, on the write matrix $W_{q,d}$, the mean change in $P(\mathrm{yes})$ of question $q$ under a write along direction $d$. Right: the Effusion case (Qwen2.5-VL-7B, NIH ChestX-ray14): a stronger competitor.}
     \label{fig:framework}
-\end{figure}
+\end{figure*}
 
 \paragraph{Contributions.} (i) We introduce ownership, which separates reading a concept from writing it: a probe direction is scored against directions fitted the same way for the competing concepts, written at the same site and steering strength in the same patients (Section~\ref{sec:framework}). (ii) We measure it across \cfCells{} checkpoint--concept cells: \cfChestOwnedPct\% of chest cells are owned against \cfCocoOwnedPct\% of natural-image cells, and \cfStratChestTopPct\% against \cfStratNatTopPct\% among the cells the model answers well (Sections~\ref{sec:headline}--\ref{sec:coco}). (iii) We trace the deficit to how the model reads the chest-radiograph representation rather than to the concept's clinical status, and show that a direction fitted to the model's own answers is owned in \cfAnsChestOwnedA{} of \cfAnsChestN{} chest cells against \cfAnsChestOwnedLabel{} for the label direction (Sections~\ref{sec:reader}--\ref{sec:ansdir}). We release the evaluation, scorecards, and write matrices; a new model needs one adapter naming its selected vision layer.
 

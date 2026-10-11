@@ -6,6 +6,10 @@
 SOURCE_DATE_EPOCH=1788439147 FORCE_SOURCE_DATE=1 tectonic -X compile main.tex --keep-logs
 ```
 
+The paper is set in the ACL Rolling Review template: `acl.sty` and `acl_natbib.bst` ship beside it, and
+`main.tex` loads the style as `\usepackage[review]{acl}`, which anonymises the authors and numbers the
+lines. `preprint` names them for an arXiv posting and `final` is camera-ready; nothing else changes.
+
 Pinning the date makes the build byte-reproducible: without it the PDF carries a timestamp and two
 correct builds differ. `latexmk -pdf main.tex` works too and is what the figures and tables were checked
 against; it just does not give you the same bytes twice.
@@ -32,7 +36,7 @@ sha256sum -c MANIFEST.sha256
 The manifest is taken from `main.fls`, which records every file the build opened, plus the bibliography
 and the style files that ship beside the paper. It is not typed by hand, because the previous one was and
 it had drifted: twenty-one of its forty-four entries named files from a different paper, and it omitted
-`preprint.sty`, which sets the layout, the float parameters and the title block.
+the style file that sets the layout, the float parameters and the title block.
 
 ## What the paper measures
 

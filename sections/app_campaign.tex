@@ -16,12 +16,12 @@ This appendix lists the checkpoints and their consumed sites, the acceptance dec
 \label{app:cf-grid}
 
 \input{tables/table_cf_models}
-\begin{figure}[h]
+\begin{figure*}[t]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/fig6_ladders.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig6_ladders.pdf}}
     \caption{\textbf{Size ladders.} Ownership $O_q$ per concept across sizes for Qwen2.5-VL and Qwen3-VL on NIH and Lingshu on CheXpert. Solid lines mark the concept with the largest ownership at the largest size (Atelectasis, Nodule, Edema), filled markers owned cells; vertical scales differ by panel.}
     \label{fig:ladders}
-\end{figure}
+\end{figure*}
 
 
 The towers include CLIP \citep{radford2021clip} in the LLaVA families, SigLIP \citep{zhai2023siglip} in Gemma~3, and a SigLIP~2 design \citep{tschannen2025siglip2} in Qwen3-VL; MedGemma's MedSigLIP tower is a medically tuned SigLIP released with that model \citep{sellergren2025medgemma}. The three towers trained on chest radiographs are the XraySigLIP tower of CheXagent-2-3B \citep{chen2024chexagent}, the EVA-CLIP tower \citep{sun2023evaclip} of CheXagent-8B, and the BiomedCLIP-CXR tower of LLaVA-Rad-7B \citep{zhang2025biomedclip,zambranochaves2025llavarad}; HuatuoGPT-Vision-7B tunes on medical data over the same stock CLIP tower as LLaVA-1.5. Consumed-token counts range from \cfTokensMin{} to \cfTokensMax{} per image, and each family uses a fixed image resolution. The Llama~3.2 Vision projector also reads five intermediate local-layer outputs that bypass the final global block. LLaVA computes the final CLIP block but consumes the penultimate block. At every checkpoint, Gate (C) verifies that the write reaches the consumer and the answer logits and changes nothing outside the consumed tokens.
@@ -66,15 +66,23 @@ Unless stated otherwise, an analysis uses the write matrix's rule: the own write
 
 \paragraph{Alternative directions.} Besides the logistic normal, we write four constructions per concept (Table~\ref{tab:cf-altdir}): the difference of class means, the Haufe pattern, the normal orthogonalised against the other five normals, and the normal refitted on features residualised against the other five labels. A classifier coefficient lifts by Equation~\ref{eq:lift}. A difference of means or a pattern is instead a displacement $\boldsymbol u$ in the projected, train-scaled space, and its minimum-norm preimage gives the displacement lift
 \begin{equation}
-\hat\wvec\propto R(R^{\top}R)^{-1}\mathrm{diag}(\boldsymbol s)\,\boldsymbol u,\qquad\text{so that}\qquad R^{\top}\hat\wvec\propto\mathrm{diag}(\boldsymbol s)\,\boldsymbol u .
+\begin{aligned}
+\hat\wvec&\propto R(R^{\top}R)^{-1}\mathrm{diag}(\boldsymbol s)\,\boldsymbol u,\\
+\text{so that}\quad R^{\top}\hat\wvec&\propto\mathrm{diag}(\boldsymbol s)\,\boldsymbol u .
+\end{aligned}
 \label{eq:displacement-lift}
 \end{equation}
 The two lifts differ because $R^{\top}R$ is not a multiple of the identity (Appendix~\ref{app:repro-probe}). The difference-of-means and pattern directions lie at a median absolute raw model-space cosine of $\cfAltdirCosMin$ to $\cfAltdirCosMax$ from the logistic normal.
 
 \paragraph{Token weights and competitors.} A token-weighted write replaces the uniform steering strength of Equation~\ref{eq:intervention} with weights $\omega_t$ that average one over the $n_{\mathrm{tok}}$ consumed tokens,
 \begin{equation}
-\hvec'_{it}=\hvec_{it}+\alpha\,\omega_t\lVert\hvec_{it}\rVert_2\,\hat\wvec_c,\qquad
-\omega_t=\begin{cases}n_{\mathrm{tok}}\,e^{z_t}\big/\sum_{t'}e^{z_{t'}} & \text{softmax,}\\ 4\cdot\mathbf 1[\,z_t\text{ in the top quarter}\,] & \text{top quarter,}\end{cases}
+\begin{aligned}
+\hvec'_{it}&=\hvec_{it}+\alpha\,\omega_t\lVert\hvec_{it}\rVert_2\,\hat\wvec_c,\\
+\omega_t&=\begin{cases}
+n_{\mathrm{tok}}\,e^{z_t}\big/\sum_{t'}e^{z_{t'}}, & \text{softmax,}\\
+4\cdot\mathbf 1[\,z_t\in\text{top quarter}\,], & \text{top quarter,}
+\end{cases}
+\end{aligned}
 \label{eq:token-weights}
 \end{equation}
 where $z_t$ is the probe's score of token $t$. The softmax variant keeps the uniform write's L1 steering strength and the top-quarter variant doubles its Frobenius norm. The extended competitor family, scored across \cfExtcompBlocks{} blocks, adds a direction for every other label with at least 100 known positives and 100 known negatives (NIH: Consolidation, Edema, Infiltration; CheXpert: Enlarged Cardiomediastinum, Fracture, Lung Lesion, Lung Opacity, Pneumonia, Support Devices), fitted and written like the protocol normals; a cell is then owned only if its write also beats every added direction.
@@ -98,8 +106,10 @@ NIH shows the deficit although its six directions are nearly orthogonal and its 
 Refitting the six directions on the radiologist labels, cross-fitted over patients in \cfValidfitFolds{} folds and written on the 600 test rows, gives directions at a median raw cosine of \cfValidfitCosRaw{} (whitened \cfValidfitCosWhitened{}) from the report-label ones, owned in \cfValidfitOwnedExpert{} of \cfValidfitCells{} cells against \cfValidfitOwnedReport{}. The refit reaches a held-out AUROC of \cfValidfitAurocExpert{} on the radiologist labels, against \cfValidfitAurocReportDir{} for the report-label direction, and is fitted on \cfVfArmExpertRows{} rows per fold against a median of \cfVfArmReportFullRows{}. Three further arms, scored on the same films with the same cross-fitting, separate the label source from the sample size: report-derived labels of those \cfVfArmRows{} films reach \cfVfArmReportSameFilmsAuroc{}; report-derived labels of a training subsample with the refit's \cfVfArmReportSubRows{} fitting rows, redrawn \cfVfArmDraws{} times, reach \cfVfArmReportSubAuroc{}; and every labelled training row reaches \cfVfArmReportFullAuroc{}. With $\mathrm{AUROC}_{L,n}$ the held-out AUROC against the radiologist labels of a direction fitted on $n$ rows carrying labels $L$, $n=\cfVfArmReportSubRows$ the refit's sample and $N$ every labelled training row,
 \begin{equation}
 \begin{aligned}
-\Delta_{\text{label}}&=\mathrm{AUROC}_{\text{radiologist},n}-\mathrm{AUROC}_{\text{report},n}=\cfVfArmDeltaLabel,\\
-\Delta_{\text{size}}&=\mathrm{AUROC}_{\text{report},N}-\mathrm{AUROC}_{\text{report},n}=\cfVfArmDeltaSize .
+\Delta_{\text{label}}&=\mathrm{AUROC}_{\text{radiologist},n}-\mathrm{AUROC}_{\text{report},n}\\
+&=\cfVfArmDeltaLabel,\\
+\Delta_{\text{size}}&=\mathrm{AUROC}_{\text{report},N}-\mathrm{AUROC}_{\text{report},n}\\
+&=\cfVfArmDeltaSize .
 \end{aligned}
 \label{eq:label-size}
 \end{equation}
@@ -118,8 +128,10 @@ The size-matched report refit also lies as far from the shipped direction as the
 
 \paragraph{Crossed tower and reader.} We load the vision tower of Gemma~3 4B (G) behind the connector and language model of MedGemma 4B (M), and the reverse. All \cfSwapTensors{} weight tensors of the loaded tower equal the donor's bit for bit, and none of the \cfSwapOutside{} tensors outside it changes. Directions travel with their tower, so changing the tower changes the representation and its six directions together, while changing the reader changes only the connector and the language model. All \cfSwapCombos{} combinations are graded on the same \cfSwapRows{} test rows of the block, at the primary steering strength and template, against the 119-direction random family and the sham of the tower in use. The two native combinations reproduce the checkpoints' own grades on this smaller cohort: across the \cfSwapNativeCells{} native cells, the ownership contrast moves by at most \cfSwapNativeMaxDO{}, and \cfSwapNativeLostReference{} of the \cfSwapNativeOwnedFull{} owned cells no longer clear the steering reference on the smaller cohort. Writing $Y_q(g/h)$ for a quantity of question $q$ with tower $g$ and reader $h$, the mean reader and tower effects are
 \begin{equation}
-\delta_{\text{reader}}=\frac{1}{12}\sum_{g}\sum_{q}\bigl|Y_q(g/\mathrm G)-Y_q(g/\mathrm M)\bigr|,\qquad
-\delta_{\text{tower}}=\frac{1}{12}\sum_{h}\sum_{q}\bigl|Y_q(\mathrm G/h)-Y_q(\mathrm M/h)\bigr|,
+\begin{aligned}
+\delta_{\text{reader}}&=\frac{1}{12}\sum_{g}\sum_{q}\bigl|Y_q(g/\mathrm G)-Y_q(g/\mathrm M)\bigr|,\\
+\delta_{\text{tower}}&=\frac{1}{12}\sum_{h}\sum_{q}\bigl|Y_q(\mathrm G/h)-Y_q(\mathrm M/h)\bigr|,
+\end{aligned}
 \label{eq:crossover}
 \end{equation}
 for $Y_q\in\{W_{q,q},\,O_q,\,M_q\}$, where $M_q=W_{q,q}-\max(\max_{d\neq q}W_{q,d},\,p_{95},\,|W^{\mathrm{sham}}_q|)$ is the own write's margin over the whole reference family, with $p_{95}$ the random 95th percentile and $W^{\mathrm{sham}}_q$ the sham write.
@@ -187,13 +199,15 @@ Across \cfSemBlocks{} blocks, the negated question moves opposite to the affirma
 
 \paragraph{Difficulty matching.} Each chest cell $c$ is paired with the natural-image cells $\mathcal P(c)$ whose matching variables lie within \cfFgWindow{} of its own. With $o\in\{0,1\}$ a cell's owned indicator, $\mathcal C$ the chest cells with at least one partner, and $\mathcal P=\bigcup_{c\in\mathcal C}\mathcal P(c)$,
 \begin{equation}
-\Delta_{\text{pool}}=\frac{1}{|\mathcal C|}\sum_{c\in\mathcal C}o_c-\frac{1}{|\mathcal P|}\sum_{p\in\mathcal P}o_p,\qquad
-\Delta_{\text{match}}=\frac{1}{|\mathcal C|}\sum_{c\in\mathcal C}\Bigl(o_c-\frac{1}{|\mathcal P(c)|}\sum_{p\in\mathcal P(c)}o_p\Bigr);
+\begin{aligned}
+\Delta_{\text{pool}}&=\frac{1}{|\mathcal C|}\sum_{c\in\mathcal C}o_c-\frac{1}{|\mathcal P|}\sum_{p\in\mathcal P}o_p,\\
+\Delta_{\text{match}}&=\frac{1}{|\mathcal C|}\sum_{c\in\mathcal C}\Bigl(o_c-\frac{1}{|\mathcal P(c)|}\sum_{p\in\mathcal P(c)}o_p\Bigr);
+\end{aligned}
 \label{eq:matching}
 \end{equation}
 $\Delta_{\text{pool}}$ compares the two matched pools, while $\Delta_{\text{match}}$ weights every chest cell equally however many partners it has; neither can be obtained from the other. Chest cells without a partner leave the matching, which the stratified comparison below avoids. Matched on clean-answer AUROC, $\Delta_{\text{match}}$ shrinks to $\cfFgMatchAnsDiff$ (Table~\ref{tab:cf-matching}), and matched on both variables it is $\cfFgMatchBothDiff$ on the \cfFgMatchBothN{} of \cfFgMatchBothCells{} chest cells that keep a partner. The stratified comparison of Section~\ref{sec:coco} keeps every cell instead, binning both pools by clean-answer AUROC at the edges \cfStratEdges{}; the \cfStratChestTopN{} chest cells of the top bin are all CheXpert Plus cells, since no NIH ChestX-ray14 cell reaches \cfStratTopEdge{}.
 
-\begin{table}[htbp]
+\begin{table*}[tp]
 \centering
 \setlength{\tabcolsep}{8pt}
 \caption{\textbf{Difficulty matching.} Per matching variable: matched chest cells, natural-image partner cells, and the pooled and matched differences of Equation~\ref{eq:matching}.}
@@ -209,33 +223,37 @@ both variables & 212/300 & 101/186 & $-0.487$ & $-0.024$ \\
 both, easy partners only & 211/300 & 79/150 & $-0.432$ & $-0.008$ \\
 \bottomrule
 \end{tabular}}
-\end{table}
+\end{table*}
 
 \subsection{Write structure across the grid}
 \label{app:cf-figures}
 
 Figure~\ref{fig:cf-w-structure} summarises the $6\times6$ write matrices across all completed checkpoints as the cell-wise median matrix for each dataset. Figure~\ref{fig:write-flow} reads the same matrices as flow, with band width proportional to $F_{q,d}$, the mean over checkpoints of $\max(W_{q,d},0)$. The own-question share of that flow is
 \begin{equation}
-\frac{\sum_d F_{d,d}}{\sum_{q,d}F_{q,d}}=\cfOwnShareNih\%\ \text{(NIH)},\quad \cfOwnShareChex\%\ \text{(CheXpert)},\quad \cfOwnShareCoco\%\ \text{(COCO)}.
+\begin{aligned}
+\frac{\sum_d F_{d,d}}{\sum_{q,d}F_{q,d}}&=\cfOwnShareNih\%\ \text{(NIH)},\\
+&\phantom{{}=}\cfOwnShareChex\%\ \text{(CheXpert)},\\
+&\phantom{{}=}\cfOwnShareCoco\%\ \text{(COCO)}.
+\end{aligned}
 \label{eq:flow-share}
 \end{equation}
 It pools positive changes over checkpoints, whereas the column selectivity $\kappa_d$ of Equation~\ref{eq:column-selectivity} keeps the sign of the own effect, counts negative changes, and is summarised per cell. The largest sinks on the chest sets, questions that every direction moves, are Cardiomegaly on NIH and Edema and Effusion on CheXpert.
 
-\begin{figure}[htbp]
+\begin{figure*}[t]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/figA1_write_structure.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/figA1_write_structure.pdf}}
     \caption{\textbf{Write structure across the grid.} Cell-wise median of the write matrix $W_{q,d}$ over completed checkpoints on NIH ChestX-ray14, CheXpert Plus, and COCO. Figure~\ref{fig:write-flow} reads the same matrices as flow.}
     \label{fig:cf-w-structure}
-\end{figure}
+\end{figure*}
 
 \subsection{Per-image examples}
 \label{app:cf-examples}
 
 Figure~\ref{fig:cf-examples} shows grades for individual test images, with $P(\mathrm{yes})$ in parentheses on every answer line. The first four chest examples are deficit cells of Qwen2.5-VL-7B, the next two are owned cells (Lingshu 32B Edema, Qwen2.5-VL-72B Atelectasis), and the natural-image examples are owned cells of Qwen2.5-VL-7B, Lingshu 32B, and MedGemma 4B. For a chest example, we pool test rows where the finding is labelled present, the probe reads it (probability above $0.5$), and the clean answer is No. For a natural-image example, we pool rows where the probe reads the label correctly and the clean answer is No. We split each pool by whether the concept's own write or the strongest competing write raises the answer more. Among rows where either write raises the answer by at least $0.2$, we show the row with the gap closest to the median. Each example's last line reports how many pool rows share its ordering, giving the example its own base rate.
 
-\begin{figure}[p]
+\begin{figure*}[p]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/figA2_examples.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/figA2_examples.pdf}}
     \caption{\textbf{Reading, answering, and writing on single images.} Per image: the question, the report label, the probe's reading, the clean answer, and the answers under the own write and the strongest competing write at $\alpha=+0.25$. Beside the probe's reading, a check or cross marks whether it agrees with the label; beside the own write, whether that write moves the answer more than the competitor. The grey line counts, among the block's test rows the probe reads correctly and the model answers no when clean (on the chest sets, rows labelled present), those with the same ordering.}
     \label{fig:cf-examples}
-\end{figure}
+\end{figure*}

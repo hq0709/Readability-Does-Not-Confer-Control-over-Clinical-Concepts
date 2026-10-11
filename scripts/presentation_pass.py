@@ -7,7 +7,11 @@ It does four things:
 
   shell      one float policy, one column separation, and \\fitwidth everywhere. \\fitwidth shrinks a table
              wider than the line and leaves a narrower one alone; a bare \\resizebox magnifies a narrow
-             table above body size, which is what made the tables look set at different sizes.
+             table above body size, which is what made the tables look set at different sizes. Every live
+             table spans both columns: measured against the ACL column the narrowest is 1.55 times too
+             wide and the widest 2.9 times, so a single-column float would shrink the smallest of them to
+             two thirds of body size. A starred float is placed at a column top or on a float page -- `h`
+             and `b` are not available to it -- so the appendix policy is [tp], not [htbp].
   intervals  the columns that printed a bootstrap interval. The grades are read from the estimates now, so
              there is no interval to report and a column of them is a column about a method the paper no
              longer uses.
@@ -59,7 +63,9 @@ def ncols(spec: str) -> int:
 
 def shell(name: str) -> None:
     p = T / f"{name}.tex"; s = p.read_text()
-    s = re.sub(r"\\begin\{table\}(\[[^\]]*\])?", "\\\\begin{table}" + ("[t]" if name in BODY else "[htbp]"), s)
+    where = "[t]" if name in BODY else "[tp]"
+    s = re.sub(r"\\begin\{table\*?\}(\[[^\]]*\])?", "\\\\begin{table*}" + where, s)
+    s = s.replace("\\end{table}", "\\end{table*}")
     s = re.sub(r"\\setlength\{\\tabcolsep\}\{[0-9.]+pt\}", r"\\setlength{\\tabcolsep}{4pt}", s)
     if "tabcolsep" not in s:
         s = s.replace("\\centering\n", "\\centering\n\\setlength{\\tabcolsep}{4pt}\n", 1)

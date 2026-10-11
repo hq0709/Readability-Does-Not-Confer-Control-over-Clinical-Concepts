@@ -3,7 +3,8 @@
 A manifest typed by hand drifts from the paper beside it, and silently: the one this replaces listed
 iclr2027_conference.sty, fig1_framework.pdf and B_answer_encoding.tex, none of which are in this
 repository, so twenty-one of its forty-four entries pointed at nothing and `sha256sum -c` failed on every
-one of them. It also omitted preprint.sty, which sets the layout, the float parameters and the title block.
+one of them. It also omitted the style file that
+sets the layout, the float parameters and the title block -- acl.sty now.
 
 latexmk records every file it opened in main.fls. Taking the manifest from there means it lists what the
 build consumed rather than what someone remembered, and a file that stops being read drops out by itself.
@@ -24,7 +25,7 @@ SKIP_SUFFIX = (".aux", ".log", ".out", ".fls", ".fdb_latexmk", ".pdf.gz", ".bbl"
 # refs.bib is read by bibtex, which does not write to main.fls; the .sty files vendored beside the paper
 # are listed whether or not this build happened to read them, since they are part of what is shipped
 EXTRA = ("LICENSE", "REPRODUCE.md", "README.md", "main_revised.tex", "refs.bib",
-         "fancyhdr.sty", "natbib.sty", "preprint.sty")
+         "acl.sty", "acl_natbib.bst")
 
 
 def sha(p: Path) -> str:

@@ -53,6 +53,58 @@ def expect(name, a, b):
     print(f"  {'ok ' if ok else 'BAD'} {name}: {a} {'==' if ok else '!='} {b}")
 
 
+
+def rendered_text(pdf: Path) -> str:
+    """The PDF's text in reading order, whatever the template sets it in.
+
+    This has to survive a column count. `pdftotext -layout` puts both columns of a two-column page on
+    one text line, so flattening it interleaves them and every sentence is cut by the other column once
+    a line; plain `pdftotext` reorders instead of interleaving but drops words where a margin line
+    number sits in the flow -- it lost "strength on the same" from the abstract. So: find the character
+    column that best separates the two, read the columns in order, and keep a line that crosses it
+    whole, which is what a spanning table or a centred title is. The separator is chosen per page by
+    how many lines are blank there rather than by requiring every line to be, because a page is often
+    part spanning table and part prose and no column is blank on all of it.
+
+    The review template numbers the lines in the margin; those labels are blanked in place, before the
+    separator is chosen, so the columns still line up. A narrow column hyphenates, so `an-\nswerable`
+    is rejoined -- otherwise a phrase matches or not according to where the line happened to break.
+    """
+    def dehyphenate(block: str) -> str:
+        return re.sub(r"([A-Za-z])-\n\s*([a-z])", r"\1\2", block)
+
+    raw = subprocess.run(["pdftotext", "-layout", str(pdf), "-"], capture_output=True, text=True).stdout
+    pages = []
+    for page in raw.split("\f"):
+        lines = []
+        for line in page.split("\n"):
+            line = re.sub(r"^(\s{0,10})(\d{1,4})(?=\s{3})", lambda m: m.group(1) + " " * len(m.group(2)), line)
+            lines.append(re.sub(r"(?<=\s{3})\d{1,4}\s*$", "", line).rstrip())
+        body = [x for x in lines if x.strip()]
+        if not body:
+            continue
+        width = max(len(x) for x in lines)
+        mid, cut, score = width / 2, None, 0.0
+        for c in range(int(0.40 * width), int(0.60 * width) + 1):
+            k = sum(1 for x in body if c >= len(x) or x[c] == " ")
+            k -= abs(c - mid) / width          # among equals, the one nearest the centre
+            if k > score:
+                cut, score = c, k
+        if cut is None or score < 0.5 * len(body):       # one column: nothing to split
+            pages.append(dehyphenate("\n".join(lines)))
+            continue
+        left, right, span = [], [], []
+        for x in lines:
+            if cut < len(x) and x[cut] != " ":            # crosses the separator: spanning
+                span.append(x)
+            else:
+                left.append(x[:cut])
+                right.append(x[cut:])
+        pages.append(dehyphenate("\n".join(left)) + "\n" +
+                     dehyphenate("\n".join(right)) + "\n" + "\n".join(span))
+    return "\n".join(pages)
+
+
 def main():
     rows = ci.read_manifest(); C = counts(rows)
     print("manifest per-dataset (probe cells / readable | write cells / answerable / owned):")
@@ -755,10 +807,7 @@ def main():
     # rendered prose
     pdf = ROOT / "main.pdf"
     if pdf.exists() and shutil.which("pdftotext"):
-        txt = subprocess.run(["pdftotext", "-layout", str(pdf), "-"], capture_output=True, text=True).stdout
-        # The preprint layout prints no margin line numbers, so nothing is stripped from the start of a
-        # line: a leading number there is a table value, not a line label.
-        flat = re.sub(r"\s+", " ", txt)
+        flat = re.sub(r"\s+", " ", rendered_text(pdf))
         print("rendered PDF vs macros:")
         # Phrases as Section 5.1 actually writes them. They had drifted from the prose -- the sentence
         # reads "(85%; median selectivity 0.14)" and the template looked for "(85%)" -- so the check was

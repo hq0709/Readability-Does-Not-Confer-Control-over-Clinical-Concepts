@@ -5,4 +5,7 @@
 \newcommand{\vvec}{\mathbf{v}}
 \newcommand{\DeltaEff}{\Delta_{\mathrm{Eff}}}
 \DeclareMathOperator*{\argmaxop}{arg\,max}
-\providecommand{\fitwidth}[1]{\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{#1}}
+% Shrink a table to the line, and to the page when it is the height that does not fit --
+% table_cf_attr is 58 rows and overflowed a float page by 3.6pt once its width was fitted.
+% max width/max totalheight only ever shrink, so a narrow table is left at body size.
+\providecommand{\fitwidth}[1]{\adjustbox{max width=\linewidth,max totalheight=0.93\textheight}{#1}}

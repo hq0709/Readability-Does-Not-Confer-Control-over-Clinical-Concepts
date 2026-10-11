@@ -12,38 +12,38 @@ Ownership on chest radiographs breaks at the write itself. \cfChestRefBelow{} of
 
 \input{tables/table_cf_main}
 
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/fig2_overview.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig2_overview.pdf}}
     \caption{\textbf{Reading, answering, and writing across the grid.} (a) Concept cells of 150 per dataset passing each grade. (b) One marker per checkpoint and dataset: mean readability against mean ownership over its six concepts. (c) Median ownership and interquartile range over 25 blocks against the steering strength; the dotted line marks the graded steering strength $\alpha=+0.25$, and the COCO band is clipped at $0.2$. (d) Cumulative share of cells by the rank of the concept write among the 120 compared effects; the key gives the share ranked first.}
     \label{fig:overview}
-\end{figure}
+\end{figure*}
 
 \subsection{Where the chest write goes}
 \label{sec:deficit}
 
 The written concept's own question receives \cfOwnShareNih\% of the positive answer change on NIH and \cfOwnShareChex\% on CheXpert, against \cfOwnShareCoco\% on COCO. The write matrices show the same structure (Figure~\ref{fig:write-matrices}). The own write is small, with median $W_{q,q}$ of $\cfMedianWqqNih$ on NIH and $\cfMedianWqqChex$ on CheXpert against $\cfMedianWqqCoco$ on COCO, and the competing directions share what effect there is: the Atelectasis, Effusion, and Consolidation directions raise each other's answers by similar amounts, and on the chest sets a row of $W$ is flat or peaks off the diagonal, whereas on COCO the diagonal dominates. At every Qwen2.5-VL size a competing direction raises the Effusion answer more than the Effusion direction does (Cardiomegaly at 3B, Nodule at 7B and 32B, Atelectasis at 72B). Single images show the pattern (Figure~\ref{fig:example}): on a radiograph, the Effusion write raises the Effusion answer from $\cfExChestClean$ to $\cfExChestOwn$ and the Nodule write raises it further, to $\cfExChestComp$, while on a natural image the dog write moves the dog answer from $\cfExCocoClean$ to $\cfExCocoOwn$ and nothing else. The chest cells that are owned are also fragile: an effect floor of $0.05$ on both $W_{q,q}$ and $O_q$ keeps \cfChestFloored{} of the \cfChestOwned{} owned chest cells against \cfCocoFloored{} of the \cfCocoOwned{} on COCO, and ownership survives both probe refits in \cfRefitGradeStableNih{} of \cfRefitGradeOwnedNih{} owned NIH cells against \cfRefitGradeStableCoco{} of \cfRefitGradeOwnedCoco{} on COCO (Table~\ref{tab:cf-refit}).
 
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/fig7_write_flow.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig7_write_flow.pdf}}
     \caption{\textbf{Where the write goes.} Bands join each written direction $d$ to the questions $q$ it moves, with width proportional to $F_{q,d}$, the mean over checkpoints of $\max(W_{q,d},0)$. The percentage is the own-question share $\sum_d F_{d,d}/\sum_{q,d} F_{q,d}$.}
     \label{fig:write-flow}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/fig3_example.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig3_example.pdf}}
     \caption{\textbf{Two images, six questions, three writes.} $P(\mathrm{yes})$ per question for an NIH radiograph (top) and a COCO image (bottom), clean and under the concept write and the strongest competing write ($\alpha=+0.25$, Qwen2.5-VL-7B). The shaded row is the written concept, absent from the image; the dashed line marks $P(\mathrm{yes})=0.5$.}
     \label{fig:example}
-\end{figure}
+\end{figure*}
 
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/fig4_write_matrices.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig4_write_matrices.pdf}}
     \caption{\textbf{Write matrices.} $W_{q,d}$, the mean change in $P(\mathrm{yes})$ of question $q$ (rows) under the write of direction $d$ (columns), for three checkpoints on NIH (top) and three on COCO (bottom). A corner mark flags owned concepts.}
     \label{fig:write-matrices}
-\end{figure}
+\end{figure*}
 
 \subsection{The write mechanism is intact on natural objects}
 \label{sec:coco}
@@ -59,12 +59,12 @@ Checkpoints that share a vision tower differ in what they own. Gemma~3 shares on
 
 A better chest representation does not supply the missing reader. The three checkpoints whose towers are trained on chest radiographs read and answer the findings best in the grid (median probe AUROC \cfSpecTowerProbeAuroc{} on NIH against \cfSpecRestProbeAuroc{} for the other NIH cells; median clean-answer AUROC \cfSpecTowerAnsAuroc{} against \cfSpecMedAnsAuroc{} and \cfSpecGenAnsAuroc{} for medically tuned and general checkpoints), yet they own \cfSpecTowerOwned{} of their \cfSpecTowerN{} chest cells, against \cfSpecMedOwned{} of \cfSpecMedN{} for medically tuned checkpoints on general towers and \cfSpecGenOwned{} of \cfSpecGenN{} for general checkpoints. Scale raises chest ownership within some families, from none at Qwen2.5-VL 3B and 7B to three NIH concepts at 72B and from three to five CheXpert concepts across Lingshu 7B and 32B, but answering alone does not produce it: InternVL3.5 answers every NIH question at every size while its chest writes stay within $\cfInternvlWqqMax$ of zero (Figure~\ref{fig:ladders}).
 
-\begin{figure}[t]
+\begin{figure*}[t]
     \centering
-    \resizebox{\textwidth}{!}{\includegraphics{figures/fig5_same_write.pdf}}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig5_same_write.pdf}}
     \caption{\textbf{Same write, different reader.} Ownership $O_q$ per concept on NIH, CheXpert, and COCO for Gemma~3 4B/12B/27B and MedGemma 4B/27B, whose probes and write vectors are identical across sizes within each family. Corner marks flag owned cells and hatching marks ceiling cells.}
     \label{fig:readers}
-\end{figure}
+\end{figure*}
 
 \subsection{Non-clinical attributes of the radiograph share the deficit}
 \label{sec:attributes}
