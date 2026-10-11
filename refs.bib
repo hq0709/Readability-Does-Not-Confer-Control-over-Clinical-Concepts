@@ -1,8 +1,9 @@
-@inproceedings{alain2017understanding,
-  title={Understanding Intermediate Layers Using Linear Classifier Probes},
-  author={Alain, Guillaume and Bengio, Yoshua},
-  booktitle={International Conference on Learning Representations Workshop},
-  year={2017}
+@misc{
+alain2017understanding,
+title={Understanding intermediate layers using linear classifier probes},
+author={Guillaume Alain and Yoshua Bengio},
+year={2017},
+url={https://openreview.net/forum?id=ryF7rTqgl}
 }
 
 @inproceedings{hewitt2019designing,
@@ -14,12 +15,19 @@
 }
 
 @article{belinkov2022probing,
-  title={Probing Classifiers: Promises, Shortcomings, and Advances},
-  author={Belinkov, Yonatan},
-  journal={Computational Linguistics},
-  volume={48},
-  number={1},
-  year={2022}
+    title = "Probing Classifiers: Promises, Shortcomings, and Advances",
+    author = "Belinkov, Yonatan",
+    journal = "Computational Linguistics",
+    volume = "48",
+    number = "1",
+    month = mar,
+    year = "2022",
+    address = "Cambridge, MA",
+    publisher = "MIT Press",
+    url = "https://aclanthology.org/2022.cl-1.7/",
+    doi = "10.1162/coli_a_00422",
+    pages = "207--219",
+    abstract = "Probing classifiers have emerged as one of the prominent methodologies for interpreting and analyzing deep neural network models of natural language processing. The basic idea is simple{---}a classifier is trained to predict some linguistic property from a model{'}s representations{---}and has been used to examine a wide variety of models and properties. However, recent studies have demonstrated various methodological limitations of this approach. This squib critically reviews the probing classifiers framework, highlighting their promises, shortcomings, and advances."
 }
 
 @inproceedings{ravichander2021probing,
@@ -55,10 +63,25 @@
 }
 
 @inproceedings{panickssery2024caa,
-  title={Steering {Llama 2} via Contrastive Activation Addition},
-  author={Panickssery, Nina and Gabrieli, Nick and Schulz, Julian and Tong, Meg and Hubinger, Evan and Turner, Alexander Matt},
-  booktitle={Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics},
-  year={2024}
+    title = "Steering Llama 2 via Contrastive Activation Addition",
+    author = "Rimsky, Nina  and
+      Gabrieli, Nick  and
+      Schulz, Julian  and
+      Tong, Meg  and
+      Hubinger, Evan  and
+      Turner, Alexander",
+    editor = "Ku, Lun-Wei  and
+      Martins, Andre  and
+      Srikumar, Vivek",
+    booktitle = "Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)",
+    month = aug,
+    year = "2024",
+    address = "Bangkok, Thailand",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2024.acl-long.828/",
+    doi = "10.18653/v1/2024.acl-long.828",
+    pages = "15504--15522",
+    abstract = "We introduce Contrastive Activation Addition (CAA), a method for steering language models by modifying their activations during forward passes. CAA computes ``steering vectors'' by averaging the difference in residual stream activations between pairs of positive and negative examples of a particular behavior, such as factual versus hallucinatory responses. During inference, these steering vectors are added at all token positions after the user{'}s prompt with either a positive or negative coefficient, allowing precise control over the degree of the targeted behavior. We evaluate CAA{'}s effectiveness on Llama 2 Chat using multiple-choice behavioral question datasets and open-ended generation tasks. We demonstrate that CAA significantly alters model behavior, is effective over and on top of traditional methods like finetuning and system prompt design, and minimally reduces capabilities. Moreover, we gain deeper insights into CAA{'}s mechanisms by employing various activation space interpretation methods. CAA accurately steers model outputs and sheds light on how high-level concepts are represented in Large Language Models (LLMs)."
 }
 
 @article{zhu2026lost,
@@ -90,18 +113,24 @@
 }
 
 @inproceedings{pahde2025navigating,
-  title={Navigating Neural Space: Revisiting Concept Activation Vectors to Overcome Directional Divergence},
-  author={Pahde, Frederik and Dreyer, Maximilian and Weber, Leander and Weckbecker, Moritz and Anders, Christopher J. and Wiegand, Thomas and Samek, Wojciech and Lapuschkin, Sebastian},
-  booktitle={International Conference on Learning Representations (ICLR)},
-  year={2025}
+ author = {Pahde, Frederik and Dreyer, Maximilian and Weckbecker, Moritz and Weber, Leander and Anders, Christopher J. and Wiegand, Thomas and Samek, Wojciech and Lapuschkin, Sebastian},
+ booktitle = {International Conference on Learning Representations},
+ editor = {Y. Yue and A. Garg and N. Peng and F. Sha and R. Yu},
+ pages = {53747--53790},
+ title = {Navigating Neural Space: Revisiting Concept Activation Vectors to Overcome Directional Divergence},
+ url = {https://proceedings.iclr.cc/paper_files/paper/2025/file/852870d56e20a22fcd52ea14523fb820-Paper-Conference.pdf},
+ volume = {2025},
+ year = {2025}
 }
 
-@inproceedings{park2024linear,
-  title={The Linear Representation Hypothesis and the Geometry of Large Language Models},
-  author={Park, Kiho and Choe, Yo Joong and Veitch, Victor},
-  booktitle={International Conference on Machine Learning (ICML)},
-  pages={39643--39666},
-  year={2024}
+@misc{park2024linear,
+      title={The Linear Representation Hypothesis and the Geometry of Large Language Models}, 
+      author={Kiho Park and Yo Joong Choe and Victor Veitch},
+      year={2024},
+      eprint={2311.03658},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2311.03658}, 
 }
 
 @inproceedings{wang2017chestxray,
@@ -127,34 +156,52 @@
 }
 
 @article{haufe2014interpretation,
-  title={On the interpretation of weight vectors of linear models in multivariate neuroimaging},
-  author={Haufe, Stefan and Meinecke, Frank and G{\"o}rgen, Kai and D{\"a}hne, Sven and Haynes, John-Dylan and Blankertz, Benjamin and Bie{\ss}mann, Felix},
-  journal={NeuroImage},
-  volume={87},
-  pages={96--110},
-  year={2014}
+title = {On the interpretation of weight vectors of linear models in multivariate neuroimaging},
+journal = {NeuroImage},
+volume = {87},
+pages = {96-110},
+year = {2014},
+issn = {1053-8119},
+doi = {https://doi.org/10.1016/j.neuroimage.2013.10.067},
+url = {https://www.sciencedirect.com/science/article/pii/S1053811913010914},
+author = {Stefan Haufe and Frank Meinecke and Kai Görgen and Sven Dähne and John-Dylan Haynes and Benjamin Blankertz and Felix Bießmann},
+keywords = {Neuroimaging, Multivariate, Univariate, fMRI, EEG, Forward/backward models, Generative/discriminative models, Encoding, Decoding, Activation patterns, Extraction filters, Interpretability, Regularization, Sparsity},
+abstract = {The increase in spatiotemporal resolution of neuroimaging devices is accompanied by a trend towards more powerful multivariate analysis methods. Often it is desired to interpret the outcome of these methods with respect to the cognitive processes under study. Here we discuss which methods allow for such interpretations, and provide guidelines for choosing an appropriate analysis for a given experimental goal: For a surgeon who needs to decide where to remove brain tissue it is most important to determine the origin of cognitive functions and associated neural processes. In contrast, when communicating with paralyzed or comatose patients via brain–computer interfaces, it is most important to accurately extract the neural processes specific to a certain mental state. These equally important but complementary objectives require different analysis methods. Determining the origin of neural processes in time or space from the parameters of a data-driven model requires what we call a forward model of the data; such a model explains how the measured data was generated from the neural sources. Examples are general linear models (GLMs). Methods for the extraction of neural information from data can be considered as backward models, as they attempt to reverse the data generating process. Examples are multivariate classifiers. Here we demonstrate that the parameters of forward models are neurophysiologically interpretable in the sense that significant nonzero weights are only observed at channels the activity of which is related to the brain process under study. In contrast, the interpretation of backward model parameters can lead to wrong conclusions regarding the spatial or temporal origin of the neural signals of interest, since significant nonzero weights may also be observed at channels the activity of which is statistically independent of the brain process under study. As a remedy for the linear case, we propose a procedure for transforming backward models into forward models. This procedure enables the neurophysiological interpretation of the parameters of linear backward models. We hope that this work raises awareness for an often encountered problem and provides a theoretical basis for conducting better interpretable multivariate neuroimaging analyses.}
 }
 
-@inproceedings{marks2024geometry,
-  title={The Geometry of Truth: Emergent Linear Structure in Large Language Model Representations of True/False Datasets},
-  author={Marks, Samuel and Tegmark, Max},
-  booktitle={First Conference on Language Modeling (COLM)},
-  year={2024}
+@inproceedings{
+marks2024geometry,
+title={The Geometry of Truth: Emergent Linear Structure in Large Language Model Representations of True/False Datasets},
+author={Samuel Marks and Max Tegmark},
+booktitle={First Conference on Language Modeling},
+year={2024},
+url={https://openreview.net/forum?id=aajyHYjjsk}
 }
 
-@inproceedings{kim2018tcav,
-  title={Interpretability Beyond Feature Attribution: Quantitative Testing with Concept Activation Vectors ({TCAV})},
-  author={Kim, Been and Wattenberg, Martin and Gilmer, Justin and Cai, Carrie and Wexler, James and Viegas, Fernanda and Sayres, Rory},
-  booktitle={International Conference on Machine Learning (ICML)},
-  pages={2668--2677},
-  year={2018}
+@InProceedings{kim2018tcav,
+  title = 	 {Interpretability Beyond Feature Attribution: Quantitative Testing with Concept Activation Vectors ({TCAV})},
+  author =       {Kim, Been and Wattenberg, Martin and Gilmer, Justin and Cai, Carrie and Wexler, James and Viegas, Fernanda and sayres, Rory},
+  booktitle = 	 {Proceedings of the 35th International Conference on Machine Learning},
+  pages = 	 {2668--2677},
+  year = 	 {2018},
+  editor = 	 {Dy, Jennifer and Krause, Andreas},
+  volume = 	 {80},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {10--15 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v80/kim18d/kim18d.pdf},
+  url = 	 {https://proceedings.mlr.press/v80/kim18d.html},
+  abstract = 	 {The interpretation of deep learning models is a challenge due to their size, complexity, and often opaque internal state. In addition, many systems, such as image classifiers, operate on low-level features rather than high-level concepts. To address these challenges, we introduce Concept Activation Vectors (CAVs), which provide an interpretation of a neural net’s internal state in terms of human-friendly concepts. The key idea is to view the high-dimensional internal state of a neural net as an aid, not an obstacle. We show how to use CAVs as part of a technique, Testing with CAVs (TCAV), that uses directional derivatives to quantify the degree to which a user-defined concept is important to a classification result–for example, how sensitive a prediction of “zebra” is to the presence of stripes. Using the domain of image classification as a testing ground, we describe how CAVs may be used to explore hypotheses and generate insights for a standard image classification network as well as a medical application.}
 }
 
-@article{zou2023representation,
-  title={Representation Engineering: A Top-Down Approach to {AI} Transparency},
-  author={Zou, Andy and Phan, Long and Chen, Sarah and Campbell, James and Guo, Phillip and Ren, Richard and Pan, Alexander and Yin, Xuwang and Mazeika, Mantas and Dombrowski, Ann-Kathrin and Goel, Shashwat and Li, Nathaniel and Byun, Michael J. and Wang, Zifan and Mallen, Alex and Basart, Steven and Koyejo, Sanmi and Song, Dawn and Fredrikson, Matt and Kolter, J. Zico and Hendrycks, Dan},
-  journal={arXiv preprint arXiv:2310.01405},
-  year={2023}
+@misc{zou2023representation,
+      title={Representation Engineering: A Top-Down Approach to AI Transparency}, 
+      author={Andy Zou and Long Phan and Sarah Chen and James Campbell and Phillip Guo and Richard Ren and Alexander Pan and Xuwang Yin and Mantas Mazeika and Ann-Kathrin Dombrowski and Shashwat Goel and Nathaniel Li and Michael J. Byun and Zifan Wang and Alex Mallen and Steven Basart and Sanmi Koyejo and Dawn Song and Matt Fredrikson and J. Zico Kolter and Dan Hendrycks},
+      year={2025},
+      eprint={2310.01405},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2310.01405}, 
 }
 
 @inproceedings{belrose2023leace,
