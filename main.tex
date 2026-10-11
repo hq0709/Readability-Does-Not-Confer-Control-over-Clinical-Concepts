@@ -32,6 +32,20 @@
 
 \emergencystretch=1em  % absorbs the last 0.6pt overfull line in a bibliography entry
 
+% Float placement. The ownership tables are 59% of the text height each, and the defaults let a
+% two-column float page be only half full, so each of them took a page of its own with the rest
+% blank. Raising the float-page threshold above their size forces them onto text pages, and raising
+% dbltopfraction lets a float that large sit at the top of one.
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\dbltopfraction}{0.92}
+\renewcommand{\dblfloatpagefraction}{0.85}
+\setcounter{topnumber}{3}
+\setcounter{dbltopnumber}{3}
+\setcounter{totalnumber}{4}
+
 \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{5pt}
 \setlength{\belowcaptionskip}{0pt}

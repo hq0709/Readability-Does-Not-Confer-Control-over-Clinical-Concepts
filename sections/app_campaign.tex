@@ -48,7 +48,10 @@ Tables~\ref{tab:cf-own-nih}--\ref{tab:cf-own-coco} report the ownership contrast
 
 \input{tables/table_cf_own}
 
-\FloatBarrier
+% No \FloatBarrier here. The three ownership tables are 59% of the text height each, and a
+% barrier two paragraphs after they are declared gave LaTeX nothing to set beside them, so each
+% took a page of its own with the rest blank. Without it they settle at the tops of the following
+% appendix pages, which have text to fill the rest.
 
 Across the three tables, \cfChestOwned{} of the \cfChestCellsN{} chest cells are owned and most chest contrasts are negative, against \cfCocoOwned{} of the \cfCocoOwnedN{} COCO cells for the same checkpoints under the same procedure. Figure~\ref{fig:cf-w-structure} summarises the write matrices behind these contrasts (Appendix~\ref{app:cf-figures}), and Figure~\ref{fig:cf-examples} shows the grades on single images (Appendix~\ref{app:cf-examples}).
 
