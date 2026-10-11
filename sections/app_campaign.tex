@@ -19,7 +19,7 @@ This appendix lists the checkpoints and their consumed sites, the acceptance dec
 \begin{figure*}[t]
     \centering
     \resizebox{\linewidth}{!}{\includegraphics{figures/fig6_ladders.pdf}}
-    \caption{\textbf{Size ladders.} Ownership $O_q$ per concept across sizes for Qwen2.5-VL and Qwen3-VL on NIH and Lingshu on CheXpert. Solid lines mark the concept with the largest ownership at the largest size (Atelectasis, Nodule, Edema), filled markers owned cells; vertical scales differ by panel.}
+    \caption{\textbf{Size ladders.} Ownership $O_q$ per concept across sizes for Qwen2.5-VL and Qwen3-VL on NIH and Lingshu on CheXpert. Solid lines mark the concept with the largest ownership at the largest size (Atelectasis, Nodule, Edema), filled markers owned cells. All three panels share one vertical scale, so the rise in (a) and the much smaller changes in (b) and (c) are directly comparable.}
     \label{fig:ladders}
 \end{figure*}
 
@@ -51,6 +51,13 @@ Tables~\ref{tab:cf-own-nih}--\ref{tab:cf-own-coco} report the ownership contrast
 \FloatBarrier
 
 Across the three tables, \cfChestOwned{} of the \cfChestCellsN{} chest cells are owned and most chest contrasts are negative, against \cfCocoOwned{} of the \cfCocoOwnedN{} COCO cells for the same checkpoints under the same procedure. Figure~\ref{fig:cf-w-structure} summarises the write matrices behind these contrasts (Appendix~\ref{app:cf-figures}), and Figure~\ref{fig:cf-examples} shows the grades on single images (Appendix~\ref{app:cf-examples}).
+
+\begin{figure}[t]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/figA3_rank.pdf}}
+    \caption{\textbf{Rank of each concept's own direction.} Cumulative share of cells whose own write ranks at or above a given position among the 120 compared effects: its own direction, the 119 random directions, and the five competing clinical directions. The key gives the share that ranks first.}
+    \label{fig:rank}
+\end{figure}
 
 \subsection{What each analysis scores its writes against}
 \label{app:cf-ledger}
@@ -114,6 +121,13 @@ Refitting the six directions on the radiologist labels, cross-fitted over patien
 \label{eq:label-size}
 \end{equation}
 The size-matched report refit also lies as far from the shipped direction as the radiologist refit (raw cosine \cfVfArmReportSubCos{} against \cfVfArmExpertCos{}).
+
+\begin{figure*}[t]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig5_same_write.pdf}}
+    \caption{\textbf{Same write, different reader.} Ownership $O_q$ per concept on NIH, CheXpert, and COCO for Gemma~3 4B/12B/27B and MedGemma 4B/27B, whose probes and write vectors are identical across sizes within each family. Corner marks flag owned cells and hatching marks ceiling cells.}
+    \label{fig:readers}
+\end{figure*}
 
 \subsection{The reader}
 \label{app:cf-reader}
@@ -225,10 +239,17 @@ both, easy partners only & 211/300 & 79/150 & $-0.432$ & $-0.008$ \\
 \end{tabular}}
 \end{table*}
 
+\begin{figure*}[t]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig4_write_matrices.pdf}}
+    \caption{\textbf{Write matrices.} $W_{q,d}$, the mean change in $P(\mathrm{yes})$ of question $q$ (rows) under the write of direction $d$ (columns), for three checkpoints on NIH (top) and three on COCO (bottom). A corner mark flags owned concepts.}
+    \label{fig:write-matrices}
+\end{figure*}
+
 \subsection{Write structure across the grid}
 \label{app:cf-figures}
 
-Figure~\ref{fig:cf-w-structure} summarises the $6\times6$ write matrices across all completed checkpoints as the cell-wise median matrix for each dataset. Figure~\ref{fig:write-flow} reads the same matrices as flow, with band width proportional to $F_{q,d}$, the mean over checkpoints of $\max(W_{q,d},0)$. The own-question share of that flow is
+Figure~\ref{fig:write-flow} shows the $6\times6$ write matrices across all completed checkpoints twice: as flow in (a)--(c), with band width proportional to $F_{q,d}$, the mean over checkpoints of $\max(W_{q,d},0)$. The own-question share of that flow is
 \begin{equation}
 \begin{aligned}
 \frac{\sum_d F_{d,d}}{\sum_{q,d}F_{q,d}}&=\cfOwnShareNih\%\ \text{(NIH)},\\
@@ -241,8 +262,9 @@ It pools positive changes over checkpoints, whereas the column selectivity $\kap
 
 \begin{figure*}[t]
     \centering
-    \resizebox{\linewidth}{!}{\includegraphics{figures/figA1_write_structure.pdf}}
-    \caption{\textbf{Write structure across the grid.} Cell-wise median of the write matrix $W_{q,d}$ over completed checkpoints on NIH ChestX-ray14, CheXpert Plus, and COCO. Figure~\ref{fig:write-flow} reads the same matrices as flow.}
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig7_write_flow.pdf}}
+    \caption{\textbf{Where the write goes, and the matrix it comes from.} (a)--(c) Bands join each written direction $d$ to the questions $q$ it moves, with width proportional to $F_{q,d}$, the mean over checkpoints of $\max(W_{q,d},0)$; the percentage is the own-question share $\sum_d F_{d,d}/\sum_{q,d} F_{q,d}$. (d)--(f) The same checkpoints as the cell-wise median of $W_{q,d}$, which keeps the sign the flow discards.}
+    \label{fig:write-flow}
     \label{fig:cf-w-structure}
 \end{figure*}
 

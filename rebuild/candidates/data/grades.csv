@@ -1,0 +1,10 @@
+dataset,grade,numerator,denominator
+nih,readable,135,150
+nih,answerable,143,150
+nih,owned,16,150
+chexpert,readable,121,150
+chexpert,answerable,114,150
+chexpert,owned,28,150
+coco,readable,118,150
+coco,answerable,121,150
+coco,owned,117,150
