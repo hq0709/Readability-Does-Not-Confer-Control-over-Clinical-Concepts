@@ -1,27 +1,27 @@
-\section{Reading, Answering, and Writing at the Selected Vision Layer}
+\section{Method: Measuring Ownership}
 \label{sec:framework}
 
-We ask three questions about a concept $c$ in a checkpoint $M$ on a dataset with binary labels: whether $c$ is readable from the visual representation the language model consumes, whether $M$ answers the question about $c$, and whether writing $c$'s own direction moves $c$'s answer more than any alternative. A registered protocol fixes an estimator and a decision rule for each question (Appendix~\ref{app:cf-labels}).
+RAW asks three questions about a concept $c$ in a checkpoint $M$ on a dataset with binary labels: whether $c$ is readable from the visual representation the language model consumes, whether $M$ answers the question about $c$, and whether writing $c$'s own direction moves $c$'s answer more than any alternative. A registered protocol fixes an estimator and a decision rule for each question (Appendix~\ref{app:cf-labels}).
 
-\subsection{Selected vision layer and matched read--write positions}
+\subsection{Reading and writing at the selected vision layer}
 \label{sec:site}
 
-Every VLM in the grid passes an image through a vision tower and hands a specific tensor to a connector or merger that produces the language model's inputs. The \emph{selected vision layer} is the last visual block whose output that consumer reads, restricted to the token positions the consumer actually uses (CLS or padding rows are excluded where the consumer drops them); the \emph{connector site} is the consumer's output. Appendix~\ref{app:repro-sites} identifies the block for every family. For image $i$ and consumed token $t$, let $\hvec_{it}\in\R^D$ be the output of the selected vision layer, where $D$ is the tower's hidden width; mean pooling over the consumed tokens gives the read vector $\hvec_i$. A write adds the unit direction $\hat\wvec_c$ of concept $c$ (Section~\ref{sec:directions}) to the same tokens,
+Every VLM in the grid passes an image through a vision tower and hands a specific tensor to a connector or merger that produces the language model's inputs. The \emph{selected vision layer} is the last visual block whose output that consumer reads, restricted to the token positions the consumer actually uses (CLS or padding rows are excluded where the consumer drops them). The \emph{connector site} is the consumer's output. Appendix~\ref{app:repro-sites} identifies the block for every family. For image $i$ and consumed token $t$, let $\hvec_{it}\in\R^D$ be the output of the selected vision layer, where $D$ is the tower's hidden width; mean pooling over the consumed tokens gives the read vector $\hvec_i$. A write adds the unit direction $\hat\wvec_c$ of concept $c$ (Section~\ref{sec:directions}) to the same tokens,
 \begin{equation}
 \hvec'_{it}=\hvec_{it}+\alpha\,\lVert\hvec_{it}\rVert_2\,\hat\wvec_c,
 \label{eq:intervention}
 \end{equation}
-so that the steering strength $\alpha$ is a fraction of each token's own norm, comparable across families whose activation scales differ by orders of magnitude, and its sign selects the concept's positive or negative pole. Reading and writing therefore use the same representation and the same positions. The connector and the language model, everything downstream of the selected vision layer, form the \emph{reader} of that representation.
+where the steering strength $\alpha$ is a fraction of each token's own norm. Scaling by the norm keeps $\alpha$ comparable across families whose activation scales differ by orders of magnitude, and the sign of $\alpha$ selects the concept's positive or negative pole. Reading and writing therefore use the same representation and the same positions. The connector and the language model, everything downstream of the selected vision layer, form the \emph{reader} of that representation.
 
-\subsection{Directions, controls, and the reference family}
+\subsection{Label directions and controls}
 \label{sec:directions}
 
-Each concept is read by a linear probe on a shared 512-dimensional view of the representation. A fixed Gaussian matrix $R\in\R^{D\times512}$ maps the read vector to features $\boldsymbol x_i=R^{\top}\hvec_i$, which are standardised with training-row means and scales $\boldsymbol s$; an $\ell_2$-regularised logistic regression with coefficient vector $\boldsymbol\beta_c$ then scores concept $c$ (inverse regularisation strength 1, 2{,}000 iterations, three fit seeds). The probe's logit is thus an affine function of $\hvec_i$ whose gradient is $R\,\mathrm{diag}(\boldsymbol s)^{-1}\boldsymbol\beta_c$, and the write direction is that gradient at unit length,
+The probe that reads a concept also supplies the direction that writes it. Each concept is read by a linear probe on a shared 512-dimensional view of the representation. A fixed Gaussian matrix $R\in\R^{D\times512}$ maps the read vector to features $\boldsymbol x_i=R^{\top}\hvec_i$, which are standardized with training-row means and scales $\boldsymbol s$. An $\ell_2$-regularized logistic regression with coefficient vector $\boldsymbol\beta_c$ then scores concept $c$. The regression uses inverse regularization strength $C=1$ and at most 2{,}000 iterations, and is fitted with three seeds. The probe's logit is thus an affine function of $\hvec_i$ whose gradient is $R\,\mathrm{diag}(\boldsymbol s)^{-1}\boldsymbol\beta_c$, and the write direction is that gradient at unit length,
 \begin{equation}
 \hat\wvec_c=\frac{\boldsymbol g_c}{\lVert\boldsymbol g_c\rVert_2},\qquad \boldsymbol g_c=R\,\mathrm{diag}(\boldsymbol s)^{-1}\boldsymbol\beta_c .
 \label{eq:lift}
 \end{equation}
-It is the direction in the consumed representation along which the probe's evidence for $c$ grows fastest (Appendix~\ref{app:repro-probe} gives the numerical details). We call it the concept's \emph{label direction}, since it is fitted to the concept's labels.
+The vector $\hat\wvec_c$ is the direction in the consumed representation along which the probe's evidence for $c$ grows fastest (Appendix~\ref{app:repro-probe} gives the numerical details). We call it the concept's \emph{label direction}, since it is fitted to the concept's labels.
 
 Two families of controls bracket the label direction. For reading, 20 control probes are fitted to random labels drawn within recurring image types (view, sex, and age decade on chest sets; aspect and area buckets on COCO), so that they have the capacity and the nuisance structure of the concept probe. With $y$ the concept labels and $r$ the probe's scores on the calibration rows, and $y^{\mathrm{ctrl}}_k$ and $r^{\mathrm{ctrl}}_k$ the random labels and scores of control probe $k$, the probe's selectivity is
 \begin{equation}
@@ -33,25 +33,43 @@ S={}&\operatorname{AUROC}(y,r)\\
 \end{equation}
 which is positive when the probe reads its concept better than a probe of equal capacity reads an arbitrary label with the same nuisance structure. For writing, the \emph{reference family} contains 119 random unit directions, a coordinate-permutation sham of $\hat\wvec_c$ (same coordinates, scrambled arrangement), and the five label directions of the other clinical concepts, all written at the same steering strength to the same images.
 
-\subsection{Ownership}
+\subsection{The ownership margin}
 \label{sec:ownership}
 
-Each dataset has six concepts, and we index both the yes/no question about a concept and the direction fitted for it by that concept. For question $q$ and direction $d$, $W_{q,d}$ is the mean over test images of the change in $P(\mathrm{yes})$ for question $q$ when $\hat\wvec_d$ is written, each image scored with and without the write. Here $P(\mathrm{yes})=\sigma(\ell_{\mathrm{yes}}-\ell_{\mathrm{no}})$, where $\sigma$ is the logistic function and $\ell_{\mathrm{yes}}$ and $\ell_{\mathrm{no}}$ are the log-probabilities of the two answers at the first answer position, each the maximum over case and leading-space variants that tokenise to one token. Row $q$ of the $6\times6$ write matrix $W$ records how far each direction moves question $q$, and its diagonal entry $W_{q,q}$ is the concept's own write (Figure~\ref{fig:write-matrices}). Ownership is the diagonal margin
+Each dataset has six concepts, and we index both the yes/no question about a concept and the direction fitted for it by that concept. For question $q$ and direction $d$, $W_{q,d}$ is the mean over test images of the change in $P(\mathrm{yes})$ for question $q$ when $\hat\wvec_d$ is written, each image scored with and without the write. Here $P(\mathrm{yes})=\sigma(\ell_{\mathrm{yes}}-\ell_{\mathrm{no}})$, where $\sigma$ is the logistic function and $\ell_{\mathrm{yes}}$ and $\ell_{\mathrm{no}}$ are the log-probabilities of the two answers at the first answer position. (Appendix~\ref{app:protocol}). Row $q$ of the $6\times6$ write matrix $W$ records how far each direction moves question $q$, and its diagonal entry $W_{q,q}$ is the concept's own write (Figure~\ref{fig:write-matrices}). Ownership is the diagonal margin
 \begin{equation}
 O_q=W_{q,q}-\max_{d\neq q}W_{q,d},
 \label{eq:margin}
 \end{equation}
-the advantage of the concept's own direction over its strongest clinical competitor on the concept's own question. A large $W_{q,q}$ shows that the direction reaches the answer; only $O_q>0$ shows that the label names the effective direction. A concept can therefore fail ownership in two ways: its own write stays within the random and sham references, or the write clears them without holding its advantage over every competitor. Section~\ref{sec:headline} measures both. The case in Section~\ref{sec:introduction} is of the second kind.
+the advantage of the concept's own direction over its strongest clinical competitor on the concept's own question. A large $W_{q,q}$ shows that the direction reaches the answer; only $O_q>0$ shows that the label names the effective direction. A concept can therefore fail ownership in two ways: its own write stays within the random and sham references, or the write clears them without holding its advantage over every competitor. The case in Section~\ref{sec:introduction} is of the second kind.
+
+As a diagnostic, we also fit the unsteered answer margin $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$ by ridge regression on the training features and lift the coefficients with Equation~\ref{eq:lift}; the resulting \emph{answer direction} $a_q$, a control vector in the sense of \citet{zou2023representation}, is written and graded like a label direction.
 
 \subsection{Graded outcomes}
 \label{sec:grades}
 
-The readable and answerable grades are computed on the 400 calibration rows, which carry no write. The write matrix and every ownership quantity are computed on the 600 test rows, which share no patient with the calibration rows.
-\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
-\item \textbf{Readable:} $S>0$ on the calibration rows, with at least ten known positives and ten known negatives among those 400 rows.
-\item \textbf{Answerable:} the \emph{clean answer}, $P(\mathrm{yes})$ with no write, separates the concept's labels: its AUROC on the same calibration rows is above $0.5$, under the same ten-and-ten support rule.
-\item \textbf{Owned:} on the test rows, the write meets the \emph{steering reference} ($W_{q,q}>0$, above the 95th percentile of the 119 random writes, and above the sham's absolute effect) and $O_q>0$: the concept's own direction moves its own answer further than any of the five competitors does. A cell that meets the reference while some competitor moves the answer at least as far has a \emph{stronger competitor}.
-\end{itemize}
-A checkpoint--concept pair on one dataset is a \emph{cell}, and a checkpoint--dataset pair is a \emph{block}. A cell graded owned is said to be owned, and the checkpoint is said to own the concept; an alternative direction is owned in a cell when its write meets the same rule for that concept. A block contributes to the answerable and owned counts only when its write matrix and its calibration pass both completed. The grades are defined for one direction construction, one primary steering strength with a five-point sweep, six templates, pooled consumed-token features, and two sites, the selected vision layer and the connector output. Before a block is scored, seven acceptance checks on 16 held-out preflight rows confirm, at both sites, that scoring is deterministic, that $\alpha=0$ changes nothing, that the write reaches the answer and changes nothing outside the consumed tokens, and that every template maps its answers correctly without an image (Appendix~\ref{app:cf-gates}).
-\label{sec:gates}
+% Set in place, not floated, so the table sits beside the text that states the grades;
+% the gaps above and below are the template's in-text float separation (\intextsep).
+\par\vspace{\intextsep}\noindent\begin{minipage}{\linewidth}
+\makeatletter\def\@captype{table}\makeatother
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\caption{\textbf{The three RAW grades.} The data each grade is computed on and the condition under which a concept passes it.}
+\label{tab:grades}
+\fitwidth{%
+\begin{tabular}{@{}l l l@{}}
+\toprule
+Grade & Rows & Passes when \\
+\midrule
+Readable & calibration & $S>0$ (Eq.~\ref{eq:selectivity}) \\
+Answerable & calibration & clean-answer AUROC $>0.5$ \\
+Owned & test & steering reference met and $O_q>0$ \\
+\bottomrule
+\end{tabular}}
+\end{minipage}\par\vspace{\intextsep}
 
+Table~\ref{tab:grades} states the three grades. Readable and answerable are computed on the calibration rows, which carry no write, and need at least ten known positives and ten known negatives there; the write matrix and every ownership quantity are computed on the test rows, which share no patient with the calibration rows. The \emph{clean answer} is $P(\mathrm{yes})$ with no write. The \emph{steering reference} requires $W_{q,q}>0$, above the 95th percentile of the 119 random writes and above the sham's absolute effect. Together with $O_q>0$, it means that the concept's own direction moves its own answer further than any of the five competitors does. A cell that meets the reference while some competitor moves the answer at least as far has a \emph{stronger competitor}.
+
+A checkpoint--concept pair on one dataset is a \emph{cell}, and a checkpoint--dataset pair is a \emph{block}. An alternative direction is owned in a cell when its write meets the same rule for that concept. A block contributes to the answerable and owned counts only when its write matrix and its calibration pass both completed. Seven acceptance checks validate every block before scoring (Appendix~\ref{app:cf-gates}).
+\label{sec:gates}

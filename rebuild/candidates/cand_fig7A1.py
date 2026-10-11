@@ -69,7 +69,7 @@ def main():
     # (a)-(c): the flow, at the top
     FLOW.flow_panels(f, FW, FH, y0=FH - 0.30 - flow_h, PH=flow_h, PW=1.72 * K, xl=0.10 * K, letters="abc")
     f.text(0.5, (FH - 0.30 - flow_h - 0.22) / FH,
-           "coloured: the write lands on the question it names;   grey: it lands on another question",
+           "colored: the write lands on the question it names;   gray: it lands on another question",
            ha="center", va="center", fontsize=7, color=fs.INK)
 
     # (d)-(f): the same aggregate as a matrix, underneath

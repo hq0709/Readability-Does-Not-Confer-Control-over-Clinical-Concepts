@@ -1,7 +1,7 @@
 \PassOptionsToPackage{table}{xcolor}
 \documentclass[11pt]{article}
 
-% ACL Rolling Review. "review" anonymises, numbers the lines and the pages;
+% ACL Rolling Review. "review" anonymizes, numbers the lines and the pages;
 % switch to "preprint" for a named arXiv posting and to "final" for camera-ready.
 \usepackage[review]{acl}
 
@@ -15,9 +15,10 @@
 \usepackage{graphicx}
 \usepackage[export]{adjustbox}  % max width: shrink a wide table to the line, never magnify a narrow one
 \usepackage{booktabs}
-\usepackage{multirow}   % header labels that span both rows of a two-row header, so they centre vertically
+\usepackage{multirow}   % header labels that span both rows of a two-row header, so they center vertically
 \usepackage{float}
 \usepackage{placeins}
+\usepackage{stfloats}  % lets a spanning float sit at the bottom of a page ([b]), not only the top
 \usepackage{longtable}
 \usepackage{enumitem}
 \usepackage{amsmath}
@@ -50,7 +51,7 @@
 \setlength{\abovecaptionskip}{5pt}
 \setlength{\belowcaptionskip}{0pt}
 
-\title{Readability Does Not Confer Control over Clinical Concepts}
+\title{Is Decodability Enough? Rethinking Concept-Level Control\\ in Medical Vision-Language Models}
 
 \author{%
   Hanqi Jiang\thanks{\ Equal contribution.}$^{1,2}$ \quad

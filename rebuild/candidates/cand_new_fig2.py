@@ -187,5 +187,26 @@ def cand_E():
     plt.close(f)
 
 
+def cand_F():
+    """Figure 2 after the grade counts moved to the teaser (Figure 1): the margin distribution and the dose
+    response side by side, one row at the spanning width."""
+    d, g = _load()
+    aclsize.use()
+    f = plt.figure(figsize=(fs.WIDTH, 2.05), layout="constrained")
+    f.get_layout_engine().set(w_pad=0.05, h_pad=0.04, wspace=0.08)
+    ax_a, ax_b = f.subplots(1, 2, gridspec_kw=dict(width_ratios=[1.0, 1.0]))
+    raincloud(ax_a, d)
+    ax_a.set_title("(a)  how far from the boundary", fontsize=9, pad=5)
+    F.panel_c(ax_b)
+    ax_b.set_title("(b)  dose response", fontsize=9, pad=5)
+    ax_b.set_xlabel(r"steering strength $\alpha$"); ax_b.set_ylabel("ownership $O$")
+    # the dose sweep ran on NIH and COCO only, so the key names those two
+    ax_b.legend(handles=[Line2D([], [], color=COL[ds], marker=MK[ds], ms=5, mec="white", lw=1.5, label=SHORT[ds])
+                         for ds in ("coco", "nih")], loc="upper left", fontsize=7, handlelength=1.6)
+    qa.run(f, "fig2-F")
+    aclsize.save(f, "fig2-F-row"); plt.close(f)
+
+
 if __name__ == "__main__":
-    cand_D(); cand_E()
+    import sys
+    {"D": cand_D, "E": cand_E, "F": cand_F}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda: (cand_D(), cand_E()))()

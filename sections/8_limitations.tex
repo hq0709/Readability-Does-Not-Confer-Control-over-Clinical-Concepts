@@ -1,11 +1,7 @@
 \section*{Limitations}
-What the paper measures bounds what it reports. The write test needs activation access, so it grades
-open-weight checkpoints: the \cfCheckpoints{} here span \cfFamiliesWord{} families and 3B to 72B, and no
-API-served model is in the campaign. Chest radiography is the only medical modality; COCO is the
-natural-image control, and the gap between them is measured on these two pools, not on CT, pathology, or
-dermatology. The write is one form, a rank-one additive edit at the consumed visual block over a steering
-strength grid. Edits of a different form -- attention-head writes, weight edits, prompt-level
-interventions -- are not graded here, and the paper's claim is about this write at this site. Answers are
-binary and read at a single answer position, so the grades describe yes/no questions rather than generated
-report text. Labels come from the reports, with a radiologist-consensus re-grade of six directions on
-\cfValidRows{} films as the check on that label source (Appendix~\ref{app:campaign}).
+\label{sec:limitations}
+RAW grades open-weight checkpoints, since the write needs activation access: the \cfCheckpoints{} checkpoints span \cfFamiliesWord{} families from 3B to 72B, and API-served models are outside the campaign. The medical modality is chest radiography, with COCO as the natural-image control; CT, pathology, and dermatology remain to be graded. The write is a rank-one additive edit at two sites, the selected vision layer and the connector output, over a grid of steering strengths. Deeper language-model layers, attention-head writes, weight edits, and prompt-level interventions may behave differently. Each dataset contributes six concepts, and the chest labels come from reports, with a radiologist-consensus re-grade on \cfValidRows{} CheXpert films as the check on that label source (Appendix~\ref{app:cf-robustness}).
+
+The grade needs a discrete answer read at one answer position, so it covers yes/no questions and leaves generated report text ungraded. MAIRA-2 \citep{bannur2024maira} emits reports rather than answers and fails the image-free mapping check on every template (Appendix~\ref{app:cf-gates}), and the discrete-diffusion report generator of \citet{chen2026echo} has the same shape.
+
+Ownership grades the write comparison rather than effect size: on the four semantic endpoints, adding the ownership contrast to write magnitude, probe selectivity, and clean-answer AUROC adds no held-out predictive value beyond a permutation null ($p=\cfSemCvLocoP$ and $p=\cfSemCvLoboP$ under the concept and block splits; Appendix~\ref{app:cf-ansdir}). The answer direction is fitted to the model's own clean answers and is a handle on that answer; against the report label its median AUROC is $\cfValAurocAnsChest$, against $\cfValAurocProbeChest$ for the probe.

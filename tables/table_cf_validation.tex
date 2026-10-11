@@ -1,7 +1,7 @@
 \begin{table*}[tp]
 \centering
 \setlength{\tabcolsep}{4pt}
-\caption{\textbf{The answer direction and column selectivity.} Top: per block, medians over the six questions of the AUROCs, the Pearson correlation, and the raw and whitened cosines between $a_q$ and $\hat w_q$. Bottom: column selectivity $\kappa_d=W_{d,d}/\sum_q|W_{q,d}|$ per dataset, and ownership on the rows whose label for $q$ is known.}
+\caption{\textbf{The answer direction and column selectivity.} Top: per block, medians over the six questions of the AUROCs, the Pearson correlation, and the raw and whitened cosines between $a_q$ and $\hat w_q$. Bottom: per dataset, column selectivity $\kappa_d=W_{d,d}/\sum_q|W_{q,d}|$ and ownership on the rows whose label for $q$ is known.}
 \label{tab:cf-validation}
 \fitwidth{%
 \begin{tabular}{llrrrrrrr}
@@ -20,7 +20,7 @@ Gemma 3 12B & NIH ChestX-ray14 & 0.59 & 0.65 & 0.72 & 0.61 & 0.31 & 0.18 & 0.33 
 Gemma 3 12B & CheXpert Plus & 0.61 & 0.78 & 0.73 & 0.56 & 0.13 & 0.17 & 0.10 \\
 Gemma 3 12B & COCO & 0.93 & 0.96 & 0.80 & 0.76 & 0.81 & 0.59 & 0.79 \\
 \midrule
-\multicolumn{9}{p{1.314\linewidth}}{\textit{Alignment against ownership over the 54 answer-direction cells: Spearman correlation between $\cos_\Sigma(a_q,\hat w_q)$ and the label direction's $O_q$ $\rho=0.75$ ($p=8\times10^{-11}$); with the label direction's owned indicator $\rho=0.74$ ($p=1\times10^{-10}$); median $\cos_\Sigma$ 0.80 in owned against 0.34 in not-owned cells; within the chest sets alone $\rho=0.59$ ($p=2\times10^{-4}$, 36 cells).}} \\
+\multicolumn{9}{p{1.314\linewidth}}{\textit{Alignment against ownership over the 54 answer-direction cells. The Spearman correlation of $\cos_\Sigma(a_q,\hat w_q)$ with the label direction's $O_q$ is $\rho=0.75$ ($p=8\times10^{-11}$), and with its owned indicator $\rho=0.74$ ($p=1\times10^{-10}$). Median $\cos_\Sigma$ is 0.80 in owned and 0.34 in not-owned cells; within the chest sets alone, $\rho=0.59$ ($p=2\times10^{-4}$, 36 cells).}} \\
 \midrule
 \multicolumn{9}{l}{\textit{Column selectivity and known-label ownership, per dataset}} \\
 Dataset & blocks & cells & med.\ $\kappa_d$ & $\kappa_d\geq0.5$ & known rows & sign kept & owned kept & \\
