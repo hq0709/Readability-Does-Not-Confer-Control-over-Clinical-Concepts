@@ -1,9 +1,10 @@
 \begin{table*}[tp]
 \centering
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \caption{\textbf{The answer direction.} Top, primary template: concepts owned by the label direction $\hat w_q$ and by the answer direction $a_q$, split into kept, rescued, and lost, with medians over the six questions. Bottom: concepts owned by $a_q$ under each held-out template, with those also owned under IY in parentheses, and the kept (concept, template) pairs.}
 \label{tab:cf-ansdir}
 \fitwidth{%
+\cftabsize
 \begin{tabular}{llrrrrrrrrrr}
 \toprule
 \multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{5}{c}{owned concepts} & \multirow{2}{*}{$a_q>$ comp.} & \multicolumn{4}{c}{median}\\
@@ -29,6 +30,7 @@ COCO & 3 blocks & 18/18 & 18/18 & 18 & 0 & 0 & 18/18 & 0.61 & 0.61 & 0.81 & 0.54
 
 \medskip
 \fitwidth{%
+\cftabsize
 \begin{tabular}{llrrrrrr}
 \toprule
 \multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Dataset} & \multicolumn{5}{c}{held-out template: owned (IY-owned kept)} & \multirow{2}{*}{kept pairs}\\

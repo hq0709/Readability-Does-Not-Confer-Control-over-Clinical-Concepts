@@ -283,7 +283,7 @@ def main():
     (t1, r1), (t2, r2), (t3, r3), (t4, r4) = panels
     for ds, D, i in (("nih", "Nih", 0), ("chexpert", "Chex", 1), ("coco", "Coco", 2)):
         for fam, F in (("logistic normal", "Logistic"), ("difference of means", "Dom"), ("Haufe pattern", "Pattern"),
-                       ("orthogonalised normal", "Orth"), ("residualised normal", "Resid"), ("owned under at least one", "Any")):
+                       ("orthogonalized normal", "Orth"), ("residualized normal", "Resid"), ("owned under at least one", "Any")):
             expect(f"cfAltdir{D}{F}/N", (M[f"cfAltdir{D}{F}"], M[f"cfAltdir{D}N"]), r1[fam][i])
     chest_pct = [round_half_up(100 * a / n) for fam in list(r1)[:5] for (a, n) in r1[fam][:2]]
     coco_pct = [round_half_up(100 * a / n) for fam in list(r1)[:5] for (a, n) in r1[fam][2:3]]
@@ -563,7 +563,7 @@ def main():
            M["cfFgEasySameBlocks"], M["cfFgBlocks"])
     expect("cfFgSameSignP present in the paired line of Table cf-fgobj",
            bool(re.search(r"sign test \$p=" + re.escape(str(M["cfFgSameSignP"])) + r"\$", fg)), True)
-    # the matched panel carries TWO labelled estimators per matching, each with its own interval
+    # the matched panel carries TWO labeled estimators per matching, each with its own interval
     mt = {}
     for m in re.finditer(
             r"^(probe selectivity alone|clean-answer AUROC alone|both variables|both variables, easy partners only) & "
@@ -694,13 +694,13 @@ def main():
     va = (ROOT / "tables" / "table_cf_valid.tex").read_text()
     arm_rows = {m.group(1) + "|" + m.group(2): m.groups() for m in re.finditer(
         r"^(radiologist|report-derived) & (200 valid films|the same 200 valid films|200 training rows|"
-        r"200 labelled training rows|every training row) & (\d+) & ([\d.]+) & ([\d.]+) & (-?[\d.]+) & (-?[\d.]+) \\\\$",
+        r"200 labeled training rows|every training row) & (\d+) & ([\d.]+) & ([\d.]+) & (-?[\d.]+) & (-?[\d.]+) \\\\$",
         va, flags=re.M)}
     expect("the refit-arms panel has five arms", len(arm_rows), 5)
     for key, K in (("radiologist|200 valid films", "Expert"),
                    ("report-derived|the same 200 valid films", "ReportSameFilms"),
                    ("report-derived|200 training rows", "ReportSubCohort"),
-                   ("report-derived|200 labelled training rows", "ReportSub"),
+                   ("report-derived|200 labeled training rows", "ReportSub"),
                    ("report-derived|every training row", "ReportFull")):
         row = arm_rows[key]
         expect(f"cfVfArm{K} rows / AUROC against both label sets / the two cosines",

@@ -1,10 +1,11 @@
 \begin{table*}[tp]
 \centering
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \input{tables/cf_colors}
 \caption{\textbf{Pilot replication on 600 new patients.} Qwen2.5-VL-7B on NIH ChestX-ray14, one row per concept. Columns include the concept write $W_{q,q}$, the random 95th percentile (p95), the absolute sham, and its rank among its own and the 119 random writes; blue shading marks a negative ownership contrast.}
 \label{tab:cf-seed}
 \fitwidth{%
+\cftabsize
 \begin{tabular}{lrrrrrrrll}
 \toprule
 Concept & \multicolumn{1}{c}{$S$} & \multicolumn{1}{c}{AUROC} & \multicolumn{1}{c}{$W_{q,q}$} & \multicolumn{1}{c}{p95} & \multicolumn{1}{c}{$|$sham$|$} & \multicolumn{1}{c}{rank} & \multicolumn{1}{c}{$O_q$} & Competitor & Verdict\\

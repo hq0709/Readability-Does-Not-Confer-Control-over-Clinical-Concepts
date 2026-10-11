@@ -5,7 +5,7 @@ the artefact -- rerunning a builder undoes it, which is why it is one command ra
 
 It does four things:
 
-  shell      one float policy, one column separation, and \\fitwidth everywhere. \\fitwidth shrinks a table
+  shell      one float policy, one column separation, one type size, and \\fitwidth everywhere. \\fitwidth shrinks a table
              wider than the line and leaves a narrower one alone; a bare \\resizebox magnifies a narrow
              table above body size, which is what made the tables look set at different sizes. Every live
              table spans both columns: measured against the ACL column the narrowest is 1.55 times too
@@ -66,12 +66,14 @@ def shell(name: str) -> None:
     where = "[t]" if name in BODY else "[tp]"
     s = re.sub(r"\\begin\{table\*?\}(\[[^\]]*\])?", "\\\\begin{table*}" + where, s)
     s = s.replace("\\end{table}", "\\end{table*}")
-    s = re.sub(r"\\setlength\{\\tabcolsep\}\{[0-9.]+pt\}", r"\\setlength{\\tabcolsep}{4pt}", s)
+    s = re.sub(r"\\setlength\{\\tabcolsep\}\{[0-9.]+pt\}", r"\\setlength{\\tabcolsep}{3pt}", s)
     if "tabcolsep" not in s:
-        s = s.replace("\\centering\n", "\\centering\n\\setlength{\\tabcolsep}{4pt}\n", 1)
+        s = s.replace("\\centering\n", "\\centering\n\\setlength{\\tabcolsep}{3pt}\n", 1)
     for raw in (r"\resizebox{\linewidth}{!}{%", r"\resizebox{\textwidth}{!}{%",
                 r"\adjustbox{max width=\linewidth}{%"):
         s = s.replace(raw, "\\fitwidth{%")
+    # the size goes inside \fitwidth, which is a group, so it reaches the tabular and not the caption
+    s = s.replace("\\fitwidth{%\n", "\\fitwidth{%\n\\cftabsize\n")
     p.write_text(s)
 
 

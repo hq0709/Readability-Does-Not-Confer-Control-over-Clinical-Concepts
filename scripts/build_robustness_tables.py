@@ -165,7 +165,7 @@ def included_summaries(key=None):
              if (sp.parent / "run.json").exists() and ci.block_included(json.loads((sp.parent / "run.json").read_text()))]
     return [(sp, json.loads(sp.read_text())) for sp in sorted(paths, key=key)]
 
-FAM_LABEL = {"logistic": "logistic normal", "dom": "difference of means", "pattern": "Haufe pattern", "orth": "orthogonalised normal", "resid": "residualised normal"}
+FAM_LABEL = {"logistic": "logistic normal", "dom": "difference of means", "pattern": "Haufe pattern", "orth": "orthogonalized normal", "resid": "residualized normal"}
 
 
 
@@ -186,14 +186,14 @@ def _ckpt_key(block: str):
 
 
 def valid():
-    """VALID: the full grade on the radiologist-labelled CheXpert valid rows against the labeler-labelled test grade, per block
+    """VALID: the full grade on the radiologist-labeled CheXpert valid rows against the labeler-labeled test grade, per block
     (runs/robustness/round2.json valid section)."""
     V = _r2()["valid"]; a = V["aggregate"]
     rows_txt = "/".join(str(n) for n in a["valid_rows"])
     L = [r"\begin{table}[h]", r"\centering", r"\setlength{\tabcolsep}{4pt}",
          r"\caption{\textbf{Radiologist labels.} Top: the complete grade per CheXpert block on "
          + rows_txt + r" "
-         r"radiologist-labelled films, against the same grade on the 600 labeler-labelled test rows. Bottom: the six directions "
+         r"radiologist-labeled films, against the same grade on the 600 labeler-labeled test rows. Bottom: the six directions "
          r"refitted on the radiologist labels.}",
          r"\label{tab:cf-valid}",
          r"\fitwidth{%", r"\begin{tabular}{lrrrrr}", r"\toprule",
@@ -212,14 +212,14 @@ def valid():
 ARM_ROW = (("expert_valid200", "radiologist", "200 valid films"),
            ("report_valid200", "report-derived", "the same 200 valid films"),
            ("report_train_sub", "report-derived", "200 training rows"),
-           ("report_train_sub_known", "report-derived", "200 labelled training rows"),
+           ("report_train_sub_known", "report-derived", "200 labeled training rows"),
            ("report_train_full", "report-derived", "every training row"))
 
 
 def validfit_arms_panel():
     """VALIDFIT arms: the label source of a direction separated from the number of rows it was estimated on
     (runs/robustness/validfit.json, scripts/mayo/robustness_validfit.py). This is the lower panel of Table cf-valid:
-    both report the radiologist-labelled cohort, so the paper gives them one number and one caption."""
+    both report the radiologist-labeled cohort, so the paper gives them one number and one caption."""
     V = r3.validfit_arms()
     A = V["aggregate"]["per_arm"]
     m = V["meta"]
@@ -227,13 +227,13 @@ def validfit_arms_panel():
     L = [r"\setlength{\tabcolsep}{4pt}",
          r"\fitwidth{%", r"\begin{tabular}{llrrrrr}", r"\toprule",
          r"\multicolumn{7}{p{1.357\linewidth}}{\textit{The label source of a refitted direction against the number of rows it was "
-         r"fitted on. The expert-label refit is estimated on " + str(b0["n_valid_rows"]) + r" radiologist-labelled films and the "
-         r"shipped direction on about " + f"{b0['n_train_rows']:,}".replace(",", "{,}") + r" report-labelled rows, so comparing "
+         r"fitted on. The expert-label refit is estimated on " + str(b0["n_valid_rows"]) + r" radiologist-labeled films and the "
+         r"shipped direction on about " + f"{b0['n_train_rows']:,}".replace(",", "{,}") + r" report-labeled rows, so comparing "
          r"only those two confounds the two. Every arm keeps the block's own projection, its stored train-only scaler, the "
          r"protocol's probe settings and the same " + str(m["folds"]) + r"-fold cross-fitting over patients, and is scored on the "
          r"same films by a direction not fitted on them. The two training subsample arms redraw the fitting rows "
          + str(m["draws"]) + r" times and report the median; the second draws enough rows to leave the concept with as many "
-         r"labelled rows as the expert refit has. Cosines are to the shipped direction. Medians over the "
+         r"labeled rows as the expert refit has. Cosines are to the shipped direction. Medians over the "
          + str(A["expert_valid200"]["cells"]) + r" cells of " + str(m["n_blocks"]) + r" CheXpert blocks.}} \\",
          r"\midrule",
          r" & & & \multicolumn{2}{c}{cross-fitted AUROC against} & \multicolumn{2}{c}{cosine to shipped} \\",
@@ -342,8 +342,8 @@ def constructions():
             ("logistic normal", "coefficient", cells(p1["logistic"])),
             ("difference of means", "coefficient", cells(p1["dom"])),
             ("Haufe pattern", "coefficient", cells(p1["pattern"])),
-            ("orthogonalised normal", "coefficient", cells(p1["orth"])),
-            ("residualised normal", "coefficient", cells(p1["resid"])),
+            ("orthogonalized normal", "coefficient", cells(p1["orth"])),
+            ("residualized normal", "coefficient", cells(p1["resid"])),
             ("owned under at least one", "", cells(any1, with_median=False))]),
         (f"Displacement lift ({_blocks_txt(b2)})", [
             ("logistic normal", "coefficient", cells(p2["logistic"])),

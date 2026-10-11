@@ -5,6 +5,13 @@
 \newcommand{\vvec}{\mathbf{v}}
 \newcommand{\DeltaEff}{\Delta_{\mathrm{Eff}}}
 \DeclareMathOperator*{\argmaxop}{arg\,max}
+% One type size for every table. \fitwidth only ever shrinks, so a table wider than the line was
+% set small and a narrow one was left at body size: across the paper the rendered table text ran from
+% 7.1 pt to 10.0 pt, and the three ownership tables sat at the top of that range. At 8 pt with 3 pt
+% column separation the widest table measures 453 pt against a 455 pt line, so no table is scaled at
+% all and they all print at the same size. 8 pt is the largest size for which that holds.
+\providecommand{\cftabsize}{\fontsize{8}{9.6}\selectfont}
+
 % Shrink a table to the line, and to the page when it is the height that does not fit --
 % table_cf_attr is 58 rows and overflowed a float page by 3.6pt once its width was fitted.
 % max width/max totalheight only ever shrink, so a narrow table is left at body size.

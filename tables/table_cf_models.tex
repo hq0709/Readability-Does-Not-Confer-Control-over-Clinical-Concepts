@@ -1,10 +1,11 @@
 \begin{table*}[tp]
 \centering
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \input{tables/cf_colors}
 \caption{\textbf{Checkpoints and families.} Checkpoint rows give the vision tower, consumed tokens per image, input size, eligible templates, and pinned Hugging Face revision. Bold family rows give mean selectivity and clean-answer AUROC over clinical cells, then the owned clinical and COCO cells, shaded by owned share.}
 \label{tab:cf-models}
 \fitwidth{%
+\cftabsize
 \begin{tabular}{llllll@{\hspace{8pt}}rrrr}
 \toprule
 \multirow{2}{*}{Checkpoint} & \multirow{2}{*}{Vision tower} & \multirow{2}{*}{Tokens} & \multirow{2}{*}{Image} & \multirow{2}{*}{Templates} & \multirow{2}{*}{Revision} & \multirow{2}{*}{$\bar S$} & \multirow{2}{*}{$\overline{\mathrm{AUROC}}$} & \multicolumn{2}{c}{owned cells}\\

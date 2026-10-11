@@ -1,11 +1,12 @@
 \begin{table*}[t]
 \centering
-\setlength{\tabcolsep}{4pt}
+\setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.08}
 \input{tables/cf_colors}
 \caption{\textbf{Reading, answering, and writing per checkpoint.} Per dataset: mean probe selectivity $S$ (\textsc{Read}), mean clean-answer AUROC (\textsc{Ans}), and mean ownership $O_q$ (\textsc{Own}), each superscripted with the number of the six concepts that receive the grade; then the owned share of clinical and COCO cells and their ratio, by which rows are sorted. Shading darkens with magnitude (blue for negative \textsc{Own}); ``--'' marks an undefined ratio.}
 \label{tab:cf-main}
 \fitwidth{%
+\cftabsize
 \begin{tabular}{l@{\hspace{3pt}}ccc@{\hspace{4pt}}ccc@{\hspace{4pt}}ccc@{\hspace{4pt}}ccc}
 \toprule
 \multirow{2}{*}{Checkpoint} & \multicolumn{3}{c}{NIH ChestX-ray14} & \multicolumn{3}{c}{CheXpert Plus} & \multicolumn{3}{c}{COCO (control)} & \multicolumn{3}{c}{Owned share}\\
