@@ -25,7 +25,7 @@ Testing the assumption requires a labeled reference: the directions of the other
 
 The effusion example is representative. Chest findings pass the read and answer grades about as often as natural objects, yet only \cfChestOwnedPct\% of chest cells are owned, against \cfCocoOwnedPct\% of object cells. The gap holds across families and scales, including medical checkpoints with chest-trained vision towers, among the concepts each model answers best, and for directions orthogonalized against the other findings. The deficit also extends beyond clinical findings to non-clinical attributes of the same radiographs. Nor does difficulty explain it: COCO objects the models answer less accurately remain owned. Checkpoints with identical vision towers own different findings, which points to the connector and language model downstream of the tower. These respond to a different direction: one fitted to the model's own answers is owned more often and, on chest radiographs only, is nearly orthogonal to the probe direction. Steering claims built on probe directions thus need the competitor comparison.
 
-Our contributions are as follows:
+In summary, our contributions are as follows:
 \begin{itemize}[leftmargin=*,nosep]
 \item We identify a gap between reading and controlling concepts on chest radiographs: readable, answerable findings are rarely owned by their probe directions, unlike natural objects.
 \item We introduce RAW, an evaluation for any open-weight VLM that tests whether a probe direction controls its own concept or a competing one.
