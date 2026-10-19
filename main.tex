@@ -59,7 +59,11 @@
   Qingchan Zhu$^{1}$ \quad
   Junhao Chen$^{1}$ \quad
   Yi Pan$^{1}$ \\
-  \textbf{Tiance Wang}$^{4}$ \quad
+  % acl.sty sets the author block as a one-column tabular and issues \bfseries once, before the
+  % first cell. A \\ starts a new cell, which reverts to the normal weight, so a second row of
+  % authors needs the declaration again; the affiliation rows below are meant to revert.
+  \bfseries
+  Tiance Wang$^{4}$ \quad
   Zhengliang Liu$^{1}$ \quad
   Geng Yuan$^{1}$ \quad
   Wei Liu$^{3}$ \quad
@@ -67,8 +71,7 @@
   $^{1}$School of Computing, University of Georgia \\
   $^{2}$School of Medicine, Stanford University \\
   $^{3}$Department of Radiation Oncology, Mayo Clinic \\
-  $^{4}$School of Computing and Data Science, The University of Hong Kong \\
-  \texttt{lei@stanford.edu}
+  $^{4}$School of Computing and Data Science, The University of Hong Kong
 }
 
 \begin{document}
