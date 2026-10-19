@@ -42,10 +42,22 @@
 \renewcommand{\textfraction}{0.06}
 \renewcommand{\floatpagefraction}{0.85}
 \renewcommand{\dbltopfraction}{0.92}
-\renewcommand{\dblfloatpagefraction}{0.85}
+\renewcommand{\dblfloatpagefraction}{0.90}
 \setcounter{topnumber}{3}
 \setcounter{dbltopnumber}{1}
 \setcounter{totalnumber}{4}
+
+% A float page distributes its floats with stretchable glue above, between and below them, so a
+% page holding two mid-sized tables came out a third covered with the rest in gaps. Rigid glue at
+% the top packs them from the top of the page and leaves the slack at the foot.
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{14pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\setlength{\@dblfptop}{0pt}
+\setlength{\@dblfpsep}{14pt}
+\setlength{\@dblfpbot}{0pt plus 1fil}
+\makeatother
 
 \setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
 \setlength{\abovecaptionskip}{5pt}
