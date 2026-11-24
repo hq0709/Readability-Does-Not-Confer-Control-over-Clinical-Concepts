@@ -1,19 +1,19 @@
 \section{Results}
 \label{sec:results}
 
+\subsection{Decoding, answering, and control}
+\label{sec:headline}
+
+On the two chest datasets, \cfChestReadablePct{}\% of the \cfChestCellsN{} cells were readable and \cfChestAnswerablePct{}\% were answerable. Ownership was less common, at \cfChestOwnedPct{}\% on radiographs and \cfCocoOwnedPct{}\% on COCO (Table~\ref{tab:cf-main}, Fig.~\ref{fig:teaser}). Of the \cfChestAnswerable{} answerable chest cells, \cfReadAns{} were also readable. Among cells that passed both grades, \cfReadAnsOwned{} (\cfReadAnsOwnedPct{}\%) were owned. Across steering strengths, the median NIH ownership margin remained negative, while COCO had a positive median at the primary strength (Fig.~\ref{fig:overview}).
+
 \input{tables/table_cf_main}
 
-\begin{figure*}[pos=t]
+\begin{figure*}[pos=tp]
     \centering
     \includegraphics[width=\linewidth]{figures/fig2_overview.pdf}
     \caption{\textbf{Ownership margins by dataset and steering strength.} (a) Distribution of the row margin $O_q$ across checkpoint--concept pairs. (b) Median and interquartile range of $O_q$ by steering strength. The dotted line marks the primary strength.}
     \label{fig:overview}
 \end{figure*}
-
-\subsection{Decoding, answering, and control}
-\label{sec:headline}
-
-On the two chest datasets, \cfChestReadablePct{}\% of the \cfChestCellsN{} cells were readable and \cfChestAnswerablePct{}\% were answerable. Ownership was less common, at \cfChestOwnedPct{}\% on radiographs and \cfCocoOwnedPct{}\% on COCO (Table~\ref{tab:cf-main}, Fig.~\ref{fig:teaser}). Among the \cfReadAns{} chest cells that passed both reading and answering, only \cfReadAnsOwned{} were owned (\cfReadAnsOwnedPct{}\%). Across steering strengths, the median NIH ownership margin remained negative, while COCO had a positive median at the primary strength (Fig.~\ref{fig:overview}).
 
 \subsection{What the competitor comparison adds}
 \label{sec:deficit}
@@ -22,8 +22,9 @@ On the two chest datasets, \cfChestReadablePct{}\% of the \cfChestCellsN{} cells
 \centering
 \caption{\textbf{Ownership and direction specificity.} Counts of checkpoint--concept pairs. Each of the last three columns requires the steering reference to be met.}
 \label{tab:specificity}
-\small
 \setlength{\tabcolsep}{3pt}
+\fitwidth{%
+\cftabsize
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
 Dataset & \shortstack{Reference\\met} & \shortstack{Owned\\(row)} &
@@ -34,59 +35,192 @@ CheXpert Plus & \jnRefChex & \jnOwnedChex & \jnColSpecChex & \jnTwoWayChex \\
 Chest total & \jnRefChest & \jnOwnedChest & \jnColSpecChest & \jnTwoWayChest \\
 COCO & \jnRefCoco & \jnOwnedCoco & \jnColSpecCoco & \jnTwoWayCoco \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-On chest radiographs, \cfChestRefBelow{} of \cfChestCellsN{} label directions failed the random and sham reference. The median own effect was \cfMedianWqqNih{} on NIH and \cfMedianWqqChex{} on CheXpert Plus, compared with \cfMedianWqqCoco{} on COCO (Table~\ref{tab:cf-controls}). Across checkpoints, the intended question received \cfOwnShareNih{}\% of the total positive change on NIH and \cfOwnShareChex{}\% on CheXpert Plus, compared with \cfOwnShareCoco{}\% on COCO (Appendix~\ref{app:cf-figures}). The write matrices show that some directions raise several chest answers by similar amounts, while COCO effects tend to concentrate on the intended question (Fig.~\ref{fig:write-matrices}).
+On chest radiographs, \cfChestRefBelow{} of \cfChestCellsN{} label directions failed the random and sham reference. Of the \jnRefChest{} that passed, \jnRefLostChest{} failed because a competitor raised the own answer more, and a further \jnOwnedNotColChest{} failed because their largest change was on another answer or tied the own effect. In total, \jnRefNotTwoWayChestPct{}\% of chest directions that passed the reference failed one or both labeled comparisons. On COCO all directions that met the reference passed the row comparison, and \jnOwnedNotColCoco{} of \jnRefCoco{} (\jnRefNotTwoWayCocoPct{}\%) failed the column comparison. Both criteria were met in \jnTwoWayChest{} chest cells (\jnTwoWayChestPct{}\%), including \jnTwoWayNih{} of \cfNihCells{} on NIH and \jnTwoWayChex{} of \cfChexCells{} on CheXpert Plus, and in \jnTwoWayCoco{} of \cfCocoCells{} cells on COCO (\jnTwoWayCocoPct{}\%; Table~\ref{tab:specificity}).
 
-The reference alone would certify \jnRefChest{} of \cfChestCellsN{} chest directions. Requiring each direction to win on its own question excluded \jnRefLostChest{}. Requiring it also to affect its own answer more than every other answer excluded \jnOwnedNotColChest{} of the \cfChestOwned{} remaining directions. Thus \jnRefNotTwoWayChest{} of the \jnRefChest{} chest directions that passed the reference (\jnRefNotTwoWayChestPct{}\%) failed at least one of the two concept comparisons. On COCO, every direction that met the reference also passed the row comparison, and \jnOwnedNotColCoco{} of \jnRefCoco{} (\jnRefNotTwoWayCocoPct{}\%) failed the column comparison. Overall, \jnTwoWayChest{} of \cfChestCellsN{} chest cells (\jnTwoWayChestPct{}\%) were owned and specific, comprising \jnTwoWayNih{} of \cfNihCells{} on NIH and \jnTwoWayChex{} of \cfChexCells{} on CheXpert Plus. On COCO, \jnTwoWayCoco{} of \cfCocoCells{} (\jnTwoWayCocoPct{}\%) passed both comparisons (Table~\ref{tab:specificity}).
+Among directions that met the steering reference, total absolute change across the other answers was a median of \jnOffTargetChest{} times the own effect on chest radiographs and \jnOffTargetCoco{} times on COCO. Across all directions, NIH and CheXpert Plus had the same median column selectivity of \jnKappaMedChest{}, compared with \jnKappaMedCoco{} on COCO (Eq.~\ref{eq:column-selectivity}).
 
-Among directions that met the steering reference, the sum of absolute changes across the other five answers was a median of \jnOffTargetChest{} times the own effect on chest radiographs and \jnOffTargetCoco{} times on COCO. Across all directions, median column selectivity was \jnKappaMedChest{} on chest radiographs and \jnKappaMedCoco{} on COCO (Eq.~\ref{eq:column-selectivity}).
+\label{app:cf-figures}
 
-\begin{figure*}[pos=t]
+\begin{figure*}[pos=!tp]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig4_write_matrices.pdf}}
+    \caption{\textbf{Write matrices.} Each cell is $W_{q,d}$, the mean change in $P(\mathrm{yes})$ of question $q$ (rows) under the write of direction $d$ (columns). Three checkpoints are shown on NIH (top) and three on COCO (bottom), and a corner mark flags owned concepts.}
+    \label{fig:write-matrices}
+\end{figure*}
+
+\begin{figure*}[pos=!tp]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig7_write_flow.pdf}}
+    \caption{\textbf{Where the write goes, and the matrix it comes from.} (a)--(c) Bands join each written direction $d$ to the questions $q$ it moves. Band width is proportional to $F_{q,d}$, the mean over checkpoints of $\max(W_{q,d},0)$, and the percentage is the own-question share $\sum_d F_{d,d}/\sum_{q,d} F_{q,d}$. (d)--(f) The same checkpoints shown as the cell-wise median of $W_{q,d}$, which keeps the sign the flow discards.}
+    \label{fig:write-flow}
+    \label{fig:cf-w-structure}
+\end{figure*}
+
+The write matrices show that some directions raise several chest answers by similar amounts. COCO effects tend to concentrate on the intended question (Fig.~\ref{fig:write-matrices}). The flow in Fig.~\ref{fig:write-flow} uses $F_{q,d}$, the mean positive change $\max(W_{q,d},0)$ over checkpoints. The share of positive change on the intended question is
+\begin{equation}
+\begin{aligned}
+\frac{\sum_d F_{d,d}}{\sum_{q,d}F_{q,d}}&=\cfOwnShareNih\%\ \text{(NIH)},\\
+&\phantom{{}=}\cfOwnShareChex\%\ \text{(CheXpert Plus)},\\
+&\phantom{{}=}\cfOwnShareCoco\%\ \text{(COCO)}.
+\end{aligned}
+\label{eq:flow-share}
+\end{equation}
+The flow includes only increases. Column selectivity also counts decreases and is calculated separately for each cell. The largest total positive changes were for cardiomegaly on NIH and for edema and effusion on CheXpert Plus.
+
+\subsubsection{Independent replication on NIH radiographs}
+\label{sec:seed}
+\label{app:seed-results}
+\label{sec:qwen-replication}
+
+In the separate NIH experiments (Section~\ref{app:seed}), the Qwen2.5-VL-7B effusion probe reached an AUROC of \cfSeedDecQwenEffAuroc{} against \cfSeedDecQwenEffCtrl{} for controls, giving selectivity of \cfSeedDecQwenEffSel{}. For LLaVA-1.5-7B the probe AUROCs were \cfSeedDecLlavaEffAuroc{} for effusion and \cfSeedDecLlavaEdemaAuroc{} for edema, giving selectivities of \cfSeedDecLlavaEffSel{} and \cfSeedDecLlavaEdemaSel{}, with control AUROC of \cfSeedDecLlavaEffCtrl{}. Qwen2.5-VL-7B's initial effusion write increased its mean yes score by \jnReplicationInitialEffect{} at the primary strength, exceeding both the random cutoff (\jnReplicationInitialRandom{}) and maximum absolute sham effect (\jnReplicationInitialSham{}). At the same strength the independent cohort of \jnReplicationEffusionRows{} patients gave an increase of \jnReplicationEffusionEffect{}, above its random cutoff (\jnReplicationEffusionRandom{}) and absolute sham effect (\jnReplicationEffusionSham{}).
+
+\label{sec:specificity-results}
+All competing directions increased the effusion score on that cohort. The nodule direction produced the largest increase, giving effusion an ownership margin of $\cfSeedPriorOFull$. Nodule again moved the effusion answer more on the main NIH test cohort ($O_{\mathrm{Effusion}}=\cfSeedEffO$; Table~\ref{tab:cf-seed}). Across chest blocks, \cfEffusionOwnedBlocks{} of \cfChestBlocks{} effusion answers were owned. In the prompt confirmation, the mass direction beat the clinical alternatives under the letter-coded \emph{show} prompts. Its effects stayed below the maximum random effect, so the confirmation criteria were unmet.
+
+\input{tables/table_cf_seed}
+
+On the radiograph in Fig.~\ref{fig:example}, the effusion yes score rose from \cfExChestClean{} to \cfExChestOwn{} with the effusion direction and to \cfExChestComp{} with the nodule direction. On the photograph, the dog direction raised the dog score from \cfExCocoClean{} to \cfExCocoOwn{}, with negligible change in the other answers.
+
+\begin{figure*}[pos=tp]
     \centering
     \includegraphics[width=\linewidth]{figures/fig3_example.pdf}
     \caption{\textbf{Answer changes on a radiograph and a photograph.} Qwen2.5-VL-7B's probability of answering yes to each question is shown before editing and after adding the target or strongest competing direction. Shading marks the target question. The dashed line marks equal support for yes and no.}
     \label{fig:example}
 \end{figure*}
 
-\label{sec:seed}
-The effusion answer again moved more under the nodule write in an independent NIH test cohort ($O_{\mathrm{Effusion}}=\cfSeedEffO$; Table~\ref{tab:cf-seed}). Across chest blocks, \cfEffusionOwnedBlocks{} of \cfChestBlocks{} effusion answers were owned. On the radiograph in Fig.~\ref{fig:example}, the probability of a yes answer for effusion rose from \cfExChestClean{} to \cfExChestOwn{} with the effusion direction and to \cfExChestComp{} with the nodule direction. On the photograph, the dog direction raised the dog answer from \cfExCocoClean{} to \cfExCocoOwn{}, with negligible change in the other answers.
+\label{app:cf-examples}
+Figure~\ref{fig:cf-examples} gives examples in which the target was present on the radiograph or correctly decoded on the photograph, and the clean answer was no. The radiographic examples also required a probe probability above one half. We grouped these images by whether the own or strongest competing write raised the score more. In each group we chose the case closest to the median gap among images where at least one write raised the score by \jnExampleMinMove{} or more. Each example includes the number of eligible images sharing its ordering.
+
+\begin{figure*}[pos=p]
+    \centering
+    \includegraphics[width=\linewidth,height=0.86\textheight,keepaspectratio]{figures/figA2_examples.pdf}
+    \caption{\textbf{Reading, answering, and writing on single images.} Each image shows the question, the report label, the probe's reading, the clean answer, and the answers under the own write and the strongest competing write at $\alpha=+0.25$. Beside the probe's reading, a check or cross marks whether it agrees with the label; beside the own write, it marks whether that write moves the answer more than the competitor. The gray line counts the rows with the same ordering among the block's test rows that the probe reads correctly and the model answers no when clean (on the chest sets, among rows labeled present).}
+    \label{fig:cf-examples}
+\end{figure*}
 
 \subsection{Sensitivity to competitors and direction construction}
 \label{sec:controls}
 \label{sec:robust-geometry}
+\label{app:cf-robustness}
 
-Averaging across all possible choices of one, two, three, and four competitors gave \jnSubOneChest{}, \jnSubTwoChest{}, \jnSubThreeChest{}, and \jnSubFourChest{} owned chest cells, respectively, compared with \cfChestOwned{} using all five. The COCO count stayed at \cfCocoOwned{} for every subset size. Even one randomly chosen competitor left a wide gap between the domains. The strongest competitor matched the most similar direction at about the chance rate, as it did the most frequently co-occurring label (Table~\ref{tab:cf-geometry}). Adding the other eligible labels to the chest competitor set retained \cfExtcompRetained{} of \cfExtcompOwned{} originally owned cells in the blocks tested.
+Averaging across all possible choices of one, two, three, and four competitors gave \jnSubOneChest{}, \jnSubTwoChest{}, \jnSubThreeChest{}, and \jnSubFourChest{} owned chest cells, respectively, compared with \cfChestOwned{} using all five. The COCO count stayed at \cfCocoOwned{} for every subset size. Adding all eligible labels in \cfExtcompBlocks{} chest blocks retained \cfExtcompRetained{} of \cfExtcompOwned{} originally owned cells (Table~\ref{tab:cf-altdir}). The strongest competitor matched the most similar direction or the most frequently co-occurring label about as often as expected by chance. The competitor's advantage over the own write had little correlation with either the cosine between directions or the correlation between binary labels (Table~\ref{tab:cf-geometry}).
 
-In owned cells, ranks ranged from \jnOwnedRankMin{} to \jnOwnedRankMax{} when the label write was compared with its \jnRandomDirections{} random reference writes (Fig.~\ref{fig:rank}). Alternative directions fitted from class means, from the feature pattern associated with the probe, or after removing information shared with other concepts yielded ownership rates of \cfAltdirChestPctMin{}--\cfAltdirChestPctMax{}\% on the chest datasets and \cfAltdirCocoPctMin{}--\cfAltdirCocoPctMax{}\% on COCO (Table~\ref{tab:cf-altdir}). The ownership grade agreed with the original evaluation in \cfValidOwnedAgree{} of \cfValidCells{} cells when evaluated on a separate set of \cfValidRows{} CheXpert films with radiologist consensus labels. Refit directions trained on those labels were owned in \cfValidfitOwnedExpert{} of \cfValidfitCells{} cells, compared with \cfValidfitOwnedReport{} for directions trained on report labels. Repeating the probe fit preserved ownership on both refits in \cfRefitGradeStableNih{} of \cfRefitGradeOwnedNih{} owned NIH cells and \cfRefitGradeStableCoco{} of \cfRefitGradeOwnedCoco{} owned COCO cells (Table~\ref{tab:cf-refit}).
+\input{tables/table_cf_altdir}
+\input{tables/table_cf_geometry}
+
+NIH directions had low alignment and weak label correlations. CheXpert Plus had correlated pairs, including effusion and consolidation (mean direction cosine \cfGeoCosEffCons{} and binary label correlation \cfGeoPhiEffCons{}). In \cfGeoTwoAbovePct{}\% of chest cells, more than one competitor exceeded the own write. Restricting COCO competitors to groups of co-occurring objects such as person and dog ($\phi=\cfGeoFamPhiPersonDog$) left positive row margins in \cfGeoCocoFamMinPct{}--\cfGeoCocoFamMaxPct{}\% of the groups' cells, compared with \cfGeoCocoFamFullMinPct{}--\cfGeoCocoFamFullMaxPct{}\% with all competitors. Nodule, which outperformed effusion on its own question, was the least similar direction to effusion (cosine \cfSeedCosNodule{}).
+
+In owned cells, the label write ranked from \jnOwnedRankMin{} to \jnOwnedRankMax{} among itself and its \jnRandomDirections{} random reference writes (Fig.~\ref{fig:rank}). Alternative directions achieved ownership in \cfAltdirChestPctMin{}--\cfAltdirChestPctMax{}\% of cells on chest datasets and \cfAltdirCocoPctMin{}--\cfAltdirCocoPctMax{}\% on COCO. The mean-difference and Haufe pattern directions had median absolute cosines from \cfAltdirCosMin{} to \cfAltdirCosMax{} with the logistic probe direction. Table~\ref{tab:cf-altdir} also reports the effects of applying the displacement transformation and concentrating edits on high-scoring tokens.
+
+\begin{figure}[pos=tbp]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/figA3_rank.pdf}}
+    \caption{\textbf{Rank of each concept's own direction.} Curves show the cumulative fraction of checkpoint--concept pairs by rank of the label write relative to the random writes. The key gives the fraction ranked first.}
+    \label{fig:rank}
+\end{figure}
+
+Median chest probe selectivity was \cfSelChestMed{} (quartiles \cfSelChestQOne{} and \cfSelChestQThree{}). Effusion and cardiomegaly had the highest mean selectivities among the shared chest findings (\cfSelEffusion{} and \cfSelCardiomegaly{} across \cfChestProbeBlocks{} blocks). Calibration support was insufficient for \cfSupportInelChest{} chest cells because CheXpert Plus atelectasis had \cfCalChexInelPos{} known positives and \cfCalChexInelNeg{} known negatives in each of the \cfSupportInelChexBlocks{} CheXpert Plus blocks. The COCO bicycle category likewise had \cfCalCocoInelPos{} positives. Among eligible chest cells, \cfSupportReadablePctChest{}\% were readable and \cfSupportAnswerablePctChest{}\% were answerable.
+
+Median own effects were \cfMedianWqqNih{} on NIH, \cfMedianWqqChex{} on CheXpert Plus, and \cfMedianWqqCoco{} on COCO (Table~\ref{tab:cf-controls}). The strength sweep included \cfDoseBlocksNih{} NIH and \cfDoseBlocksCoco{} COCO blocks. COCO margins in the Qwen, Lingshu, and Gemma families ranged from \cfCocoMarginMin{} to \cfCocoMarginMax{}. Median absolute own effects at the connector output were \cfConnWqqNih{} on NIH and \cfConnWqqCoco{} on COCO, compared with \cfPrimWqqNih{} and \cfPrimWqqCoco{} at the selected vision layer.
+
+\input{tables/table_cf_controls}
+
+The answer-margin scale gave the same ownership verdict in \cfScaleAgree{} of \cfScaleAgreeN{} cells. Of the \cfScaleOwned{} owned cells, \cfScaleOwnedMpos{} retained a positive row margin and \cfScaleOwnedKeepFull{} passed the full answer-margin rule. The median fraction of near-saturated answers was \cfScaleSatCoco{} for COCO, \cfScaleSatNih{} for NIH, and \cfScaleSatChex{} for CheXpert Plus. On unsaturated rows, all \cfScaleUnsatOwned{} originally owned chest cells and \cfScaleUnsatOtherPos{} of \cfScaleUnsatOther{} other cells had positive row margins. The full regrade retained \cfScaleUnsatGradeKept{} of \cfScaleUnsatGradeN{} owned cells and newly graded \cfScaleUnsatGradeGained{} of \cfScaleUnsatGradeOtherN{} other cells as owned. The pattern held across clean-answer and label strata.
+
+Refitting on resampled training units changed the row margin by a median of \cfScaleRefitMedian{}. Both refits preserved ownership in \cfRefitGradeStableNih{} of \cfRefitGradeOwnedNih{} owned NIH cells and \cfRefitGradeStableCoco{} of \cfRefitGradeOwnedCoco{} owned COCO cells (Table~\ref{tab:cf-refit}). Single-precision rescoring at batch size one changed a write by at most \cfPrecisionMaxDW{} and changed \cfPrecisionVerdictChanges{} verdicts and \cfPrecisionRefChanges{} steering references among \cfPrecisionGradeCells{} grades. Batch effects ranged from \cfScaleBatchMin{} to \cfScaleBatchMax{} in candidate answer logits. The margin sign agreed for \cfScaleBatchAgree{} of \cfScaleBatchN{} blocks assessed for these effects. The remaining \cfScaleBatchDisagree{} blocks held \cfScaleBatchDisagreeOwned{} owned cell. The clean baseline matched exactly across analysis components in \cfScaleBaselineIdentical{} of \cfScaleBaselineN{} blocks.
+
+\input{tables/table_cf_refit}
+
+On the \cfValidRows{} consensus-labeled films, the ownership grade agreed with the original evaluation in \cfValidOwnedAgree{} of \cfValidCells{} cells. The ninetieth percentile of the absolute change in $O_q$ was \cfValidNinetyDO{}. Among the \cfValidSupported{} cells with sufficient support, readability agreed in \cfValidReadableAgree{} and answerability in \cfValidAnswerAgree{}. With the CheXpert Plus test images restricted to those with known labels, \cfValKnownSignAgree{} of \cfValKnownN{} cells retained their margin sign.
+
+Directions refitted on expert labels using \cfValidfitFolds{} patient folds reached a held-out AUROC of \cfValidfitAurocExpert{} against the radiologist labels, compared with \cfValidfitAurocReportDir{} for the report-fitted directions. Ownership was \cfValidfitOwnedExpert{} of \cfValidfitCells{} for the expert-label fits and \cfValidfitOwnedReport{} for the report-label fits. Median agreement between directions was \cfValidfitCosRaw{} by raw cosine and \cfValidfitCosWhitened{} by covariance-weighted cosine. The expert fit used \cfVfArmExpertRows{} training rows per fold, compared with a median of \cfVfArmReportFullRows{} for the full report fit.
+
+Fitting to report labels from the same \cfVfArmRows{} films gave AUROC \cfVfArmReportSameFilmsAuroc{}. Fitting to \cfVfArmReportSubRows{} report-labeled rows over \cfVfArmDraws{} subsamples gave \cfVfArmReportSubAuroc{}, and using all available report-labeled training rows gave \cfVfArmReportFullAuroc{}. Let $A_{L,n}$ be the held-out AUROC against radiologist labels after fitting to $n$ rows with label source $L$. With $n=\cfVfArmReportSubRows$ and $N$ the full report-labeled sample, the differences were
+\begin{equation}
+\begin{aligned}
+\Delta_{\text{label}}&=A_{\text{radiologist},n}-A_{\text{report},n}
+=\cfVfArmDeltaLabel,\\
+\Delta_{\text{size}}&=A_{\text{report},N}-A_{\text{report},n}
+=\cfVfArmDeltaSize.
+\end{aligned}
+\label{eq:label-size}
+\end{equation}
+The cosine to the full report direction was similar for the size-matched report fit and the radiologist fit (\cfVfArmReportSubCos{} and \cfVfArmExpertCos{}).
 
 \subsection{Ownership at comparable answer difficulty}
 \label{sec:coco}
 
-Across checkpoints tested with both sets of COCO categories, the fine-grained objects had a lower median clean-answer AUROC than the common objects (\cfFgFineAuroc{} versus \cfFgEasySameAuroc{}). Fine-grained objects were owned in \cfFgFineOwned{} of \cfFgFineCells{} cells, compared with \cfFgEasySameOwned{} of \cfFgEasySameCells{} for common objects (Appendix~\ref{app:cf-difficulty}). In the highest AUROC stratum (AUROC $\geq\cfStratTopEdge$), \cfStratChestTopOwned{} of \cfStratChestTopN{} chest cells were owned, compared with \cfStratNatTopOwned{} of \cfStratNatTopN{} natural-image cells. The chest-minus-natural difference was \jnTopDiff{} (bootstrap standard deviation \jnTopDiffSd{}). Most chest cells in that stratum came from CheXpert Plus.
+Across checkpoints tested with both sets of COCO categories, the fine-grained objects had a lower median clean-answer AUROC than the common objects (\cfFgFineAuroc{} versus \cfFgEasySameAuroc{}). Fine-grained objects were owned in \cfFgFineOwned{} of \cfFgFineCells{} cells, compared with \cfFgEasySameOwned{} of \cfFgEasySameCells{} for common objects. Within a checkpoint, the owned counts for fine-grained and common objects differed by $\cfFgSameDiffMin$ to $\cfFgSameDiffMax$. Median probe selectivity was \cfFgFineSel{} for fine-grained objects and \cfFgEasySameSel{} for common ones.
+
+In the highest AUROC stratum (AUROC $\geq\cfStratTopEdge$), \cfStratChestTopOwned{} of \cfStratChestTopN{} chest cells were owned, compared with \cfStratNatTopOwned{} of \cfStratNatTopN{} natural-image cells. The chest-minus-natural difference was \jnTopDiff{} (bootstrap standard deviation \jnTopDiffSd{}). Most chest cells in that stratum came from CheXpert Plus.
 
 The lower common-support cutoff included \jnCsEightyChestN{} chest cells, of which \jnCsEightyChestOwned{} (\jnCsEightyChestPct{}\%) were owned, and \jnCsEightyNatN{} natural-image cells, of which \jnCsEightyNatOwned{} (\jnCsEightyNatPct{}\%) were owned. NIH contributed \jnCsEightyNihN{} of the chest cells and \jnCsEightyNihOwned{} owned cells. After adjustment for clean-answer AUROC and probe selectivity, the chest-minus-natural difference in ownership probability was \jnCsEightyAdj{} (bootstrap standard deviation \jnCsEightyAdjSd{}). At the higher cutoff, the adjusted difference was \jnCsEightyFiveAdj{} (bootstrap standard deviation \jnCsEightyFiveAdjSd{}).
 
 \subsection{Non-clinical attributes of the same radiographs}
 \label{sec:attributes}
+\label{app:cf-attributes}
 
-The probes distinguished projection, recorded sex, and age at least as well as clinical findings on the same radiographs. Median probe AUROC was \cfAttrAurocMin{}--\cfAttrAurocMax{} for the attributes and \cfAttrClinAuroc{} for findings (Appendix~\ref{app:cf-attributes}). With both types of direction included in the comparison, \cfAttrAllAttrOwned{} of \cfAttrAllAttrN{} attribute cells were owned, as were \cfAttrAllClinOwned{} of \cfAttrAllClinN{} finding cells. In the highest clean-answer AUROC stratum of this comparison, \cfStratAttrTopOwned{} of \cfStratAttrTopN{} attribute cells and \cfStratFindTopOwned{} of \cfStratFindTopN{} finding cells were owned.
+All \cfAttrReadable{} attribute cells were readable. Median probe AUROC for projection, recorded sex, and age ranged from \cfAttrAurocMin{} to \cfAttrAurocMax{}, compared with \cfAttrClinAuroc{} for findings on the same radiographs. The chosen question wording had a median clean-answer AUROC of \cfAttrqWrittenAuroc{}, compared with \cfAttrqSelectedAuroc{} for the best wording per cell. Across the \cfAttrqCells{} cells assessed for wording, \cfAttrqCapable{} were answerable.
+
+When both types of direction competed, \cfAttrAllAttrOwned{} of \cfAttrAllAttrN{} attribute cells and \cfAttrAllClinOwned{} of \cfAttrAllClinN{} finding cells were owned. Among answerable cells the counts were \cfAttrCapAttrOwned{} of \cfAttrCapAttrN{} and \cfAttrCapClinOwned{} of \cfAttrCapClinN{}, respectively. In \cfAttrPairAttrN{} pairs matched by clean-answer AUROC within a block, \cfAttrPairAttrOwned{} attribute cells and \cfAttrPairClinOwned{} finding cells were owned. In the highest clean-answer AUROC stratum, \cfStratAttrTopOwned{} of \cfStratAttrTopN{} attribute cells and \cfStratFindTopOwned{} of \cfStratFindTopN{} finding cells were owned. Among \cfAttrCosPairs{} attribute--finding pairs, the largest absolute direction cosine was \cfAttrCosMax{} for \cfAttrCosPairLabel{}.
 
 \subsection{Effects of the components downstream of the vision tower}
 \label{sec:reader}
+\label{app:cf-reader}
 
-Checkpoints that shared a vision tower and used the same directions differed in which answers those directions controlled (Fig.~\ref{fig:readers}). Ownership margins differed by more than the typical variation across probe refits in \cfPairsRatioAboveOne{} of \cfPairsRatioN{} shared-tower comparisons (Table~\ref{tab:cf-pairs}). The differences persisted when both readers received identical image features.
+Checkpoints that used the same vision tower and directions differed in which answers those directions controlled (Fig.~\ref{fig:readers}). Ownership margins differed by more than the typical variation across probe refits in \cfPairsRatioAboveOne{} of \cfPairsRatioN{} shared-tower comparisons (Table~\ref{tab:cf-pairs}). Gemma~3 4B and 12B used bit-identical directions, and the other Gemma~3 and MedGemma pairs agreed to bfloat16 precision.
 
-The crossed Gemma and MedGemma experiment exchanged the reader or the tower while holding the other component fixed. On NIH, the mean absolute change in $O_q$ was \cfSwapReaderNihOMin{} for a reader swap and \cfSwapTowerNihOMin{} for a tower swap. For $W_{q,q}$, the corresponding changes were \cfSwapReaderNihMin{} and \cfSwapTowerNihMin{}. On COCO, the tower swap had the larger effect on $O_q$ (\cfSwapTowerCocoOMin{} versus \cfSwapReaderCocoOMin{}). Across the \cfSwapCombos{} tower--reader combinations, \cfSwapChestOwned{} of \cfSwapChestCells{} chest cells were owned, compared with \cfSwapCocoOwned{} of \cfSwapCocoCells{} COCO cells (Appendix~\ref{app:cf-crossed-reader}).
+\begin{figure*}[pos=tp]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig5_same_write.pdf}}
+    \caption{\textbf{Ownership with a shared vision tower.} Row margins $O_q$ for Gemma~3 and MedGemma. Each family uses the same directions across model sizes. Corner marks denote owned cells. Hatching denotes answers already near maximum probability before editing.}
+    \label{fig:readers}
+\end{figure*}
 
-When the write was applied after the connector, the median ownership margin remained negative on NIH and CheXpert Plus and positive on COCO (Table~\ref{tab:cf-controls}). At that site the edit bypassed the connector, and the language model alone reproduced the sign pattern. Models with chest-trained towers had a higher median NIH probe AUROC than the other checkpoints (\cfSpecTowerProbeAuroc{} versus \cfSpecRestProbeAuroc{}) and owned \cfSpecTowerOwned{} of \cfSpecTowerN{} chest cells. The effect of model size varied across families and findings (Fig.~\ref{fig:ladders}).
+\input{tables/table_cf_pairs}
+
+On NIH effusion, Gemma~3 12B and 27B differed in row margin by \cfPairDeltaEffTwelveTwentySeven{}. For Gemma~3 12B, competing directions exceeded the own writes for effusion on both chest sets, mass on NIH, and pneumothorax on CheXpert Plus (margins \cfOGemmaTwelveEff{}, \cfOGemmaTwelveMass{}, and \cfOGemmaTwelvePneu{}). The corresponding Gemma~3 27B margins were \cfOGemmaTwentySevenEff{}, \cfOGemmaTwentySevenMass{}, and \cfOGemmaTwentySevenPneu{}. Gemma~3 4B answered yes on \cfGemmaFourYesMin{}--\cfGemmaFourYesMax{}\% of chest rows. Its row margins on the answer-margin scale ranged from \cfPairsGemmaFourOmNear{} to \cfPairsGemmaFourOmFar{}, with a competitor leading each question. MedGemma 4B and 27B also had different margins for CheXpert Plus pneumothorax (\cfOMedFourPneu{} versus \cfOMedTwentySevenPneu{}) and edema (\cfOMedFourEdema{} versus \cfOMedTwentySevenEdema{}).
+
+Replacing native features with the same stored features for both readers preserved the differences. In \cfReplayDriftZero{} of \cfReplayBlocks{} replays the stored and native tokens already matched exactly. LLaVA-Med differed by up to \cfReplayDriftMax{}, compared with mean absolute feature values of \cfReplayTensorMin{}--\cfReplayTensorMax{}. In \cfReplaySelf{} replays of a checkpoint's own features the categorical grades agreed, with \cfReplaySelfExact{} exact matches and a maximum write difference of $\cfReplayMaxDWSelf$. Across all replays \cfReplayMoved{} of \cfReplayCells{} cells had detectable changes in write magnitudes. The largest was $\cfReplayMaxDW$. There were \cfReplayVerdictChanges{} verdict changes and \cfReplayOwnedChanges{} ownership changes. In \cfReplayPairs{} reader pairs, the original mean absolute differences in own writes ranged from \cfReplayPairOwnMin{} to \cfReplayPairOwnMax{}. Replay changed those differences by at most \cfReplayChangeMax{}, or \cfReplayRelMax{}\% of their size.
+
+In the crossed Gemma~3 and MedGemma experiment (Section~\ref{app:cf-crossed-reader}), the mean absolute change in NIH $O_q$ was \cfSwapReaderNihOMin{} for a reader swap and \cfSwapTowerNihOMin{} for a tower swap. The own write changed by \cfSwapReaderNihMin{} and \cfSwapTowerNihMin{}, respectively. On CheXpert Plus the corresponding changes were \cfSwapReaderChexOMin{} and \cfSwapTowerChexOMin{} for $O_q$, and \cfSwapReaderChexMin{} and \cfSwapTowerChexMin{} for the own write. For the margin over the full reference family, reader and tower effects were \cfSwapReaderNihMMin{} versus \cfSwapTowerNihMMin{} on NIH and \cfSwapReaderChexMMin{} versus \cfSwapTowerChexMMin{} on CheXpert Plus. On COCO the tower effect was larger for $O_q$ (\cfSwapTowerCocoOMin{} versus \cfSwapReaderCocoOMin{}), the own write (\cfSwapTowerCocoMin{} versus \cfSwapReaderCocoMin{}), and the full-reference margin (\cfSwapTowerCocoMMin{} versus \cfSwapReaderCocoMMin{}).
+
+Across the \cfSwapCombos{} combinations, \cfSwapChestOwned{} of \cfSwapChestCells{} chest cells were owned, compared with \cfSwapCocoOwned{} of \cfSwapCocoCells{} COCO cells. On COCO, each native combination owned \cfSwapCocoNativeMin{} objects. The Gemma~3 tower paired with the MedGemma reader owned \cfSwapCocoGemmaTowerCross{}, and the reverse pairing owned \cfSwapCocoMedTowerCross{}. In the \cfSwapNativeCells{} native cells assessed on the smaller cohort, the margin changed by at most \cfSwapNativeMaxDO{}, and \cfSwapNativeLostReference{} of the \cfSwapNativeOwnedFull{} originally owned cells lost the steering reference.
+
+At the connector output the language model received the edit directly. The median margin at that site remained negative on NIH and CheXpert Plus and positive on COCO (Table~\ref{tab:cf-controls}). Model size affected ownership differently across model families (Fig.~\ref{fig:ladders}). The two smaller Qwen2.5-VL checkpoints owned no chest findings. Qwen2.5-VL-32B owned cardiomegaly, and Qwen2.5-VL-72B owned atelectasis ($O_q=\cfOQwenSeventyTwoAtel$), cardiomegaly, and mass on NIH, plus pneumothorax on CheXpert Plus. NIH effusion had a negative margin at every size. Lingshu 7B and 32B owned four and five CheXpert Plus findings, respectively, the largest counts in the evaluation. LLaVA-1.5 read the findings, answered at near-chance AUROC (\jnLlavaReadAurocMin{}--\jnLlavaReadAurocMax{}), and owned none.
+
+\begin{figure*}[pos=tp]
+    \centering
+    \resizebox{\linewidth}{!}{\includegraphics{figures/fig6_ladders.pdf}}
+    \caption{\textbf{Ownership by model size.} Row margins $O_q$ for Qwen2.5-VL and Qwen3-VL on NIH and Lingshu on CheXpert Plus. Solid lines mark the finding with the largest margin in the largest checkpoint. Filled markers indicate owned cells.}
+    \label{fig:ladders}
+\end{figure*}
+
+Chest-trained towers reached a median NIH probe AUROC of \cfSpecTowerProbeAuroc{} across \cfSpecTowerProbeN{} cells, compared with \cfSpecStockProbeAuroc{} for medically tuned HuatuoGPT-Vision with a stock tower and \cfSpecRestProbeAuroc{} across the other \cfSpecRestProbeN{} cells, including HuatuoGPT-Vision. The chest-trained towers read \cfSpecTowerReadable{} and answered \cfSpecTowerAnswerable{} of their \cfSpecTowerN{} chest cells and owned \cfSpecTowerOwned{}. For NIH alone, ownership was \cfSpecNihTowerOwned{} of \cfSpecNihTowerN{} for chest-trained towers, \cfSpecNihMedOwned{} of \cfSpecNihMedN{} for medically tuned checkpoints, and \cfSpecNihGenOwned{} of \cfSpecNihGenN{} for general-purpose checkpoints.
+
+On COCO the general-purpose group answered \cfSpecGenCocoAnswerable{} and owned \cfSpecGenCocoOwned{} of \cfSpecGenCocoN{} cells (median clean-answer AUROC \cfSpecGenCocoAnsAuroc{}). The other medically tuned models answered \cfSpecMedCocoAnswerable{} and owned \cfSpecMedCocoOwned{} of \cfSpecMedCocoN{} cells (median AUROC \cfSpecMedCocoAnsAuroc{}). The chest-trained towers answered \cfSpecTowerCocoAnswerable{} and owned \cfSpecTowerCocoOwned{} of \cfSpecTowerCocoN{} COCO cells (median AUROC \cfSpecTowerCocoAnsAuroc{}).
 
 \subsection{Control of the model's answer}
 \label{sec:ansdir}
+\label{app:cf-ansdir}
 
-The answer direction was owned in \cfAnsChestOwnedA{} of \cfAnsChestN{} chest cells, compared with \cfAnsChestOwnedLabel{} for the label direction (Table~\ref{tab:cf-ansdir}). Higher ownership was expected because we fitted this direction to the model's answers. The two directions were nearly perpendicular on chest radiographs, with a median cosine of \cfAnsCosChestMed{}, and aligned more closely on COCO, with a median cosine of \cfAnsCosCocoMed{}.
+The answer direction was owned in \cfAnsChestOwnedA{} of \cfAnsChestN{} chest cells, compared with \cfAnsChestOwnedLabel{} for the label direction (Table~\ref{tab:cf-ansdir}). It beat the strongest probe-based competitor in \cfAnsChestBeats{} chest cells. Higher ownership is expected because the direction was fitted to the model's answers. In Qwen2.5-VL-7B on NIH it yielded an effusion row margin of \cfAnsQwenEffO{} and own effect of \cfAnsQwenEffW{}. Across held-out prompts, answer directions were owned in \cfAnsdirtChestOwnedPairs{} of \cfAnsdirtChestPairsAll{} chest cell--prompt pairs and \cfAnsdirtCocoOwnedPairs{} of \cfAnsdirtCocoPairsAll{} COCO pairs. Ownership was retained in \cfAnsdirtCocoKept{} of \cfAnsdirtCocoKeptN{} COCO pairs that were owned under the primary prompt.
 
-On chest radiographs, the answer direction gave a median AUROC of \cfValAurocAnsCleanChest{} against the model's clean answers and \cfValAurocAnsChest{} against the report labels. The label direction gave \cfValAurocProbeCleanChest{} and \cfValAurocProbeChest{}, respectively (Table~\ref{tab:cf-validation}). The answer direction changes the model's output along a signal with weaker agreement with the report labels. Its effect on output is evidence of answer control, and clinical interpretation would require agreement with independently established findings. The ownership advantage also appeared across the tests of negated questions, forced choices, and report continuations (\cfSemAnswerOwned{} of \cfSemCells{} cells for answer directions versus \cfSemLabelOwned{} for label directions; Table~\ref{tab:cf-semend}).
+\input{tables/table_cf_ansdir}
 
-\FloatBarrier
+On chest radiographs, the answer direction gave a median AUROC of \cfValAurocAnsCleanChest{} against clean answers and \cfValAurocAnsChest{} against report labels. For the label direction the corresponding values were \cfValAurocProbeCleanChest{} and \cfValAurocProbeChest{} (Table~\ref{tab:cf-validation}). On NIH, the Qwen2.5-VL-7B answer direction reached AUROCs of \cfValAurocAnsCleanQwenNih{} against the answer and \cfValAurocAnsQwenNih{} against the label. The probe reached \cfValAurocProbeCleanQwenNih{} and \cfValAurocProbeQwenNih{}, respectively. The answer-fitted direction therefore measures control of the model's response. Its clinical interpretation depends on agreement with independently established findings.
+
+The answer and label directions were nearly perpendicular on chest radiographs (median cosine \cfAnsCosChestMed{}) and aligned more closely on COCO (median \cfAnsCosCocoMed{}). Raw cosine medians ranged from \cfAnsCosQwenMin{} to \cfAnsCosQwenMax{} on the Qwen2.5-VL-7B chest blocks and from \cfAnsCosLingMin{} to \cfAnsCosLingMax{} for Lingshu 32B. The COCO block medians ranged from \cfAnsCosCocoMin{} to \cfAnsCosCocoMax{}. Covariance-weighted medians ranged from \cfValCosSigmaChestMin{} to \cfValCosSigmaChestMax{} on the chest datasets and reached \cfValCosSigmaCoco{} on COCO. The metrics differed most for Lingshu 32B on CheXpert Plus (\cfValCosRawLingChex{} raw and \cfValCosSigmaLingChex{} covariance-weighted).
+
+\input{tables/table_cf_validation}
+
+Among the \cfAnsColSelChestN{} chest cells with both fitted directions, median column selectivity was \cfAnsColSelChest{} for answer directions and \cfAnsColSelLabelChest{} for label directions. Among the \cfAnsColSelCocoN{} COCO cells it was \cfAnsColSelCoco{} and \cfAnsColSelLabelCoco{}, respectively. Both direction types also moved other answers on chest radiographs.
+
+Across \cfSemBlocks{} blocks and the alternative answer formats, \cfSemAnswerOwned{} of \cfSemCells{} cells were owned for answer directions and \cfSemLabelOwned{} for label directions (Table~\ref{tab:cf-semend}). Negating the question reversed the direction of the change for \cfSemNegOpposite{} of \cfSemNegN{} concept--block pairs. Forced choices were owned in both orders for \cfSemForcedOwned{} of \cfSemForcedN{} pairs, with mean order differences from \cfSemGapMin{} to \cfSemGapMax{}. Report continuations were owned in \cfSemReportOwned{} of \cfSemReportCells{} cells.
+
+\input{tables/table_cf_semend}
+
+

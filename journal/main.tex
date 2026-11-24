@@ -110,21 +110,8 @@ Vision-language model \sep Chest radiography \sep Interpretability \sep Activati
 
 \begingroup
 \raggedright
-\bibliographystyle{vancouver}
+\bibliographystyle{vancouver-mr}
 \bibliography{refs}
 \endgroup
 
-\clearpage
-\appendix
-% Elsevier numbering for appendices: Fig. A.1, Table A.1, Eq. (A.1), restarting in each appendix.
-\counterwithin{figure}{section}
-\counterwithin{table}{section}
-\counterwithin{equation}{section}
-\renewcommand{\thefigure}{\thesection.\arabic{figure}}
-\renewcommand{\thetable}{\thesection.\arabic{table}}
-\renewcommand{\theequation}{\thesection.\arabic{equation}}
-\input{sections/app_campaign}
-\input{sections/app_seed_results}
-\input{sections/app_prompts}
-\input{sections/app_repro}
 \end{document}

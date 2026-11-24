@@ -1,39 +1,68 @@
 \section{Materials and methods}
 \label{sec:framework}
+\label{app:campaign}
 
-\subsection{Datasets and models}
+\subsection{Datasets, labels and cohorts}
 \label{sec:setup}
+\label{app:cf-labels}
+\label{app:repro-cohorts}
 
-We used frontal radiographs from NIH ChestX-ray14 and CheXpert Plus. The finding labels were derived from radiology reports.\cite{wang2017chestxray,chambon2024chexpertplus,irvin2019chexpert} We selected six frequent findings per dataset to provide enough positive examples. Both datasets included effusion, atelectasis, pneumothorax, and cardiomegaly. NIH also included mass and nodule, and CheXpert Plus included consolidation and edema. The natural-image control used six common COCO categories with object annotations (Appendix~\ref{app:cf-labels}).
+We used frontal radiographs from NIH ChestX-ray14 and CheXpert Plus with labels derived from radiology reports.\cite{wang2017chestxray,chambon2024chexpertplus,irvin2019chexpert} We selected frequent findings with sufficient positive cases. Both datasets included effusion, atelectasis, pneumothorax, and cardiomegaly. NIH also included mass and nodule, and CheXpert Plus included consolidation and edema. The natural-image control used COCO instance annotations\cite{lin2014coco} for person, dog, car, chair, bottle, and bicycle. We treated uncertain or blank labels as unknown and excluded those images from probe fitting and label-based scoring. The same images remained eligible for measuring changes in the model's answers.
 
-We fitted directions on \cfCohortNihTrainRows{} NIH training rows and \cfCohortChexTrainRows{} training rows each for CheXpert Plus and COCO. Each dataset supplied \cfCohortNihCalibrationRows{} calibration rows for grading unedited predictions and \cfCohortNihTestRows{} test rows for measuring the effects of edits. The cohorts were shared across checkpoints and disjoint by patient for radiographs and by image for COCO (Appendix~\ref{app:repro-cohorts}). We excluded uncertain or missing labels from probe fitting and label-based scoring and included those images when measuring changes in answers.
+Fixed image lists generated with recorded random seeds defined the training, calibration, and test cohorts for each dataset. All checkpoints used the same cohorts. The NIH training cohort included all \cfCohortNihTrainRows{} studies from \cfCohortNihTrainUnits{} patients, of whom \cfCohortNihTrainMulti{} contributed more than one study, up to \cfCohortNihTrainMax{} for one patient. CheXpert Plus and COCO each supplied \cfCohortChexTrainRows{} training rows. Each dataset supplied \cfCohortNihCalibrationRows{} calibration rows for readability and answerability and \cfCohortNihTestRows{} test rows for scoring writes. Apart from NIH training, each patient or COCO image contributed one row per cohort. The roles were disjoint by patient or image. The held-out cohorts for the main comparison were distinct from those of the NIH replication experiments (Section~\ref{app:seed}). A separate CheXpert validation cohort contained \cfValidRows{} frontal films with radiologist consensus labels, one per patient, with patients distinct from the main cohorts.\cite{irvin2019chexpert}
 
-We studied \cfCheckpoints{} instruction-tuned checkpoints from \cfFamiliesWord{} general-purpose and medical model families, including models with image encoders trained on chest radiographs (Table~\ref{tab:cf-models}). A checkpoint--dataset pair is a block, and a checkpoint--concept pair on a given dataset is a cell. We scored about \jnScoredAnswersMillions{} million answers across \cfBlocks{} blocks and \cfCells{} cells. Appendix~\ref{app:cf-gates} describes the checks for eligible answers, reproducible scores, and correct application of each edit.
-\label{sec:gates}
+We selected additional fine-grained COCO categories using label counts and object size from the fixed cohorts. To qualify, a category needed at least as many training positives as the least represented original category, at least \jnMinClassSupport{} positives in each of the calibration and test cohorts, and a mean relative instance area below the median of the original categories. We ranked eligible categories by descending calibration positives, then ascending mean relative instance area, then category identifier. We took the first \jnCoreConceptCount{} categories.
+
+\subsection{Models and selected vision layers}
+\label{app:cf-grid}
+\label{app:repro-sites}
+\label{app:repro-mask}
+
+We studied \cfCheckpoints{} instruction-tuned checkpoints from \cfFamiliesWord{} general-purpose and medical model families (Table~\ref{tab:cf-models}). A checkpoint--dataset pair is a block, and a checkpoint--concept pair on a given dataset is a cell. We scored about \jnScoredAnswersMillions{} million answers across \cfBlocks{} blocks and \cfCells{} cells.
+
+A vision tower is the image encoder. It represents an image as feature vectors called visual tokens. The connector adapts these tokens for the language model by joining them, projecting them, or supplying them through cross-attention, which lets the language model attend to the image features. We call the connector and language model together the reader. We selected the last vision block that feeds the connector, using the checkpoint's own configuration. We also wrote directions at the connector output, where the language model reads the edited features directly. Each preflight record identifies the chosen layer, feature dimension, connector, and any branches that bypass the selected layer. Each model ran in bfloat16 with its native image processor and fixed image resolution. The number of visual tokens per image ranged from \cfTokensMin{} to \cfTokensMax{}.
+
+The LLaVA families use CLIP,\cite{radford2021clip} Gemma~3 uses SigLIP,\cite{zhai2023siglip} MedGemma uses medically tuned SigLIP,\cite{sellergren2025medgemma} and Qwen3-VL uses a SigLIP~2 design.\cite{tschannen2025siglip2} CheXagent-2-3B, CheXagent-8B, and LLaVA-Rad-7B use towers trained on chest radiographs, respectively XraySigLIP, EVA-CLIP, and BiomedCLIP-CXR.\cite{chen2024chexagent,sun2023evaclip,zhang2025biomedclip,zambranochaves2025llavarad} HuatuoGPT-Vision-7B is medically tuned over the same CLIP tower as LLaVA-1.5.
+
+\input{tables/table_cf_models}
+
+For each batch, we identified the visual tokens reaching the connector from the image processor's outputs. Table~\ref{tab:cf-models} gives the input sizes and token counts. The family-specific layer and token choices were as follows.
+
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
+\item Qwen2.5-VL, Lingshu, and Qwen3-VL use the last vision block. The towers have \jnQwenVisionDepth{} blocks for Qwen2.5-VL and Lingshu, \jnQwenThreeShallowDepth{} for Qwen3-VL 4B, and \jnQwenThreeDeepDepth{} for Qwen3-VL 8B and 32B. Each image occupies a contiguous segment of the batch's token sequence, indexed by its patch grid. The connector joins each $\jnPatchGroupSide\times\jnPatchGroupSide$ patch group. Earlier Qwen3-VL DeepStack branches bypass the write.
+\item Gemma~3 and MedGemma use the last of \jnSiglipDepth{} SigLIP layers through the tower's final normalization. All patch tokens are written and must match the number of image placeholders in the language-model input.
+\item InternVL3.5 uses the last InternViT layer, from \jnInternVlShallowDepth{} layers at 8B and 14B or \jnInternVlDeepDepth{} at 38B. Its final normalization passes the features through unchanged. The write includes the single tile's patch tokens, which must match the image placeholders.
+\item LLaVA-1.5 and LLaVA-Med use patch tokens from the penultimate of \jnClipDepth{} CLIP layers. These checkpoints drop the global image-summary token (CLS), as does InternVL3.5.
+\item Llama~3.2 Vision uses the last of \jnLlamaGlobalDepth{} global layers. The connector also receives \jnLlamaLocalBranches{} intermediate local-layer outputs that bypass the write. The edit covers the real tile's CLS and patch tokens and excludes its \jnLlamaPaddingTokens{} padding tokens and the \jnLlamaPaddingTiles{} padded tiles.
+\end{itemize}
+
+The scorer stops if the image spans do not cover the expected tensor, the mask has the wrong length, an image has no usable tokens, or one pass reaches the layer more than once. The acceptance checks in Section~\ref{app:cf-gates} verify that edits follow the intended path.
 
 \subsection{Reading and writing the visual representation}
 \label{sec:site}
+\label{app:repro-probe}
 
-\begin{figure*}[pos=t]
+\begin{figure*}[pos=tp]
     \centering
     \includegraphics[width=\linewidth]{figures/fig1_framework.pdf}
-    \caption{\textbf{Reading and writing at the selected vision layer.} (a) The probe reads the same visual tokens that receive the write. Hatching marks token positions the connector does not use. (b) The ownership rule compares three references. On NIH ChestX-ray14, the nodule write raises Qwen2.5-VL-7B's effusion answer more than the effusion write does.}
+    \caption{\textbf{Reading and writing at the selected vision layer.} (a) The probe reads the visual tokens that receive the write. Hatching marks token positions the connector excludes. (b) On NIH ChestX-ray14, the nodule write raises Qwen2.5-VL-7B's effusion answer more than the effusion write does.}
     \label{fig:framework}
 \end{figure*}
 
-The vision tower is the image encoder that represents an image as a set of feature vectors called visual tokens. The connector maps these tokens into inputs for the language model. We selected the last vision layer that feeds the connector and used the token positions it receives so that reading and writing act on the same visual information passed to the language model. We call the connector and language model together the reader. We also evaluated edits at the connector output, where the language model reads the edited features directly (Appendix~\ref{app:repro-sites}).
-
-A write is the addition of a direction to the visual features. For image $i$ and token $t$, let $\hvec_{it}$ be the unedited feature vector and $\hat\wvec_c$ the unit vector fitted for concept $c$. We write
+We read and edited the same tokens to test how the language model responds to changes in the information it receives. A write adds a direction to the visual features. For image $i$ and token $t$, let $\hvec_{it}$ be the unedited feature vector and $\hat\wvec_c$ the unit direction for concept $c$.
 \begin{equation}
 \hvec'_{it}=\hvec_{it}+\alpha\lVert\hvec_{it}\rVert_2\,\hat\wvec_c.
 \label{eq:intervention}
 \end{equation}
-The steering strength $\alpha$ sets the size and sign of the edit. Scaling by each token's vector length makes the edit comparable across models with different feature scales. The primary steering strength was one quarter of the token length, in the direction that increases the probe score. We also tested other strengths.
+The signed steering strength $\alpha$ expresses the size of the edit as a fraction of each token's vector length. This scaling makes the strengths comparable across models. The primary write used $\alpha=\jnPrimaryStrength$, which increases the probe score. The strength sweep also used $\alpha\in\jnOtherStrengths$.
 
-\subsection{Label directions and decoding}
+To fit the probe, we averaged the selected tokens for each image to obtain $\hvec_i$. We projected this vector using a fixed Gaussian matrix $R\in\R^{D\times m}$, where $D$ is the hidden width and $m=\cfAltdirdGramDim$. We drew independent standard normal entries using PCG64 with seed zero, divided them by $\sqrt{m}$, and stored them in single precision. The columns received no further scaling or orthogonalization. For each projected feature, we subtracted its training mean and divided by its training standard deviation, floored at $\jnScaleFloor$. We fitted an $\ell_2$-regularized logistic regression probe with inverse penalty strength $C=1$, equal class weights, and up to \jnProbeMaxIterations{} L-BFGS iterations. This fit used the images with known labels for that concept. For the two refits, we resampled training patients or images with replacement, keeping all rows from each sampled unit and refitting the standardizer and probes. The projection and controls reused the original seeds.
+
+\subsection{Label directions and controls}
 \label{sec:directions}
+\label{app:repro-controls}
 
-For each concept, we averaged the selected visual tokens and projected the resulting vector with a fixed matrix $R$. We standardized the projected features using training data and fitted a regularized logistic regression probe to the concept labels. If $\boldsymbol\beta_c$ contains the fitted coefficients and $\boldsymbol s$ the training feature scales, the probe direction in the original visual feature space is
+Let $\boldsymbol\beta_c$ be the fitted probe coefficients and $\boldsymbol s$ the feature scales after flooring. The label direction, the unit vector in which changes in the original visual features most increase the probe score, is
 \begin{equation}
 \begin{aligned}
 \hat\wvec_c &= \boldsymbol g_c/\lVert\boldsymbol g_c\rVert_2,\\
@@ -41,66 +70,129 @@ For each concept, we averaged the selected visual tokens and projected the resul
 \end{aligned}
 \label{eq:lift}
 \end{equation}
-We call this vector the label direction. It points along the change in the visual features that most increases the probe score. Appendix~\ref{app:repro-probe} specifies the projection and probe settings.
 
-We measured discrimination with the area under the receiver operating characteristic curve (AUROC), which measures how often a higher score is assigned to a positive example than to a negative one, with ties receiving half credit. Control probes were fitted in the same way to randomly assigned labels shared by images of the same type. Image types were defined by projection, sex, and age decade for radiographs, and by aspect ratio and image area for COCO. Probe selectivity $S$ is the difference between the concept probe's calibration AUROC and the mean AUROC among the $K$ control probes with valid scores.
+We measured discrimination by area under the receiver operating characteristic curve (AUROC), which estimates how often a positive example scores higher than a negative one, giving half credit to ties. The control probes used random labels shared by images of the same type, defined jointly by projection, recorded sex, and age decade for radiographs, or by aspect ratio and area for COCO. For each of \jnLabelControlCount{} seeds starting at zero, we drew binary labels with equal probability for the types in sorted order. If every type received the same label, we flipped the first type's label. We fitted these probes on the same known-label training rows and with the same settings as the concept probe. A block required at least \jnMinControlTypes{} types to fit the control probes. Probe selectivity $S$ compares the concept AUROC with the mean AUROC of the $K$ controls with valid scores.
 \begin{equation}
 S=\operatorname{AUROC}(y,r)-
 \frac{1}{K}\sum_{k=1}^{K}\operatorname{AUROC}(y_k^{\mathrm{ctrl}},r_k^{\mathrm{ctrl}}).
 \label{eq:selectivity}
 \end{equation}
-Here $y$ and $r$ denote the labels and probe scores, respectively. The superscript $\mathrm{ctrl}$ indicates the corresponding quantities for a control probe. The control procedure is detailed in Appendix~\ref{app:repro-controls}.
+Here $y$ denotes labels, $r$ denotes probe scores, and $\mathrm{ctrl}$ denotes the control counterparts.
 
-\subsection{Ownership and direction specificity}
-\label{sec:ownership}
+For steering controls, we drew \jnRandomDirections{} Gaussian vectors per block using PCG64 with seed zero and scaled each to unit length. All questions in a block used the same vectors. The same generator then drew a coordinate permutation for each concept in protocol order. This sham shuffles the coordinates of the concept's direction while preserving their values and the vector length. We applied every direction at the same strength to the same images.
 
-We asked a yes/no question about each concept to obtain a single score at the first answer position. We calculated $P(\mathrm{yes})=\sigma(\ell_{\mathrm{yes}}-\ell_{\mathrm{no}})$, where $\sigma$ is the logistic function and $\ell_{\mathrm{yes}}$ and $\ell_{\mathrm{no}}$ are the log probabilities of the respective answers. The score without an edit is the clean answer. We also tested alternative wordings and equivalent letter-coded answers. If the yes/no format failed the eligibility check, we graded an eligible letter-coded format (Appendix~\ref{app:protocol}).
-
-For question $q$ and direction $d$, the write matrix entry $W_{q,d}$ is the mean difference in $P(\mathrm{yes})$ between edited and clean answers on the same test images. Its diagonal, $W_{q,q}$, measures the own write, the effect of adding the label direction on its corresponding question. The steering reference requires a positive own write that exceeds the ninety-fifth percentile of the effects of \jnRandomDirections{} random unit directions and the absolute effect of the sham. We wrote the random directions and the coordinate-shuffled label direction at the same strength and on the same images as the concept writes (Appendix~\ref{app:repro-controls}).
-
-Ownership asks which direction most increases the answer to a given question. Its row margin is
+We also tested directions based on the difference between class means, the activation pattern associated with the classifier weights (Haufe pattern),\cite{haufe2014interpretation} probe directions projected away from other label directions, and probes refitted after removing the linear signal of the other labels. A fitted probe coefficient gives a direction via Eq.~\ref{eq:lift}. For a displacement $\boldsymbol u$ in the projected and scaled feature space, such as the difference of means, we instead recovered a direction in the original feature space by taking the shortest vector that gives that displacement up to scale.
 \begin{equation}
-O_q=W_{q,q}-\max_{d\ne q}W_{q,d}.
-\label{eq:margin}
+\begin{aligned}
+\hat\wvec &\propto R(R^{\top}R)^{-1}
+             \mathrm{diag}(\boldsymbol s)\,\boldsymbol u,\\
+R^\top\hat\wvec &\propto \mathrm{diag}(\boldsymbol s)\,\boldsymbol u .
+\end{aligned}
+\label{eq:displacement-lift}
 \end{equation}
-A cell is owned if it meets the steering reference and $O_q>0$. Direction specificity asks which answer a given direction changes most. Its column margin is
+The two operations differ because $R^\top R$ is not proportional to the identity. The matrix $R^\top R/D$ had full rank $m$ in all \cfAltdirdBlocks{} blocks tested with the displacement construction. Its eigenvalues ranged from $\cfAltdirdEigMin$ to $\cfAltdirdEigMax$ and its condition numbers from \cfAltdirdCondMin{} to \cfAltdirdCondMax{}.
+
+To test edits concentrated on the most informative tokens, we weighted each write by the probe's token score $z_t$. The weights average one across the $n_{\mathrm{tok}}$ selected tokens. The softmax gives higher weights to higher scores. The other variant writes only to the top quarter of tokens.
 \begin{equation}
-C_d=W_{d,d}-\max_{q\ne d}\lvert W_{q,d}\rvert.
-\label{eq:column-margin}
+\begin{aligned}
+\hvec'_{it}&=\hvec_{it}+\alpha\omega_t\lVert\hvec_{it}\rVert_2\,\hat\wvec_c,\\
+\omega_t^{\mathrm{softmax}}
+  &=n_{\mathrm{tok}}e^{z_t}\big/\sum_{t'}e^{z_{t'}},\\
+\omega_t^{\mathrm{quarter}}
+  &=4\,\mathbf 1[\,z_t\in\text{top quarter}\,].
+\end{aligned}
+\label{eq:token-weights}
 \end{equation}
-A cell is specific if it meets the steering reference and $C_d>0$. It is owned and specific if it passes both criteria. A large decrease in another answer counts against specificity. To summarize the total off-target movement, we divided the sum of absolute changes in the other answers by the own effect among directions that met the steering reference. We also summarized column selectivity $\kappa_d$, the signed own effect divided by the sum of absolute changes across all questions (Appendix~\ref{app:cf-ansdir}).
+The softmax preserves the sum of weights. Selecting the top quarter doubles their Euclidean norm relative to uniform weights. The extended competitor analysis also fitted directions for labels with at least \jnMinExtendedClassSupport{} known positives and negatives. These included consolidation, edema, and infiltration on NIH, and enlarged cardiomediastinum, fracture, lung lesion, lung opacity, pneumonia, and support devices on CheXpert Plus. Ownership then required beating the additional directions as well.
+
+\subsection{Questions and scoring}
+\label{app:protocol}
+
+We crossed two wordings, \emph{is there} (I) and \emph{does the image show} (W), with yes/no (Y) and two letter mappings (A-present and B-present). A prompt is named by its wording and answer format. The primary prompt was IY. If the model could not map its answers correctly in that format, we graded an eligible letter-coded prompt (Section~\ref{app:cf-gates}).
+
+The score uses the first answer position. Let $\ell_{\mathrm{yes}}$ and $\ell_{\mathrm{no}}$ be the highest log probabilities among the valid single-token forms for each answer, including case and leading spaces. The relative support for yes is $P(\mathrm{yes})=\sigma(\ell_{\mathrm{yes}}-\ell_{\mathrm{no}})$, where $\sigma$ is the logistic function. The clean answer is this score before editing. The log-probability difference before applying $\sigma$ is the answer margin. Tables~\ref{tab:key-terms} and \ref{tab:notation} summarize the terms and symbols.
 
 \begin{table}[pos=t]
 \centering
-\caption{\textbf{Key terms.} Plain-language definitions for the RAW evaluation.}
+\caption{\textbf{Key terms.} Definitions for the RAW evaluation.}
 \label{tab:key-terms}
-\small
-\begin{tabular}{@{}l@{\hspace{0.8em}}p{0.67\columnwidth}@{}}
+\fitwidth{%
+\cftabsize
+\begin{tabular}{@{}lp{0.70\columnwidth}@{}}
 \toprule
 Term & Definition \\
 \midrule
 Probe & Classifier fitted to the model's image features. \\
-Direction & Vector that specifies how the features change. \\
+Direction & Vector specifying how features change. \\
 Write & Addition of a direction to the features. \\
-Reader & Connector and language model downstream of the vision tower. \\
+Reader & Connector and language model. \\
 Competitor & Direction fitted for another labeled concept. \\
-Sham & Control made by shuffling the direction's coordinates. \\
+Sham & Control made by shuffling a direction's coordinates. \\
 Cell & One checkpoint and one concept on a dataset. \\
 Block & One checkpoint evaluated on one dataset. \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-\subsection{Decision rules and comparison analyses}
+\begin{table*}[pos=tp]
+\centering
+\caption{\textbf{Notation used in the study.} Symbols for features, answers, and intervention effects.}
+\label{tab:notation}
+\fitwidth{%
+\cftabsize
+\begin{tabular}{@{}lp{0.80\linewidth}@{}}
+\toprule
+Symbol & Definition \\
+\midrule
+$c$, $q$, $d$ & Concept, question about a concept, and direction fitted for a concept. \\
+$\hvec_{it}$, $\hvec_i$ & Selected visual feature vector for image $i$ and token $t$, and its mean over selected tokens. \\
+$D$, $R$, $\boldsymbol s$, $\boldsymbol\beta_c$ & Vision feature dimension, Gaussian projection, training feature scales, and concept probe coefficients. \\
+$\hat\wvec_c$, $a_q$ & Directions fitted to concept labels (Eq.~\ref{eq:lift}) and to the model's clean answers (Eq.~\ref{eq:answer-direction}). \\
+$\alpha$, $S$ & Signed edit strength relative to token length, and probe selectivity (Eq.~\ref{eq:selectivity}). \\
+$W_{q,d}$ & Mean change in question $q$'s score under direction $d$. \\
+$O_q$, $C_d$ & Row and column margins (Eqs.~\ref{eq:margin} and \ref{eq:column-margin}). \\
+$O_q^m$ & Row margin calculated from changes in $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$. \\
+$\kappa_d$ & Fraction of absolute change attributable to the signed own effect (Eq.~\ref{eq:column-selectivity}). \\
+$F_{q,d}$ & Mean positive change over checkpoints, shown by band width in Fig.~\ref{fig:write-flow}. \\
+$\cos_\Sigma$ & Cosine weighted by the training-feature covariance $\Sigma$ (Eq.~\ref{eq:whitened-cos}). \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+\subsection{Ownership and direction specificity}
+\label{sec:ownership}
+
+The matrix entry $W_{q,d}$ is the mean paired difference in $P(\mathrm{yes})$ for question $q$ after adding direction $d$ on the same test images. The diagonal $W_{q,q}$ is the own write. The steering reference requires a positive own write that exceeds both the ninety-fifth percentile of the random effects and the absolute sham effect.
+
+Ownership asks which direction most increases the answer to a question. The row margin is
+\begin{equation}
+O_q=W_{q,q}-\max_{d\ne q}W_{q,d}.
+\label{eq:margin}
+\end{equation}
+A cell is owned if it meets the steering reference and $O_q>0$. Direction specificity asks which answer a direction changes most. The column margin is
+\begin{equation}
+C_d=W_{d,d}-\max_{q\ne d}\lvert W_{q,d}\rvert.
+\label{eq:column-margin}
+\end{equation}
+A cell is specific if it meets the steering reference and $C_d>0$. It is owned and specific if it passes both criteria. A large decrease in another answer counts against specificity. Among directions meeting the steering reference, we divided the sum of absolute changes in the other answers by the own effect to quantify total off-target movement. We also calculated column selectivity for each direction.
+\begin{equation}
+\kappa_d=\frac{W_{d,d}}{\sum_q\lvert W_{q,d}\rvert}.
+\label{eq:column-selectivity}
+\end{equation}
+Column selectivity reaches one when a write raises its own answer and leaves the other answers unchanged.
+
+\subsection{Decision rules, acceptance checks and analyses}
 \label{sec:grades}
+\label{sec:gates}
+\label{app:cf-gates}
 
 \begin{table}[pos=t]
 \centering
-\caption{\textbf{RAW grades.} Reading and answering are graded on the calibration cohort. The intervention criteria use the test cohort.}
+\caption{\textbf{RAW grades.} Reading and answering use calibration data. Intervention criteria use the test cohort.}
 \label{tab:grades}
-\small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}l p{0.62\columnwidth}@{}}
+\fitwidth{%
+\cftabsize
+\begin{tabular}{@{}lp{0.62\columnwidth}@{}}
 \toprule
 Grade & Criterion \\
 \midrule
@@ -110,11 +202,88 @@ Owned & Steering reference met and $O_q>0$ \\
 Specific & Steering reference met and $C_d>0$ \\
 Owned and specific & Steering reference met, $O_q>0$ and $C_d>0$ \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
-Table~\ref{tab:key-terms} summarizes the terminology and Table~\ref{tab:grades} gives the decision rules. Reading and answering required at least ten known positives and ten known negatives in the calibration cohort. Readability also required at least ten control probes with valid AUROCs. The intervention comparisons use a fixed set of labeled competitors. To assess sensitivity to the choice of competitors, we repeated the ownership grade using every subset of a given size and averaged the owned counts across subsets.
+Reading and answering required at least \jnMinClassSupport{} known positive and negative examples each in the calibration cohort (Table~\ref{tab:grades}). Readability also required a valid concept AUROC and at least \jnMinValidControls{} valid control AUROCs. For competitor sensitivity we repeated the ownership comparison for every subset of a given size and averaged the owned counts.
 
-To examine the role of answer difficulty, we added fine-grained COCO objects to the natural-image comparison and stratified ownership by clean-answer AUROC (Appendix~\ref{app:cf-difficulty}). To increase overlap between domains, we ran separate analyses with minimum clean-answer AUROC thresholds of \jnCsAurocLower{} and \jnCsAurocHigher{}. Within each subset a logistic model predicted ownership from image domain, clean-answer AUROC, and probe selectivity. For each cell we computed predicted ownership probabilities under each image domain at the cell's observed AUROC and selectivity, then averaged the chest-minus-natural differences. Standard deviations for the adjusted estimates and the highest-AUROC stratum came from resampling checkpoints with replacement. As a control within radiographs, we fitted directions for projection, recorded sex, and age and graded them jointly with the finding directions (Appendix~\ref{app:cf-attributes}).
+Before scoring each block we ran seven checks on \cfCohortNihPreflightRows{} images at both sites. We checked that clean passes produced identical scores, a zero-strength edit reproduced a clean pass, the write reached the connector or language model and changed the answer, batched and single-image passes agreed, each prompt elicited its expected answer mapping without an image, throughput was sufficient, and recomputing answer logits in single precision reproduced the reported scores. The edit test used the first concept at the primary strength and compared the clean and edited features inside and outside the mask as well as the downstream scores. Across the \cfWriteBlocks{} completed blocks, repeated clean and zero-strength passes were identical, changes stayed within the mask at both sites, and differences after single-precision recomputation were below \cfGateFpMax{}. To control for differences between batched and single-image scores, we used a fixed batch composition for every condition of a question. We graded only prompts that passed the mapping check.
 
-For the analysis of output control, we fitted an answer direction to the model's clean answer margin $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$ using ridge regression, a linear fit with a penalty on large coefficients. We used the same transformation as in Eq.~\ref{eq:lift} to convert the coefficients into a direction and tested it against the labeled competitors. We compared the directions by cosine, a measure of their alignment, and assessed how well each recovered the model's answers and the report labels on held-out images (Appendix~\ref{app:cf-ansdir}).
+\label{app:cf-coverage}
+The registered plan included \cfCoveragePlannedWord{} analysis components per block. These were the main write matrix, calibration, the other prompt templates, the strength sweep, the probe refits, connector-output writes, and connector-output calibration. All \cfBlocks{} blocks completed the main matrix and calibration. The full plan was completed for \cfCoverageBlocksAllSeven{} blocks. Qwen2.5-VL-72B on CheXpert Plus lacked the additional prompts and connector analyses. A block with eligible probes but an incomplete or ineligible write matrix contributes only readability. Scorecards contain each block's range of margins over $\jnStrengthSweepBounds$, refit standard deviation, connector-output ownership, and wording and mapping comparisons. The study used about \jnEvaluationComputeHours{} A100 GPU-hours, with about \jnChestBlockHours{} hours for a chest block of a model with seven billion parameters.
+
+For robustness, we also calculated ownership directly from changes in $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$, denoting the row margin on this scale by $O_q^m$. We repeated the probability-scale analysis on rows with clean $P(\mathrm{yes})$ between \jnSaturationLow{} and \jnSaturationHigh{}, and stratified by clean answer and label. We rescored the first \jnPrecisionRows{} test rows per block at batch size one and in single precision. For the radiologist-label check, we regraded report-fitted directions on the separate CheXpert validation films. We also refitted directions to expert labels, cross-fitting patient folds to evaluate their decoding, then wrote those directions on the main test cohort. Label-source and sample-size comparisons used the same evaluation folds with report labels from those films, report labels from equally sized training subsamples, or the full available report-labeled training set.
+
+\label{app:cf-difficulty}
+To compare ownership at similar answer difficulty, we fitted and graded the fine-grained COCO categories as their own set in the same blocks and cohorts used for the original categories. We pooled both COCO sets and stratified by clean-answer AUROC at \cfStratEdges{}. To increase overlap between domains, we ran separate analyses with minimum clean-answer AUROC thresholds of \jnCsAurocLower{} and \jnCsAurocHigher{}. Within each subset a logistic model predicted ownership from image domain, clean-answer AUROC, and probe selectivity. We calculated the adjusted difference by averaging each cell's predicted ownership under chest radiographs minus its prediction under natural images, using the cell's observed AUROC and selectivity for both predictions. Standard deviations came from \jnBootstrapResamples{} resamples of checkpoints with replacement, keeping each checkpoint's cells together. The highest AUROC stratum used the same checkpoint resampling.
+
+As a control on the same radiographs, we fitted directions for anteroposterior or portable versus posteroanterior projection, recorded sex, and age at least \jnAttributeAgeCutoff{} years. We graded these attributes jointly with the findings in \cfAttrRefBlocks{} blocks using the same random and sham references. Calibration tested \cfAttrqPhrasings{} prompts per attribute. We compared results across all cells, among answerable cells, and for attributes and findings within \cfAttrPairWindow{} clean-answer AUROC in the same block.
+
+\label{app:cf-crossed-reader}
+We paired the Gemma~3 4B and MedGemma 4B vision towers with both readers. The new tower matched \cfSwapTensors{} donor weight arrays exactly, and the \cfSwapOutside{} arrays outside the tower were unchanged. Directions traveled with their towers. All combinations used the same \cfSwapRows{} test images, the primary strength and prompt, and the random and sham controls for the installed tower. Let $Y_q(g/h)$ denote the measurement for question $q$ with tower $g$ and reader $h$, with $\mathrm G$ and $\mathrm M$ denoting Gemma~3 and MedGemma. The swap effects average absolute paired differences over questions and the component held fixed.
+\begin{equation}
+\begin{aligned}
+\delta_{\text{reader}}&=\tfrac{1}{12}\sum_{g,q}
+  \lvert Y_q(g/\mathrm G)-Y_q(g/\mathrm M)\rvert,\\
+\delta_{\text{tower}}&=\tfrac{1}{12}\sum_{h,q}
+  \lvert Y_q(\mathrm G/h)-Y_q(\mathrm M/h)\rvert.
+\end{aligned}
+\label{eq:crossover}
+\end{equation}
+We calculated these effects for the own write $W_{q,q}$, row margin $O_q$, and the margin $M_q$ over the largest of the competing writes, random cutoff, and absolute sham effect. To isolate differences between readers given exactly the same image features, we stored the selected tokens from one checkpoint and substituted them for each paired checkpoint's own tokens. We compared the stored and native values first and replayed a checkpoint's own features to check the substitution path.
+
+For output control, we fitted an answer direction $a_q$ to the model's clean answer margin $m_{iq}$ for image $i$, using projected and standardized features $\boldsymbol x_i$. Ridge regression penalizes large coefficients. The coefficient vector minimizes
+\begin{equation}
+\begin{split}
+\boldsymbol\gamma_q=\arg\min_{\gamma_0,\boldsymbol\gamma}\;\bigg[
+ &\sum_i (m_{iq}-\gamma_0-\boldsymbol x_i^\top\boldsymbol\gamma)^2\\
+ &+\lambda\lVert\boldsymbol\gamma\rVert_2^2\bigg].
+\end{split}
+\label{eq:answer-direction}
+\end{equation}
+We used the first \jnAnswerDirectionFitRows{} training rows in label-blind order and chose $\lambda\in\jnRidgePenalties$ by five-fold cross-validation of $R^2$ over patients or images. We lifted and normalized the coefficients by Eq.~\ref{eq:lift}. We tested the direction at the primary strength against the other answer directions, the random family, and its own sham. The held-out templates used the same answer direction with their own clean baselines and sham controls.
+
+We compared directions by cosine, a measure of their alignment, and by a covariance-weighted cosine.\cite{park2024linear} For projected coefficients $\boldsymbol\beta$ and $\boldsymbol\beta'$, let $\Sigma$ be the training feature covariance. The covariance-weighted cosine equals the correlation of scores over training images.
+\begin{equation}
+\cos_\Sigma(\boldsymbol\beta,\boldsymbol\beta')
+=\frac{\boldsymbol\beta^\top\Sigma\boldsymbol\beta'}
+{\sqrt{(\boldsymbol\beta^\top\Sigma\boldsymbol\beta)
+        (\boldsymbol\beta'^\top\Sigma\boldsymbol\beta')}}.
+\label{eq:whitened-cos}
+\end{equation}
+
+We also scored a negated question, a forced choice between the target and its strongest competitor in both answer orders, and the log probability of the finding word in a report continuation. The negated question should move in the opposite direction to the affirmative one. Each format used its own baseline, sham, and \cfSemLedgerRandom{} random directions. The signed effect $E_q$ for the intended response met the reference if it satisfied
+\begin{equation}
+E_q>\max\bigl(0,\;\max_k E_k^{\mathrm{rand}},\;
+                   \lvert E_q^{\mathrm{sham}}\rvert\bigr).
+\label{eq:endpoint-reference}
+\end{equation}
+Ownership also required the effect to exceed those of the labeled competitors on the same question.
+
+\subsection{Registration and reproducibility}
+\label{app:repro}
+\label{app:repro-protocol}
+
+We fixed the layers, model settings, reference directions, prompts, analysis plan, and decision rules before scoring the main evaluation. Dated amendments specified the cohorts, controls, and decision rules for additional analyses before their first results, including the fine-grained category rule and matching windows. Checkpoint rankings, write-flow summaries, and individual examples were descriptive analyses of completed runs. The public release includes the code and model adapters, protocol, seeded cohort lists, fitted directions, outcomes per image, scorecards, coverage files, and rendered prompts. Each new model requires an adapter that identifies its input layer and satisfies the acceptance checks.
+
+\subsubsection{Registered NIH replication and prompt experiments}
+\label{app:seed}
+
+Separate NIH experiments used LLaVA-1.5-7B for effusion and edema and Qwen2.5-VL-7B for effusion.\cite{liu2024improved,bai2025qwen25vl} A deterministic hash of patient identity divided \jnReplicationTrainingRows{} training images and \jnReplicationTestRows{} test images from \jnReplicationTestPatients{} test patients, with a separate validation partition. We used the selected tower layer, checked zero-strength identity and downstream reach, and calculated selectivity on the test set from \jnLabelControlCount{} random-label maps over \jnReplicationLabelTypes{} recurring image types. The initial writes used strengths $\alpha\in\jnReplicationStrengths$ on \jnReplicationInitialRows{} held-out images. The matched controls were \jnLabelControlCount{} random directions, a sham, and the fixed competing finding directions. At the controlled strengths $\mathcal A=\jnReplicationControlStrengths$, we selected the greatest signed effect in the intended direction.
+\begin{equation}
+\begin{aligned}
+\alpha_c^\star &=
+  \operatorname*{arg\,max}_{\alpha\in\mathcal A}
+  \operatorname{sign}(\alpha)\Delta_c(\alpha),\\
+\Delta_c^\star &=\operatorname{sign}(\alpha_c^\star)
+                 \Delta_c(\alpha_c^\star).
+\end{aligned}
+\label{eq:seed-rule}
+\end{equation}
+Here $\Delta_c(\alpha)$ is the mean change from the common clean score. We compared $\Delta_c^\star$ with the largest absolute sham effect across controlled strengths and with the ninety-fifth percentile of signed random effects at the selected strength. Comparisons of monotonicity over $\jnStrengthSweepBounds$ were descriptive.
+
+The effusion replication fixed $\alpha=\jnPrimaryStrength$ and used one row selected by label-blind hash from each of \jnReplicationEffusionRows{} new NIH test patients. The effusion question was scored against the \jnLabelControlCount{} random directions, the sham, and the other NIH finding directions, giving \jnReplicationConfigurations{} conditions and \jnReplicationOutcomeCount{} image-level outcomes. Its registered ownership rule required passing the random and sham reference and a positive row margin. A further matrix crossed all NIH findings and questions on \jnReplicationMatrixRows{} new patients at the same strength. In that analysis the own write had to exceed the maximum random effect, the absolute sham effect, and all competitors. For each direction we measured the mean signed off-target change and its mean excess over the corresponding diagonal effects.
+
+The prompt crossover used \jnReplicationPromptRows{} patients from the matrix cohort and an equally sized, patient-disjoint calibration group. At strengths in $\jnReplicationPromptStrengths$, it compared the yes/no question with both letter mappings under the clinical directions, \jnLabelControlCount{} random directions, and the sham. Eligibility required the registered above-chance AUROC check in both mappings and at least \jnMinClassSupport{} patients per class. The mass confirmation then crossed two wordings with the three answer formats on \jnReplicationMassRows{} further patients. It tested the primary strength with \jnRandomDirections{} random directions, a sham, and \jnLabelControlCount{} clinical comparisons. Confirmation required the mass write to beat the competitors, largest random effect, and absolute sham effect in all four letter-coded conditions or both yes/no wordings. Section~\ref{app:seed-results} reports the replication results.
+
+\FloatBarrier
