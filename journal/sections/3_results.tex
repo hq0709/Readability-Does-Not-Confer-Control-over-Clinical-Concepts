@@ -6,7 +6,7 @@
 
 On the two chest datasets, \cfChestReadablePct{}\% of the \cfChestCellsN{} cells were readable and \cfChestAnswerablePct{}\% were answerable. Ownership was less common, at \cfChestOwnedPct{}\% on radiographs and \cfCocoOwnedPct{}\% on COCO (Table~\ref{tab:cf-main}, Fig.~\ref{fig:teaser}). Of the \cfChestAnswerable{} answerable chest cells, \cfReadAns{} were also readable. Among cells that passed both grades, \cfReadAnsOwned{} (\cfReadAnsOwnedPct{}\%) were owned. Across steering strengths, the median NIH ownership margin remained negative, while COCO had a positive median at the primary strength (Fig.~\ref{fig:overview}).
 
-\input{tables/table_cf_main}
+\input{journal/tables/table_cf_main}
 
 \begin{figure*}[pos=tp]
     \centering
@@ -80,7 +80,7 @@ In the separate NIH experiments (Section~\ref{app:seed}), the Qwen2.5-VL-7B effu
 \label{sec:specificity-results}
 All competing directions increased the effusion score on that cohort. The nodule direction produced the largest increase, giving effusion an ownership margin of $\cfSeedPriorOFull$. Nodule again moved the effusion answer more on the main NIH test cohort ($O_{\mathrm{Effusion}}=\cfSeedEffO$; Table~\ref{tab:cf-seed}). Across chest blocks, \cfEffusionOwnedBlocks{} of \cfChestBlocks{} effusion answers were owned. In the prompt confirmation, the mass direction beat the clinical alternatives under the letter-coded \emph{show} prompts. Its effects stayed below the maximum random effect, so the confirmation criteria were unmet.
 
-\input{tables/table_cf_seed}
+\input{journal/tables/table_cf_seed}
 
 On the radiograph in Fig.~\ref{fig:example}, the effusion yes score rose from \cfExChestClean{} to \cfExChestOwn{} with the effusion direction and to \cfExChestComp{} with the nodule direction. On the photograph, the dog direction raised the dog score from \cfExCocoClean{} to \cfExCocoOwn{}, with negligible change in the other answers.
 
@@ -126,7 +126,7 @@ Median chest probe selectivity was \cfSelChestMed{} (quartiles \cfSelChestQOne{}
 
 Median own effects were \cfMedianWqqNih{} on NIH, \cfMedianWqqChex{} on CheXpert Plus, and \cfMedianWqqCoco{} on COCO (Table~\ref{tab:cf-controls}). The strength sweep included \cfDoseBlocksNih{} NIH and \cfDoseBlocksCoco{} COCO blocks. COCO margins in the Qwen, Lingshu, and Gemma families ranged from \cfCocoMarginMin{} to \cfCocoMarginMax{}. Median absolute own effects at the connector output were \cfConnWqqNih{} on NIH and \cfConnWqqCoco{} on COCO, compared with \cfPrimWqqNih{} and \cfPrimWqqCoco{} at the selected vision layer.
 
-\input{tables/table_cf_controls}
+\input{journal/tables/table_cf_controls}
 
 The answer-margin scale gave the same ownership verdict in \cfScaleAgree{} of \cfScaleAgreeN{} cells. Of the \cfScaleOwned{} owned cells, \cfScaleOwnedMpos{} retained a positive row margin and \cfScaleOwnedKeepFull{} passed the full answer-margin rule. The median fraction of near-saturated answers was \cfScaleSatCoco{} for COCO, \cfScaleSatNih{} for NIH, and \cfScaleSatChex{} for CheXpert Plus. On unsaturated rows, all \cfScaleUnsatOwned{} originally owned chest cells and \cfScaleUnsatOtherPos{} of \cfScaleUnsatOther{} other cells had positive row margins. The full regrade retained \cfScaleUnsatGradeKept{} of \cfScaleUnsatGradeN{} owned cells and newly graded \cfScaleUnsatGradeGained{} of \cfScaleUnsatGradeOtherN{} other cells as owned. The pattern held across clean-answer and label strata.
 
@@ -221,6 +221,6 @@ Among the \cfAnsColSelChestN{} chest cells with both fitted directions, median c
 
 Across \cfSemBlocks{} blocks and the alternative answer formats, \cfSemAnswerOwned{} of \cfSemCells{} cells were owned for answer directions and \cfSemLabelOwned{} for label directions (Table~\ref{tab:cf-semend}). Negating the question reversed the direction of the change for \cfSemNegOpposite{} of \cfSemNegN{} concept--block pairs. Forced choices were owned in both orders for \cfSemForcedOwned{} of \cfSemForcedN{} pairs, with mean order differences from \cfSemGapMin{} to \cfSemGapMax{}. Report continuations were owned in \cfSemReportOwned{} of \cfSemReportCells{} cells.
 
-\input{tables/table_cf_semend}
+\input{journal/tables/table_cf_semend}
 
 

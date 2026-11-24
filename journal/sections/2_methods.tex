@@ -24,7 +24,7 @@ A vision tower is the image encoder. It represents an image as feature vectors c
 
 The LLaVA families use CLIP,\cite{radford2021clip} Gemma~3 uses SigLIP,\cite{zhai2023siglip} MedGemma uses medically tuned SigLIP,\cite{sellergren2025medgemma} and Qwen3-VL uses a SigLIP~2 design.\cite{tschannen2025siglip2} CheXagent-2-3B, CheXagent-8B, and LLaVA-Rad-7B use towers trained on chest radiographs, respectively XraySigLIP, EVA-CLIP, and BiomedCLIP-CXR.\cite{chen2024chexagent,sun2023evaclip,zhang2025biomedclip,zambranochaves2025llavarad} HuatuoGPT-Vision-7B is medically tuned over the same CLIP tower as LLaVA-1.5.
 
-\input{tables/table_cf_models}
+\input{journal/tables/table_cf_models}
 
 For each batch, we identified the visual tokens reaching the connector from the image processor's outputs. Table~\ref{tab:cf-models} gives the input sizes and token counts. The family-specific layer and token choices were as follows.
 

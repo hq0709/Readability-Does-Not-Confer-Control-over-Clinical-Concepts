@@ -1,5 +1,5 @@
 %% Meta-Radiology submission (KeAi / Elsevier), Elsevier CAS double-column class (els-cas-templates v2.4).
-%% Build from this directory:  TEXINPUTS=.:..//: BIBINPUTS=..: latexmk -pdf main.tex
+%% Build from the repository root (also the Overleaf main document):  latexmk -pdf meta_radiology.tex
 \PassOptionsToPackage{table}{xcolor}
 \PassOptionsToPackage{hyperfootnotes=false}{hyperref}
 \documentclass[a4paper,fleqn]{cas-dc}
@@ -23,14 +23,13 @@
 \usepackage{xcolor}
 \usepackage{url}
 
-\graphicspath{{../}}
 % One type family throughout: tables, captions and headings (sans in the stock CAS layout) use the STIX text
 % face of the body, which is also the face of the figure labels (STIX / Nimbus Roman).
 \renewcommand{\sfdefault}{\rmdefault}
 \input{math_commands}
 \input{tables/cf_colors}
 \input{tables/cf_numbers}
-\input{journal_numbers}
+\input{journal/journal_numbers}
 
 
 % Keep the stock CAS template and omit the ORCID footnote when no IDs are supplied.
@@ -101,12 +100,12 @@ Vision-language model \sep Chest radiography \sep Interpretability \sep Activati
 
 \maketitle
 
-\input{sections/1_introduction}
-\input{sections/2_methods}
-\input{sections/3_results}
-\input{sections/4_discussion}
-\input{sections/5_conclusions}
-\input{sections/6_declarations}
+\input{journal/sections/1_introduction}
+\input{journal/sections/2_methods}
+\input{journal/sections/3_results}
+\input{journal/sections/4_discussion}
+\input{journal/sections/5_conclusions}
+\input{journal/sections/6_declarations}
 
 \begingroup
 \raggedright
