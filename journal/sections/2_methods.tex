@@ -11,7 +11,7 @@ Read--Answer--Write (RAW) starts with a probe, a simple classifier that reads a 
 
 We used frontal radiographs from NIH ChestX-ray14 and CheXpert Plus. Both datasets label findings from radiology reports.\cite{wang2017chestxray,chambon2024chexpertplus,irvin2019chexpert} We selected frequent findings with enough positive cases. Both datasets included effusion, atelectasis, pneumothorax, and cardiomegaly. We also included mass and nodule on NIH and consolidation and edema on CheXpert Plus. The natural-image control used COCO labels for person, dog, car, chair, bottle, and bicycle.\cite{lin2014coco} We excluded uncertain or blank labels when fitting probes or scoring agreement with labels. We included those images when measuring how edits changed the model's answers.
 
-All models used the same image lists for training, calibration, and testing. We fitted probes on the training list. We graded reading and answering on the calibration list and measured edits on the test list. The lists shared no patients or COCO images. NIH training used \cfCohortNihTrainRows{} studies from \cfCohortNihTrainUnits{} patients. Of these, \cfCohortNihTrainMulti{} contributed multiple studies, with up to \cfCohortNihTrainMax{} from one patient. All other lists used one image per patient or COCO image. CheXpert Plus and COCO each supplied \cfCohortChexTrainRows{} training images. Each dataset supplied \cfCohortNihCalibrationRows{} calibration and \cfCohortNihTestRows{} test images. Separate cohorts supplied the NIH replication images and \cfValidRows{} CheXpert films with radiologist consensus labels.\cite{irvin2019chexpert}
+All models used the same image lists for training, calibration, and testing. We fitted probes on the training list. We graded reading and answering on the calibration list and measured edits on the test list. The lists shared no patients or COCO images. NIH training used \cfCohortNihTrainRows{} studies from \cfCohortNihTrainUnits{} patients. Of these, \cfCohortNihTrainMulti{} contributed multiple studies, with up to \cfCohortNihTrainMax{} from one patient. All other lists used one image per patient or COCO image. CheXpert Plus and COCO each supplied \cfCohortChexTrainRows{} training images. Each dataset supplied \cfCohortNihCalibrationRows{} calibration and \cfCohortNihTestRows{} test images. A separate cohort supplied the NIH replication images.
 
 We selected smaller COCO objects to test the role of question difficulty. An eligible category needed at least as many positive training examples as the smallest original category. They needed at least \jnMinClassSupport{} positives in each of the calibration and test cohorts. Their mean relative area had to be below the original categories' median. We took the \jnCoreConceptCount{} categories with the most calibration positives, breaking ties by smaller area and then category identifier.
 
@@ -149,16 +149,16 @@ Owned and specific & Steering reference met, $O_q>0$ and $C_d>0$ \\
 
 To grade readability or answerability, we required at least \jnMinClassSupport{} known positives and \jnMinClassSupport{} known negatives in the calibration group. Readability also required a valid AUROC for the finding probe and at least \jnMinValidControls{} valid control AUROCs. Table~\ref{tab:grades} gives the criteria. To assess sensitivity to the choice of competitors, we repeated the comparison for every subset of a given size and averaged the owned counts.
 
-We compared alternative directions and tested edits concentrated on high-scoring tokens. We regraded changes on the answer-margin scale, using $O_q^m$ for its row margin. We repeated grading on images with a clean yes score between \jnSaturationLow{} and \jnSaturationHigh{}, and grouped results by clean answer and label. We checked the grades against radiologist consensus and applied directions fitted to those labels to the main test cohort. For comparison, we fitted directions to report labels from the same films, size-matched training subsets, and the full training set.
+We compared alternative directions and tested edits concentrated on high-scoring tokens. We regraded changes on the answer-margin scale, using $O_q^m$ for its row margin. We repeated grading on images with a clean yes score between \jnSaturationLow{} and \jnSaturationHigh{}, and grouped results by clean answer and label.
 
 \label{app:cf-difficulty}
 We graded the smaller COCO objects on the same checkpoints and images as the original objects. We pooled both COCO sets and grouped cells by clean-answer AUROC at \cfStratEdges{}. We also compared cells at minimum AUROCs of \jnCsAurocLower{} and \jnCsAurocHigher{}, where the domains overlapped more. A logistic model predicted ownership from image domain, AUROC, and probe selectivity. For each cell we predicted ownership under both domains at its observed AUROC and selectivity. We averaged the differences between those predictions. For the adjusted results and highest AUROC group, we estimated standard deviations from \jnBootstrapResamples{} resamples of whole checkpoints with replacement.
 
 We also graded directions for projection (anteroposterior or portable versus posteroanterior), recorded sex, and age at least \jnAttributeAgeCutoff{} years. The attributes and findings competed in \cfAttrRefBlocks{} blocks under the same controls. Calibration tried \cfAttrqPhrasings{} wordings per attribute. We compared all cells, answerable cells, and cells matched within \cfAttrPairWindow{} clean-answer AUROC in the same block.
 
-To test the reader's role, we paired the Gemma~3 4B and MedGemma 4B towers with both readers. Directions stayed with the towers. We also gave readers from shared-tower checkpoints the same stored features and edits (Section~\ref{app:cf-crossed-reader}).
+To test the reader's role, we paired the Gemma~3 4B and MedGemma 4B towers with both readers. Directions stayed with the towers (Section~\ref{app:cf-crossed-reader}).
 
-We fitted an \emph{answer direction} to unedited answers. We compared its alignment and agreement with labels against the label direction. We also tested negated questions and choices between the finding and its strongest competitor, in both orders. A further test scored the finding word in a report continuation (Section~\ref{sec:scoring-implementation}).
+We fitted an \emph{answer direction} to unedited answers. We compared its alignment and agreement with labels against the label direction (Section~\ref{sec:scoring-implementation}).
 
 \subsection{Registration and reproducibility}
 \label{app:repro}
@@ -275,7 +275,7 @@ We used \cfCohortNihPreflightRows{} images at both sites. Checks covered repeata
 
 The \cfCoveragePlannedWord{} planned components were the core write matrix and calibration, additional prompts, the strength sweep, probe refits, and writes and calibration at the connector output. All \cfBlocks{} blocks completed the core matrix and calibration. Of these, \cfCoverageBlocksAllSeven{} completed all components. The Qwen2.5-VL-72B CheXpert Plus block lacked the extra prompts and connector tests. A successful probe with an ineligible or incomplete matrix contributed only readability. Scorecards retain the range over $\jnStrengthSweepBounds$, refit standard deviations, connector-output grades, and prompt comparisons. The study used about \jnEvaluationComputeHours{} A100 GPU-hours. A chest block from a model with seven billion parameters took about \jnChestBlockHours{} hours.
 
-\subsubsection{Reader swaps and feature replay}
+\subsubsection{Reader swaps}
 \label{app:cf-crossed-reader}
 
 In the crossed experiment, the swapped tower matched \cfSwapTensors{} donor weight arrays exactly. The \cfSwapOutside{} arrays outside the tower were unchanged. All combinations used the same \cfSwapRows{} test images, primary strength and prompt, and the controls for the installed tower. Let $Y_q(g/h)$ be the measurement for question $q$ with tower $g$ and reader $h$. The model identifiers $\mathrm G$ and $\mathrm M$ denote Gemma~3 and MedGemma.
@@ -288,9 +288,9 @@ In the crossed experiment, the swapped tower matched \cfSwapTensors{} donor weig
 \end{aligned}
 \label{eq:crossover}
 \end{equation}
-The two effects average absolute changes after replacing either the reader or the tower. Measurements were the own write $W_{q,q}$, the row margin $O_q$, and the margin over the largest competing, random-cutoff, or absolute sham effect, denoted by $M_q$. For the replay, we stored the selected tokens from one checkpoint and used them in place of both checkpoints' own features. We first measured how much the stored and original tokens differed. Replaying a checkpoint's own tokens checked the substitution path.
+The two effects average absolute changes after replacing either the reader or the tower. Measurements were the own write $W_{q,q}$, the row margin $O_q$, and the margin over the largest competing, random-cutoff, or absolute sham effect, denoted by $M_q$.
 
-\subsubsection{Answer scores, answer directions, and other response formats}
+\subsubsection{Answer scores and answer directions}
 \label{sec:scoring-implementation}
 
 For each answer we used the highest log probability among its valid single-token forms, including case and leading spaces. Let $\ell_{\mathrm{yes}}$ and $\ell_{\mathrm{no}}$ be those log probabilities. We calculated the yes score as $P(\mathrm{yes})=\sigma(\ell_{\mathrm{yes}}-\ell_{\mathrm{no}})$, where $\sigma$ is the logistic function.
@@ -315,10 +315,3 @@ The cosine measures how closely two directions align. We also measured a version
 \label{eq:whitened-cos}
 \end{equation}
 
-The negated question should move in the opposite direction to the original. For the report continuation we scored the log probability of the finding word. Each format used its own clean score, sham, and \cfSemLedgerRandom{} random directions. The signed effect $E_q$ met the reference if it exceeded zero, the largest random effect $E_k^{\mathrm{rand}}$, and the absolute sham effect.
-\begin{equation}
-E_q>\max\bigl(0,\;\max_k E_k^{\mathrm{rand}},\;
-                   \lvert E_q^{\mathrm{sham}}\rvert\bigr).
-\label{eq:endpoint-reference}
-\end{equation}
-Ownership also required a larger effect than the labeled competitors on the same question.
