@@ -1,0 +1,129 @@
+%% Meta-Radiology submission (KeAi / Elsevier), Elsevier CAS double-column class (els-cas-templates v2.4).
+%% Build from this directory:  TEXINPUTS=.:..//: BIBINPUTS=..: latexmk -pdf main.tex
+\PassOptionsToPackage{table}{xcolor}
+\PassOptionsToPackage{hyperfootnotes=false}{hyperref}
+\documentclass[a4paper,fleqn]{cas-dc}
+
+% Numbered references in order of appearance, cited by superscript numerals (journal style, AMA-like list).
+\usepackage[numbers,super,sort&compress]{natbib}
+\setcitestyle{super}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage[export]{adjustbox}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{placeins}
+\usepackage{stfloats}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{url}
+
+\graphicspath{{../}}
+\input{math_commands}
+\input{tables/cf_colors}
+\input{tables/cf_numbers}
+\input{journal_numbers}
+
+
+% Keep the stock CAS template and omit the ORCID footnote when no IDs are supplied.
+\ExplSyntaxOn
+\cs_new_eq:NN \journal_print_orcid: \printorcid
+\RenewDocumentCommand \printorcid { }
+  { \seq_if_empty:NF \g_stm_orcid_seq { \journal_print_orcid: } }
+\ExplSyntaxOff
+
+\emergencystretch=1em
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.75}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.80}
+\renewcommand{\dbltopfraction}{0.92}
+\renewcommand{\dblfloatpagefraction}{0.85}
+\setcounter{topnumber}{3}
+\setcounter{dbltopnumber}{2}
+\setcounter{totalnumber}{4}
+
+\begin{document}
+\let\WriteBookmarks\relax
+\def\floatpagepagefraction{1}
+\def\textpagefraction{.001}
+
+\shorttitle{Concept-level control in medical vision-language models}
+\shortauthors{H. Jiang et al.}
+
+\title [mode = title]{Rethinking Concept-Level Control in Medical Vision-Language Models}
+
+\author[1,2]{Hanqi Jiang}
+\fnmark[1]
+\author[1]{Weihang You}
+\fnmark[1]
+\author[1]{Qingchan Zhu}
+\author[1]{Junhao Chen}
+\author[1]{Yi Pan}
+\author[4]{Tiance Wang}
+\author[1]{Zhengliang Liu}
+\author[1]{Geng Yuan}
+\author[3]{Wei Liu}
+\author[2]{Lei Xing}
+\cormark[1]
+
+\affiliation[1]{organization={School of Computing, University of Georgia},
+            city={Athens}, state={GA}, country={USA}}
+\affiliation[2]{organization={School of Medicine, Stanford University},
+            city={Stanford}, state={CA}, country={USA}}
+\affiliation[3]{organization={Department of Radiation Oncology, Mayo Clinic},
+            country={USA}}
+\affiliation[4]{organization={School of Computing and Data Science, The University of Hong Kong},
+            city={Hong Kong}, country={China}}
+
+\cortext[1]{Corresponding author. Email \textcolor{red}{[corresponding author email]}.}
+\fntext[1]{These authors contributed equally.}
+
+\begin{abstract}
+\textbf{Background:} A linear probe can recover a chest finding from a vision-language model's image features. Testing whether its learned direction selectively changes the intended answer requires comparisons across findings.
+
+\textbf{Methods:} We evaluated \cfCheckpoints{} model checkpoints on NIH ChestX-ray14 and CheXpert Plus, with COCO photographs as a control. Read--Answer--Write (RAW) grades whether a finding can be decoded from image features and whether the model answers questions about it above chance. RAW then tests whether the finding's own direction raises its answer more than competing directions do (ownership) and whether it affects that answer more than any other answer (specificity).
+
+\textbf{Results:} Chest findings were readable in \cfChestReadablePct{}\% of checkpoint--finding pairs and answerable in \cfChestAnswerablePct{}\%. Ownership was \cfChestOwnedPct{}\% on chest radiographs versus \cfCocoOwnedPct{}\% on COCO. Both criteria were met in \jnTwoWayChest{} of \cfChestCellsN{} chest pairs (\jnTwoWayChestPct{}\%) and \jnTwoWayCoco{} of \cfCocoCells{} COCO pairs (\jnTwoWayCocoPct{}\%). The labeled comparisons halved the number of chest pairs that passed random and shuffled controls alone. Ownership remained less common on radiographs at comparable answer difficulty. Checkpoints sharing a vision tower differed in ownership.
+
+\textbf{Conclusions:} On chest radiographs, a finding that a model encodes and answers is rarely controlled selectively by its probe direction. Steering-based audits of medical vision-language models should compare each direction with labeled competitors and report its effects on the other answers.
+\end{abstract}
+
+\begin{keywords}
+Vision-language model \sep Chest radiography \sep Interpretability \sep Activation steering \sep Linear probing
+\end{keywords}
+
+\maketitle
+
+\input{sections/1_introduction}
+\input{sections/2_methods}
+\input{sections/3_results}
+\input{sections/4_discussion}
+\input{sections/5_conclusions}
+\input{sections/6_declarations}
+
+\begingroup
+\raggedright
+\bibliographystyle{vancouver}
+\bibliography{refs}
+\endgroup
+
+\clearpage
+\appendix
+% Elsevier numbering for appendices: Fig. A.1, Table A.1, Eq. (A.1), restarting in each appendix.
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\counterwithin{equation}{section}
+\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+\renewcommand{\thetable}{\thesection.\arabic{table}}
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\input{sections/app_campaign}
+\input{sections/app_seed_results}
+\input{sections/app_prompts}
+\input{sections/app_repro}
+\end{document}

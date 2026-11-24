@@ -1,0 +1,92 @@
+\section{Results}
+\label{sec:results}
+
+\input{tables/table_cf_main}
+
+\begin{figure*}[pos=t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig2_overview.pdf}
+    \caption{\textbf{Ownership margins by dataset and steering strength.} (a) Distribution of the row margin $O_q$ across checkpoint--concept pairs. (b) Median and interquartile range of $O_q$ by steering strength. The dotted line marks the primary strength.}
+    \label{fig:overview}
+\end{figure*}
+
+\subsection{Decoding, answering, and control}
+\label{sec:headline}
+
+On the two chest datasets, \cfChestReadablePct{}\% of the \cfChestCellsN{} cells were readable and \cfChestAnswerablePct{}\% were answerable. Ownership was less common, at \cfChestOwnedPct{}\% on radiographs and \cfCocoOwnedPct{}\% on COCO (Table~\ref{tab:cf-main}, Fig.~\ref{fig:teaser}). Among the \cfReadAns{} chest cells that passed both reading and answering, only \cfReadAnsOwned{} were owned (\cfReadAnsOwnedPct{}\%). Across steering strengths, the median NIH ownership margin remained negative, while COCO had a positive median at the primary strength (Fig.~\ref{fig:overview}).
+
+\subsection{What the competitor comparison adds}
+\label{sec:deficit}
+
+\begin{table}[pos=t]
+\centering
+\caption{\textbf{Ownership and direction specificity.} Counts of checkpoint--concept pairs. Each of the last three columns requires the steering reference to be met.}
+\label{tab:specificity}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Dataset & \shortstack{Reference\\met} & \shortstack{Owned\\(row)} &
+\shortstack{Specific\\(column)} & \shortstack{Owned and\\specific} \\
+\midrule
+NIH & \jnRefNih & \jnOwnedNih & \jnColSpecNih & \jnTwoWayNih \\
+CheXpert Plus & \jnRefChex & \jnOwnedChex & \jnColSpecChex & \jnTwoWayChex \\
+Chest total & \jnRefChest & \jnOwnedChest & \jnColSpecChest & \jnTwoWayChest \\
+COCO & \jnRefCoco & \jnOwnedCoco & \jnColSpecCoco & \jnTwoWayCoco \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+On chest radiographs, \cfChestRefBelow{} of \cfChestCellsN{} label directions failed the random and sham reference. The median own effect was \cfMedianWqqNih{} on NIH and \cfMedianWqqChex{} on CheXpert Plus, compared with \cfMedianWqqCoco{} on COCO (Table~\ref{tab:cf-controls}). Across checkpoints, the intended question received \cfOwnShareNih{}\% of the total positive change on NIH and \cfOwnShareChex{}\% on CheXpert Plus, compared with \cfOwnShareCoco{}\% on COCO (Appendix~\ref{app:cf-figures}). The write matrices show that some directions raise several chest answers by similar amounts, while COCO effects tend to concentrate on the intended question (Fig.~\ref{fig:write-matrices}).
+
+The reference alone would certify \jnRefChest{} of \cfChestCellsN{} chest directions. Requiring each direction to win on its own question excluded \jnRefLostChest{}. Requiring it also to affect its own answer more than every other answer excluded \jnOwnedNotColChest{} of the \cfChestOwned{} remaining directions. Thus \jnRefNotTwoWayChest{} of the \jnRefChest{} chest directions that passed the reference (\jnRefNotTwoWayChestPct{}\%) failed at least one of the two concept comparisons. On COCO, every direction that met the reference also passed the row comparison, and \jnOwnedNotColCoco{} of \jnRefCoco{} (\jnRefNotTwoWayCocoPct{}\%) failed the column comparison. Overall, \jnTwoWayChest{} of \cfChestCellsN{} chest cells (\jnTwoWayChestPct{}\%) were owned and specific, comprising \jnTwoWayNih{} of \cfNihCells{} on NIH and \jnTwoWayChex{} of \cfChexCells{} on CheXpert Plus. On COCO, \jnTwoWayCoco{} of \cfCocoCells{} (\jnTwoWayCocoPct{}\%) passed both comparisons (Table~\ref{tab:specificity}).
+
+Among directions that met the steering reference, the sum of absolute changes across the other five answers was a median of \jnOffTargetChest{} times the own effect on chest radiographs and \jnOffTargetCoco{} times on COCO. Across all directions, median column selectivity was \jnKappaMedChest{} on chest radiographs and \jnKappaMedCoco{} on COCO (Eq.~\ref{eq:column-selectivity}).
+
+\begin{figure*}[pos=t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig3_example.pdf}
+    \caption{\textbf{Answer changes on a radiograph and a photograph.} Qwen2.5-VL-7B's probability of answering yes to each question is shown before editing and after adding the target or strongest competing direction. Shading marks the target question. The dashed line marks equal support for yes and no.}
+    \label{fig:example}
+\end{figure*}
+
+\label{sec:seed}
+The effusion answer again moved more under the nodule write in an independent NIH test cohort ($O_{\mathrm{Effusion}}=\cfSeedEffO$; Table~\ref{tab:cf-seed}). Across chest blocks, \cfEffusionOwnedBlocks{} of \cfChestBlocks{} effusion answers were owned. On the radiograph in Fig.~\ref{fig:example}, the probability of a yes answer for effusion rose from \cfExChestClean{} to \cfExChestOwn{} with the effusion direction and to \cfExChestComp{} with the nodule direction. On the photograph, the dog direction raised the dog answer from \cfExCocoClean{} to \cfExCocoOwn{}, with negligible change in the other answers.
+
+\subsection{Sensitivity to competitors and direction construction}
+\label{sec:controls}
+\label{sec:robust-geometry}
+
+Averaging across all possible choices of one, two, three, and four competitors gave \jnSubOneChest{}, \jnSubTwoChest{}, \jnSubThreeChest{}, and \jnSubFourChest{} owned chest cells, respectively, compared with \cfChestOwned{} using all five. The COCO count stayed at \cfCocoOwned{} for every subset size. Even one randomly chosen competitor left a wide gap between the domains. The strongest competitor matched the most similar direction at about the chance rate, as it did the most frequently co-occurring label (Table~\ref{tab:cf-geometry}). Adding the other eligible labels to the chest competitor set retained \cfExtcompRetained{} of \cfExtcompOwned{} originally owned cells in the blocks tested.
+
+In owned cells, ranks ranged from \jnOwnedRankMin{} to \jnOwnedRankMax{} when the label write was compared with its \jnRandomDirections{} random reference writes (Fig.~\ref{fig:rank}). Alternative directions fitted from class means, from the feature pattern associated with the probe, or after removing information shared with other concepts yielded ownership rates of \cfAltdirChestPctMin{}--\cfAltdirChestPctMax{}\% on the chest datasets and \cfAltdirCocoPctMin{}--\cfAltdirCocoPctMax{}\% on COCO (Table~\ref{tab:cf-altdir}). The ownership grade agreed with the original evaluation in \cfValidOwnedAgree{} of \cfValidCells{} cells when evaluated on a separate set of \cfValidRows{} CheXpert films with radiologist consensus labels. Refit directions trained on those labels were owned in \cfValidfitOwnedExpert{} of \cfValidfitCells{} cells, compared with \cfValidfitOwnedReport{} for directions trained on report labels. Repeating the probe fit preserved ownership on both refits in \cfRefitGradeStableNih{} of \cfRefitGradeOwnedNih{} owned NIH cells and \cfRefitGradeStableCoco{} of \cfRefitGradeOwnedCoco{} owned COCO cells (Table~\ref{tab:cf-refit}).
+
+\subsection{Ownership at comparable answer difficulty}
+\label{sec:coco}
+
+Across checkpoints tested with both sets of COCO categories, the fine-grained objects had a lower median clean-answer AUROC than the common objects (\cfFgFineAuroc{} versus \cfFgEasySameAuroc{}). Fine-grained objects were owned in \cfFgFineOwned{} of \cfFgFineCells{} cells, compared with \cfFgEasySameOwned{} of \cfFgEasySameCells{} for common objects (Appendix~\ref{app:cf-difficulty}). In the highest AUROC stratum (AUROC $\geq\cfStratTopEdge$), \cfStratChestTopOwned{} of \cfStratChestTopN{} chest cells were owned, compared with \cfStratNatTopOwned{} of \cfStratNatTopN{} natural-image cells. The chest-minus-natural difference was \jnTopDiff{} (bootstrap standard deviation \jnTopDiffSd{}). Most chest cells in that stratum came from CheXpert Plus.
+
+The lower common-support cutoff included \jnCsEightyChestN{} chest cells, of which \jnCsEightyChestOwned{} (\jnCsEightyChestPct{}\%) were owned, and \jnCsEightyNatN{} natural-image cells, of which \jnCsEightyNatOwned{} (\jnCsEightyNatPct{}\%) were owned. NIH contributed \jnCsEightyNihN{} of the chest cells and \jnCsEightyNihOwned{} owned cells. After adjustment for clean-answer AUROC and probe selectivity, the chest-minus-natural difference in ownership probability was \jnCsEightyAdj{} (bootstrap standard deviation \jnCsEightyAdjSd{}). At the higher cutoff, the adjusted difference was \jnCsEightyFiveAdj{} (bootstrap standard deviation \jnCsEightyFiveAdjSd{}).
+
+\subsection{Non-clinical attributes of the same radiographs}
+\label{sec:attributes}
+
+The probes distinguished projection, recorded sex, and age at least as well as clinical findings on the same radiographs. Median probe AUROC was \cfAttrAurocMin{}--\cfAttrAurocMax{} for the attributes and \cfAttrClinAuroc{} for findings (Appendix~\ref{app:cf-attributes}). With both types of direction included in the comparison, \cfAttrAllAttrOwned{} of \cfAttrAllAttrN{} attribute cells were owned, as were \cfAttrAllClinOwned{} of \cfAttrAllClinN{} finding cells. In the highest clean-answer AUROC stratum of this comparison, \cfStratAttrTopOwned{} of \cfStratAttrTopN{} attribute cells and \cfStratFindTopOwned{} of \cfStratFindTopN{} finding cells were owned.
+
+\subsection{Effects of the components downstream of the vision tower}
+\label{sec:reader}
+
+Checkpoints that shared a vision tower and used the same directions differed in which answers those directions controlled (Fig.~\ref{fig:readers}). Ownership margins differed by more than the typical variation across probe refits in \cfPairsRatioAboveOne{} of \cfPairsRatioN{} shared-tower comparisons (Table~\ref{tab:cf-pairs}). The differences persisted when both readers received identical image features.
+
+The crossed Gemma and MedGemma experiment exchanged the reader or the tower while holding the other component fixed. On NIH, the mean absolute change in $O_q$ was \cfSwapReaderNihOMin{} for a reader swap and \cfSwapTowerNihOMin{} for a tower swap. For $W_{q,q}$, the corresponding changes were \cfSwapReaderNihMin{} and \cfSwapTowerNihMin{}. On COCO, the tower swap had the larger effect on $O_q$ (\cfSwapTowerCocoOMin{} versus \cfSwapReaderCocoOMin{}). Across the \cfSwapCombos{} tower--reader combinations, \cfSwapChestOwned{} of \cfSwapChestCells{} chest cells were owned, compared with \cfSwapCocoOwned{} of \cfSwapCocoCells{} COCO cells (Appendix~\ref{app:cf-crossed-reader}).
+
+When the write was applied after the connector, the median ownership margin remained negative on NIH and CheXpert Plus and positive on COCO (Table~\ref{tab:cf-controls}). At that site the edit bypassed the connector, and the language model alone reproduced the sign pattern. Models with chest-trained towers had a higher median NIH probe AUROC than the other checkpoints (\cfSpecTowerProbeAuroc{} versus \cfSpecRestProbeAuroc{}) and owned \cfSpecTowerOwned{} of \cfSpecTowerN{} chest cells. The effect of model size varied across families and findings (Fig.~\ref{fig:ladders}).
+
+\subsection{Control of the model's answer}
+\label{sec:ansdir}
+
+The answer direction was owned in \cfAnsChestOwnedA{} of \cfAnsChestN{} chest cells, compared with \cfAnsChestOwnedLabel{} for the label direction (Table~\ref{tab:cf-ansdir}). Higher ownership was expected because we fitted this direction to the model's answers. The two directions were nearly perpendicular on chest radiographs, with a median cosine of \cfAnsCosChestMed{}, and aligned more closely on COCO, with a median cosine of \cfAnsCosCocoMed{}.
+
+On chest radiographs, the answer direction gave a median AUROC of \cfValAurocAnsCleanChest{} against the model's clean answers and \cfValAurocAnsChest{} against the report labels. The label direction gave \cfValAurocProbeCleanChest{} and \cfValAurocProbeChest{}, respectively (Table~\ref{tab:cf-validation}). The answer direction changes the model's output along a signal with weaker agreement with the report labels. Its effect on output is evidence of answer control, and clinical interpretation would require agreement with independently established findings. The ownership advantage also appeared across the tests of negated questions, forced choices, and report continuations (\cfSemAnswerOwned{} of \cfSemCells{} cells for answer directions versus \cfSemLabelOwned{} for label directions; Table~\ref{tab:cf-semend}).
+
+\FloatBarrier

@@ -1,0 +1,120 @@
+\section{Materials and methods}
+\label{sec:framework}
+
+\subsection{Datasets and models}
+\label{sec:setup}
+
+We used frontal radiographs from NIH ChestX-ray14 and CheXpert Plus. The finding labels were derived from radiology reports.\cite{wang2017chestxray,chambon2024chexpertplus,irvin2019chexpert} We selected six frequent findings per dataset to provide enough positive examples. Both datasets included effusion, atelectasis, pneumothorax, and cardiomegaly. NIH also included mass and nodule, and CheXpert Plus included consolidation and edema. The natural-image control used six common COCO categories with object annotations (Appendix~\ref{app:cf-labels}).
+
+We fitted directions on \cfCohortNihTrainRows{} NIH training rows and \cfCohortChexTrainRows{} training rows each for CheXpert Plus and COCO. Each dataset supplied \cfCohortNihCalibrationRows{} calibration rows for grading unedited predictions and \cfCohortNihTestRows{} test rows for measuring the effects of edits. The cohorts were shared across checkpoints and disjoint by patient for radiographs and by image for COCO (Appendix~\ref{app:repro-cohorts}). We excluded uncertain or missing labels from probe fitting and label-based scoring and included those images when measuring changes in answers.
+
+We studied \cfCheckpoints{} instruction-tuned checkpoints from \cfFamiliesWord{} general-purpose and medical model families, including models with image encoders trained on chest radiographs (Table~\ref{tab:cf-models}). A checkpoint--dataset pair is a block, and a checkpoint--concept pair on a given dataset is a cell. We scored about \jnScoredAnswersMillions{} million answers across \cfBlocks{} blocks and \cfCells{} cells. Appendix~\ref{app:cf-gates} describes the checks for eligible answers, reproducible scores, and correct application of each edit.
+\label{sec:gates}
+
+\subsection{Reading and writing the visual representation}
+\label{sec:site}
+
+\begin{figure*}[pos=t]
+    \centering
+    \includegraphics[width=\linewidth]{figures/fig1_framework.pdf}
+    \caption{\textbf{Reading and writing at the selected vision layer.} (a) The probe reads the same visual tokens that receive the write. Hatching marks token positions the connector does not use. (b) The ownership rule compares three references. On NIH ChestX-ray14, the nodule write raises Qwen2.5-VL-7B's effusion answer more than the effusion write does.}
+    \label{fig:framework}
+\end{figure*}
+
+The vision tower is the image encoder that represents an image as a set of feature vectors called visual tokens. The connector maps these tokens into inputs for the language model. We selected the last vision layer that feeds the connector and used the token positions it receives so that reading and writing act on the same visual information passed to the language model. We call the connector and language model together the reader. We also evaluated edits at the connector output, where the language model reads the edited features directly (Appendix~\ref{app:repro-sites}).
+
+A write is the addition of a direction to the visual features. For image $i$ and token $t$, let $\hvec_{it}$ be the unedited feature vector and $\hat\wvec_c$ the unit vector fitted for concept $c$. We write
+\begin{equation}
+\hvec'_{it}=\hvec_{it}+\alpha\lVert\hvec_{it}\rVert_2\,\hat\wvec_c.
+\label{eq:intervention}
+\end{equation}
+The steering strength $\alpha$ sets the size and sign of the edit. Scaling by each token's vector length makes the edit comparable across models with different feature scales. The primary steering strength was one quarter of the token length, in the direction that increases the probe score. We also tested other strengths.
+
+\subsection{Label directions and decoding}
+\label{sec:directions}
+
+For each concept, we averaged the selected visual tokens and projected the resulting vector with a fixed matrix $R$. We standardized the projected features using training data and fitted a regularized logistic regression probe to the concept labels. If $\boldsymbol\beta_c$ contains the fitted coefficients and $\boldsymbol s$ the training feature scales, the probe direction in the original visual feature space is
+\begin{equation}
+\begin{aligned}
+\hat\wvec_c &= \boldsymbol g_c/\lVert\boldsymbol g_c\rVert_2,\\
+\boldsymbol g_c &= R\,\mathrm{diag}(\boldsymbol s)^{-1}\boldsymbol\beta_c.
+\end{aligned}
+\label{eq:lift}
+\end{equation}
+We call this vector the label direction. It points along the change in the visual features that most increases the probe score. Appendix~\ref{app:repro-probe} specifies the projection and probe settings.
+
+We measured discrimination with the area under the receiver operating characteristic curve (AUROC), which measures how often a higher score is assigned to a positive example than to a negative one, with ties receiving half credit. Control probes were fitted in the same way to randomly assigned labels shared by images of the same type. Image types were defined by projection, sex, and age decade for radiographs, and by aspect ratio and image area for COCO. Probe selectivity $S$ is the difference between the concept probe's calibration AUROC and the mean AUROC among the $K$ control probes with valid scores.
+\begin{equation}
+S=\operatorname{AUROC}(y,r)-
+\frac{1}{K}\sum_{k=1}^{K}\operatorname{AUROC}(y_k^{\mathrm{ctrl}},r_k^{\mathrm{ctrl}}).
+\label{eq:selectivity}
+\end{equation}
+Here $y$ and $r$ denote the labels and probe scores, respectively. The superscript $\mathrm{ctrl}$ indicates the corresponding quantities for a control probe. The control procedure is detailed in Appendix~\ref{app:repro-controls}.
+
+\subsection{Ownership and direction specificity}
+\label{sec:ownership}
+
+We asked a yes/no question about each concept to obtain a single score at the first answer position. We calculated $P(\mathrm{yes})=\sigma(\ell_{\mathrm{yes}}-\ell_{\mathrm{no}})$, where $\sigma$ is the logistic function and $\ell_{\mathrm{yes}}$ and $\ell_{\mathrm{no}}$ are the log probabilities of the respective answers. The score without an edit is the clean answer. We also tested alternative wordings and equivalent letter-coded answers. If the yes/no format failed the eligibility check, we graded an eligible letter-coded format (Appendix~\ref{app:protocol}).
+
+For question $q$ and direction $d$, the write matrix entry $W_{q,d}$ is the mean difference in $P(\mathrm{yes})$ between edited and clean answers on the same test images. Its diagonal, $W_{q,q}$, measures the own write, the effect of adding the label direction on its corresponding question. The steering reference requires a positive own write that exceeds the ninety-fifth percentile of the effects of \jnRandomDirections{} random unit directions and the absolute effect of the sham. We wrote the random directions and the coordinate-shuffled label direction at the same strength and on the same images as the concept writes (Appendix~\ref{app:repro-controls}).
+
+Ownership asks which direction most increases the answer to a given question. Its row margin is
+\begin{equation}
+O_q=W_{q,q}-\max_{d\ne q}W_{q,d}.
+\label{eq:margin}
+\end{equation}
+A cell is owned if it meets the steering reference and $O_q>0$. Direction specificity asks which answer a given direction changes most. Its column margin is
+\begin{equation}
+C_d=W_{d,d}-\max_{q\ne d}\lvert W_{q,d}\rvert.
+\label{eq:column-margin}
+\end{equation}
+A cell is specific if it meets the steering reference and $C_d>0$. It is owned and specific if it passes both criteria. A large decrease in another answer counts against specificity. To summarize the total off-target movement, we divided the sum of absolute changes in the other answers by the own effect among directions that met the steering reference. We also summarized column selectivity $\kappa_d$, the signed own effect divided by the sum of absolute changes across all questions (Appendix~\ref{app:cf-ansdir}).
+
+\begin{table}[pos=t]
+\centering
+\caption{\textbf{Key terms.} Plain-language definitions for the RAW evaluation.}
+\label{tab:key-terms}
+\small
+\begin{tabular}{@{}l@{\hspace{0.8em}}p{0.67\columnwidth}@{}}
+\toprule
+Term & Definition \\
+\midrule
+Probe & Classifier fitted to the model's image features. \\
+Direction & Vector that specifies how the features change. \\
+Write & Addition of a direction to the features. \\
+Reader & Connector and language model downstream of the vision tower. \\
+Competitor & Direction fitted for another labeled concept. \\
+Sham & Control made by shuffling the direction's coordinates. \\
+Cell & One checkpoint and one concept on a dataset. \\
+Block & One checkpoint evaluated on one dataset. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Decision rules and comparison analyses}
+\label{sec:grades}
+
+\begin{table}[pos=t]
+\centering
+\caption{\textbf{RAW grades.} Reading and answering are graded on the calibration cohort. The intervention criteria use the test cohort.}
+\label{tab:grades}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}l p{0.62\columnwidth}@{}}
+\toprule
+Grade & Criterion \\
+\midrule
+Readable & Probe selectivity $S>0$ \\
+Answerable & Clean-answer AUROC above chance \\
+Owned & Steering reference met and $O_q>0$ \\
+Specific & Steering reference met and $C_d>0$ \\
+Owned and specific & Steering reference met, $O_q>0$ and $C_d>0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:key-terms} summarizes the terminology and Table~\ref{tab:grades} gives the decision rules. Reading and answering required at least ten known positives and ten known negatives in the calibration cohort. Readability also required at least ten control probes with valid AUROCs. The intervention comparisons use a fixed set of labeled competitors. To assess sensitivity to the choice of competitors, we repeated the ownership grade using every subset of a given size and averaged the owned counts across subsets.
+
+To examine the role of answer difficulty, we added fine-grained COCO objects to the natural-image comparison and stratified ownership by clean-answer AUROC (Appendix~\ref{app:cf-difficulty}). To increase overlap between domains, we ran separate analyses with minimum clean-answer AUROC thresholds of \jnCsAurocLower{} and \jnCsAurocHigher{}. Within each subset a logistic model predicted ownership from image domain, clean-answer AUROC, and probe selectivity. For each cell we computed predicted ownership probabilities under each image domain at the cell's observed AUROC and selectivity, then averaged the chest-minus-natural differences. Standard deviations for the adjusted estimates and the highest-AUROC stratum came from resampling checkpoints with replacement. As a control within radiographs, we fitted directions for projection, recorded sex, and age and graded them jointly with the finding directions (Appendix~\ref{app:cf-attributes}).
+
+For the analysis of output control, we fitted an answer direction to the model's clean answer margin $\ell_{\mathrm{yes}}-\ell_{\mathrm{no}}$ using ridge regression, a linear fit with a penalty on large coefficients. We used the same transformation as in Eq.~\ref{eq:lift} to convert the coefficients into a direction and tested it against the labeled competitors. We compared the directions by cosine, a measure of their alignment, and assessed how well each recovered the model's answers and the report labels on held-out images (Appendix~\ref{app:cf-ansdir}).

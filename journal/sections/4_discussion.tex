@@ -1,0 +1,13 @@
+\section{Discussion}
+\label{sec:implications}
+
+Label directions were both owned and specific in \jnTwoWayChestPct{}\% of checkpoint--concept pairs on chest radiographs and \jnTwoWayCocoPct{}\% on COCO. Half of the chest directions that cleared the random and sham references failed at least one of the labeled comparisons. Ownership was less common on chest radiographs at comparable answer difficulty. Projection, recorded sex, and age showed similarly low ownership despite being easier to decode than findings on the same images.
+
+Ravichander et al.\cite{ravichander2021probing} showed that information recovered by a probe can go unused by the model. Arad et al.\cite{arad2025saes} showed that different internal features can detect a concept and control its output. Haufe et al.\cite{haufe2014interpretation} distinguished classifier weights from the activation patterns associated with the signal they detect. Marks and Tegmark\cite{marks2024geometry} found that a direction based on the difference between class means steered truth judgments more reliably than a probe direction. RAW extends this work by testing specificity against labeled competitors. Across \cfCheckpoints{} checkpoints, most chest directions failed the joint ownership and specificity test, while most COCO directions passed.
+
+Checkpoints given identical visual features and directions differed in ownership, showing that the components downstream of the vision tower affect which findings a direction controls. The language model reproduced the chest and COCO sign pattern when it received the edit after the connector. The answer-fitted directions on radiographs agreed more closely with model answers than with report labels. Clinical interpretation requires checking how an output change relates to the annotated finding.
+
+For radiology AI audits, report the full write matrix. Compare each clinical direction with labeled competitors on the intended answer and measure its effects on the other answers. Apply the same evaluation to a natural-image control to check that it detects selective control where it occurs.
+
+\label{sec:limitations}
+This study used frontal chest radiographs with report-derived labels from NIH ChestX-ray14 and CheXpert Plus, supplemented by a CheXpert consensus-label analysis, and COCO photographs as a control. RAW applies to open-weight VLMs whose activations can be accessed. The grades characterize short answers under the edits and labeled concepts evaluated here.

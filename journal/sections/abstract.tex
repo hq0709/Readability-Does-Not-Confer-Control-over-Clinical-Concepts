@@ -1,0 +1,7 @@
+\textbf{Background:} A linear probe can recover a chest finding from a vision-language model's image features. Testing whether its learned direction selectively changes the intended answer requires comparisons across findings.
+
+\textbf{Methods:} We evaluated \cfCheckpoints{} model checkpoints on NIH ChestX-ray14 and CheXpert Plus, with COCO photographs as a control. Read--Answer--Write (RAW) grades whether a finding can be decoded from image features and whether the model answers questions about it above chance. RAW then tests whether the finding's own direction raises its answer more than competing directions do (ownership) and whether it affects that answer more than any other answer (specificity).
+
+\textbf{Results:} Chest findings were readable in \cfChestReadablePct{}\% of checkpoint--finding pairs and answerable in \cfChestAnswerablePct{}\%. Ownership was \cfChestOwnedPct{}\% on chest radiographs versus \cfCocoOwnedPct{}\% on COCO. Both criteria were met in \jnTwoWayChest{} of \cfChestCellsN{} chest pairs (\jnTwoWayChestPct{}\%) and \jnTwoWayCoco{} of \cfCocoCells{} COCO pairs (\jnTwoWayCocoPct{}\%). The labeled comparisons halved the number of chest pairs that passed random and shuffled controls alone. Ownership remained less common on radiographs at comparable answer difficulty. Checkpoints sharing a vision tower differed in ownership.
+
+\textbf{Conclusions:} Labeled competitor and off-target comparisons identify which directions selectively control the intended answer on chest radiographs.
