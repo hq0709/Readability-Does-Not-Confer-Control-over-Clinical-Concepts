@@ -24,6 +24,9 @@
 \usepackage{url}
 
 \graphicspath{{../}}
+% One type family throughout: tables, captions and headings (sans in the stock CAS layout) use the STIX text
+% face of the body, which is also the face of the figure labels (STIX / Nimbus Roman).
+\renewcommand{\sfdefault}{\rmdefault}
 \input{math_commands}
 \input{tables/cf_colors}
 \input{tables/cf_numbers}

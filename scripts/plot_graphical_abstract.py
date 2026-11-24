@@ -25,7 +25,7 @@ assert macros["cfCocoReadable"] == "118"
 
 W = pd.read_csv(ROOT / "data/plot/figures/figure-05/write-matrices-full.csv")
 CH, NAT, INK, MUTE = "#b5523b", "#8c8c8c", "#2b2b2b", "#6b6b6b"
-plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 13})
+plt.rcParams.update({"font.family": "serif", "font.serif": ["STIXGeneral", "Nimbus Roman", "DejaVu Serif"], "mathtext.fontset": "stix", "font.size": 13})
 
 fig = plt.figure(figsize=(13.28, 5.31), dpi=300)
 fig.patch.set_facecolor("white")
