@@ -91,7 +91,7 @@
 
 \textbf{Results:} Chest findings were readable in \cfChestReadablePct{}\% of checkpoint--finding pairs and answerable in \cfChestAnswerablePct{}\%. Ownership was \cfChestOwnedPct{}\% on chest radiographs versus \cfCocoOwnedPct{}\% on COCO. Both criteria were met in \jnTwoWayChest{} of \cfChestCellsN{} chest pairs (\jnTwoWayChestPct{}\%) and \jnTwoWayCoco{} of \cfCocoCells{} COCO pairs (\jnTwoWayCocoPct{}\%). The labeled comparisons halved the number of chest pairs that passed random and shuffled controls alone. Ownership remained less common on radiographs at comparable answer difficulty. Checkpoints sharing a vision tower differed in ownership.
 
-\textbf{Conclusions:} On chest radiographs, a finding that a model encodes and answers is rarely controlled selectively by its probe direction. Steering-based audits of medical vision-language models should compare each direction with labeled competitors and report its effects on the other answers.
+\textbf{Conclusions:} Medical and medically fine-tuned VLMs encode and answer chest findings, yet their finding-level evidence is unreliable: the direction that names a finding rarely controls its answer. These models should not serve as sources of diagnostic evidence, explanation, or finding-level correction until selective control is demonstrated for each finding.
 \end{abstract}
 
 \begin{keywords}

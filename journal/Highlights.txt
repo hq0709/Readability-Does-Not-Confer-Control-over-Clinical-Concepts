@@ -1,5 +1,5 @@
 Highlights
-- Chest findings are decodable from VLMs yet rarely controlled by their own direction.
+- Medical VLMs give unreliable finding-level evidence on chest radiographs.
 - RAW grades each concept as readable, answerable, and owned against its competitors.
 - In 25 VLMs, 15% of chest finding cells are owned versus 78% of COCO object cells.
 - Requiring the write to spare other answers widens the gap: 9% versus 73%.
